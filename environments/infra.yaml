@@ -1,0 +1,16 @@
+name: azure-infra
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - azureml-core
+      - azureml-sdk
+      - azureml-defaults
+      - azureml-widgets
+      - azureml-tensorboard
+      - azureml-mlflow
+      - azure-ai-ml
+      - azure-identity
