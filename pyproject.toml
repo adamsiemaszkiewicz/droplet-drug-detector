@@ -18,7 +18,7 @@ exclude = '''
 [tool.flake8]
 max-line-length = 120
 exclude = [ ".git", "__pycache__", "build", "dist", "venv", ".venv", ".mypy_cache", ".tox",]
-extend-ignore = [ "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107", "E203", "W503",]
+extend-ignore = [ "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107", "E203", "W503"]
 
 
 [tool.isort]

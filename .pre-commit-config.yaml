@@ -25,7 +25,10 @@ repos:
     hooks:
       - id: flake8
         additional_dependencies: [ flake8-bugbear==22.12.6, flake8-print ]
-        args: ['--max-line-length=120']
+        args:
+          - --max-line-length=120
+          - --extend-ignore=D100,D101,D102,D103,D104,D105,D106,D107,E203,W503
+          - --exclude=.git,__pycache__,build,dist,venv,.venv,.mypy_cache,.tox
         language_version: python3.10
 
   - repo: https://github.com/pre-commit/mirrors-mypy
