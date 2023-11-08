@@ -47,6 +47,15 @@ repos:
         always_run: true
         verbose: true
 
+      - id: safety
+        name: safety
+        entry: safety check
+        language: python
+        additional_dependencies: [ safety ]
+        files: requirements\.txt$|Pipfile$|Pipfile\.lock$|poetry\.lock$|setup\.py$
+        # The above regex ensures safety runs only when dependency files are changed.
+
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
