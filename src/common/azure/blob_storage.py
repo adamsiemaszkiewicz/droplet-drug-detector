@@ -2,7 +2,7 @@
 import os
 import uuid
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 import structlog
 from azure.storage.blob import BlobBlock, BlobClient, BlobProperties, BlobServiceClient, ContainerClient
@@ -14,19 +14,27 @@ logger = structlog.get_logger()
 
 
 class BlobStorageService:
-    """The Azure Blob Storage Service."""
+    """
+    Provides a service interface to interact with Azure Blob Storage, allowing file and directory
+    operations such as upload, download, and deletion within a specified container.
+    """
 
-    def __init__(self, connection_string: Optional[str] = None, container_name: Optional[str] = None) -> None:
+    def __init__(self, connection_string: str, container_name: str) -> None:
         """
-        Initializes new instance of the `BlobStorageService`.
+        Initializes a new instance of BlobStorageService, setting up a connection and creating the
+        specified container if it doesn't exist. Raises an error if both connection_string and
+        container_name are not provided.
 
         Args:
             connection_string (str): The connection string to the Azure Blob Storage account.
             container_name (str): The name of the container to use.
+
+        Raises:
+            ValueError: If connection_string or container_name is not provided.
         """
         self.connection_string = connection_string
         self.container_name = container_name
-        self.create_container_if_not_exists()
+        self.create_container_if_doesnt_exists()
 
         if not connection_string or not container_name:
             raise ValueError("Both connection_string and container_name must be provided.")
@@ -34,10 +42,10 @@ class BlobStorageService:
     @property
     def blob_service_client(self) -> BlobServiceClient:
         """
-        Get the BlobServiceClient for the current settings.
+        Retrieves the BlobServiceClient for interacting with Azure Blob Storage.
 
         Returns:
-            BlobServiceClient: The Azure blob service client.
+            BlobServiceClient: The client object for Azure Blob Service operations.
         """
         return BlobServiceClient.from_connection_string(
             conn_str=self.connection_string,
@@ -47,26 +55,29 @@ class BlobStorageService:
     @property
     def container_client(self) -> ContainerClient:
         """
-        Get the container client for the current settings.
+        Retrieves the ContainerClient for interacting with the specified Azure Blob Storage container.
 
         Returns:
-            ContainerClient: The Azure blob storage container client.
+            ContainerClient: The client object for container-specific operations.
         """
         return self.blob_service_client.get_container_client(self.container_name)
 
     @property
     def all_blobs(self) -> List[BlobProperties]:
         """
-        List all blob names in the container.
+        Retrieves a sorted list of all blob properties in the container.
 
         Returns:
-            List[BlobProperties]: A list of all blobs in the container.
+            List[BlobProperties]: A sorted list containing properties of each blob in the container.
         """
         return sorted(list(self.container_client.list_blobs()))
 
-    def create_container_if_not_exists(self) -> None:
+    def create_container_if_doesnt_exists(self) -> None:
         """
-        Create the container in Azure Blob Storage if it doesn't already exist.
+        Creates the container in Azure Blob Storage if it doesn't already exist and logs the outcome.
+
+        Raises:
+            Exception: If there's an error in creating the container, except for already existing containers.
         """
         try:
             self.container_client.create_container()
@@ -85,13 +96,16 @@ class BlobStorageService:
         chunk_size: int = BLOB_UPLOAD_CHUNK_SIZE,
     ) -> None:
         """
-        Upload a file to Azure Blob Storage using manual block uploads for large files.
+        Uploads a file to Azure Blob Storage, supporting large file uploads through chunking.
 
         Args:
-            input_path (Path): Local path of the file to upload.
-            output_path (str): Remote path on Azure Blob Storage where the file will be uploaded.
-            overwrite (bool): Whether to overwrite existing files.
-            chunk_size (int): Size of each block in bytes.
+            input_path (Path): The local path of the file to upload.
+            output_path (str): The remote path where the file will be stored in the blob container.
+            overwrite (bool): Set to True to overwrite the file if it exists; False to skip upload if the file exists.
+            chunk_size (int, optional): The size of each block to upload, in bytes.
+
+        Raises:
+            Exception: If there's an error during file upload.
         """
         logger.info(f"Uploading {input_path} to {self.container_name}/{output_path}")
 
@@ -129,14 +143,21 @@ class BlobStorageService:
             logger.error(f"An error occurred while uploading {input_path} to {self.container_name}, {output_path}: {e}")
             raise e
 
-    def upload_directory(self, input_dir: Path, output_dir: str, overwrite: bool = False) -> None:
+    def upload_directory(self, input_dir: Path, output_dir: str, overwrite: bool) -> None:
         """
-        Upload contents of a directory to Azure Blob Storage folder.
+        Uploads the contents of a local directory to a specified directory in Azure Blob Storage recursively.
+
+        This method will walk through the local directory's subdirectories and upload all files to the corresponding
+        structure in the remote storage. The 'overwrite' parameter controls whether existing files in the destination
+        are replaced with the ones being uploaded.
 
         Args:
-            input_dir (Path): Local path of the directory containing the content to upload.
-            output_dir (str): Remote path on Azure Blob Storage where the directory contents will be uploaded.
-            overwrite (bool, optional): Whether to overwrite existing files. Defaults to True.
+            input_dir (Path): The local directory to upload from.
+            output_dir (str): The remote destination directory path within the blob container.
+            overwrite (bool): Whether to overwrite existing files at the destination.
+
+        Raises:
+            ValueError: If the input directory path is not a directory.
         """
         logger.info(f"Uploading directory {input_dir} to {self.container_name}, {output_dir}")
 
@@ -162,17 +183,23 @@ class BlobStorageService:
 
         logger.info(f"Successfully uploaded {uploaded_files_count} files.")
 
-    def download_blob(self, blob_path: str, output_path: Path, overwrite: bool = False) -> Path:
+    def download_blob(self, blob_path: str, output_path: Path, overwrite: bool) -> Path:
         """
-        Download a blob from Azure Blob Storage.
+        Downloads a single blob from Azure Blob Storage to a local file path.
+
+        If 'overwrite' is False and the destination file already exists, the download is skipped. Otherwise,
+        the blob is downloaded and saved to the local path provided, potentially overwriting the existing file.
 
         Args:
-            blob_path (str): Remote path of the blob on Azure Blob Storage.
-            output_path (Path): Local path where the blob will be downloaded.
-            overwrite (bool): Whether to overwrite existing files.
+            blob_path (str): The remote blob path to download from.
+            output_path (Path): The local file path to download the blob to.
+            overwrite (bool, optional): Whether to overwrite the local file if it exists. Defaults to False.
 
         Returns:
-            Path: The local path where the blob was downloaded.
+            Path: The local path where the blob was downloaded to.
+
+        Raises:
+            Exception: If there's an error during the download process.
         """
         logger.info(f"Downloading {self.container_name}/{blob_path} to {output_path}")
 
@@ -205,17 +232,24 @@ class BlobStorageService:
 
         return output_path
 
-    def download_directory(self, blob_dir: str, output_dir: Path, overwrite: bool = False) -> List[Path]:
+    def download_directory(self, blob_dir: str, output_dir: Path, overwrite: bool) -> List[Path]:
         """
-        Download a whole directory from Azure Blob Storage.
+        Downloads the contents of a remote directory from Azure Blob Storage to a local directory.
+
+        The directory structure of the remote storage is replicated at the local destination. Files existing at
+        the destination can be optionally overwritten based on the 'overwrite' flag. This method returns a list
+        of paths where files were downloaded.
 
         Args:
-            blob_dir (str): Remote path on Azure Blob Storage of the directory to download.
-            output_dir (Path): Local path where the directory will be downloaded.
-            overwrite (bool): Whether to overwrite existing files.
+            blob_dir (str): The remote directory path to download from.
+            output_dir (Path): The local directory path to download contents to.
+            overwrite (bool, optional): Whether to overwrite existing files with the downloaded ones. Defaults to False.
 
         Returns:
-            list[Path]: A list of local paths where the blobs were downloaded.
+            List[Path]: A list of local paths to which the blobs were downloaded.
+
+        Raises:
+            Exception: If any error occurs during the directory download process.
         """
         logger.info(f"Downloading directory {self.container_name}/{blob_dir} to {output_dir}")
 
@@ -255,10 +289,15 @@ class BlobStorageService:
 
     def delete_blob(self, blob_path: str) -> None:
         """
-        Delete a remote blob from Azure Blob Storage.
+        Deletes a blob from the specified Azure Blob Storage container.
+
+        If the blob does not exist, a log entry is made, but no error is raised.
 
         Args:
-            blob_path (str): Remote path of the blob to delete.
+            blob_path (str): The path of the blob to delete within the blob container.
+
+        Notes:
+            A successful deletion will be logged. Non-existence will also be logged and not treated as an error.
         """
         logger.info(f"Deleting remote blob {self.container_name}/{blob_path}")
         blob_client = self.container_client.get_blob_client(blob_path)
@@ -271,10 +310,17 @@ class BlobStorageService:
 
     def delete_directory(self, blob_dir: str) -> None:
         """
-        Delete a remote directory from Azure Blob Storage.
+        Deletes an entire directory, including all nested blobs, from the specified Azure Blob Storage container.
+
+        This method lists all blobs with the provided directory prefix and attempts to delete them. Failures are
+        logged, and if any occur, a summary log of failed deletions is provided.
 
         Args:
-            blob_dir (str): Remote path of the directory to delete.
+            blob_dir (str): The remote directory path within the blob container from which all contents will be deleted.
+
+        Notes:
+            Deletion operations are logged. The method logs the total number of blobs deleted and reports individual
+            deletions that failed.
         """
         logger.info(f"Deleting remote directory {self.container_name}/{blob_dir}")
 
