@@ -7,7 +7,7 @@ from azure.ai.ml.entities import BuildContext, Environment
 from azureml.core.runconfig import DEFAULT_CPU_IMAGE, DEFAULT_GPU_IMAGE
 
 from src.common.consts.directories import DOCKER_DIR
-from src.common.logger import get_logger
+from src.common.utils.logger import get_logger
 
 _logger = get_logger(__name__)
 

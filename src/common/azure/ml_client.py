@@ -2,7 +2,7 @@
 from azure.ai.ml import MLClient
 from azure.identity import ClientSecretCredential
 
-from src.common.settings import Settings
+from src.common.utils.settings import Settings
 
 
 def get_ml_client(settings: Settings) -> MLClient:
