@@ -45,8 +45,8 @@ def _build_sample_environment(
 
 class EnvironmentBuildingConfig(BaseModel):
     runtime_env: Literal["dev", "prod"]
-    tag: str
     sample: bool
+    tag: Optional[str] = None
 
     def __str__(self) -> str:
         return json.dumps(self.dict(), indent=4)
