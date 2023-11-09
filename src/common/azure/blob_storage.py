@@ -35,7 +35,7 @@ class BlobStorageService:
         """
         self.connection_string = connection_string
         self.container_name = container_name
-        self.create_container_if_doesnt_exists()
+        self.create_container_if_not_exists()
 
         if not connection_string or not container_name:
             raise ValueError("Both connection_string and container_name must be provided.")
@@ -73,7 +73,7 @@ class BlobStorageService:
         """
         return sorted(list(self.container_client.list_blobs()))
 
-    def create_container_if_doesnt_exists(self) -> None:
+    def create_container_if_not_exists(self) -> None:
         """
         Creates the container in Azure Blob Storage if it doesn't already exist and logs the outcome.
 
