@@ -25,9 +25,11 @@ def create_arg_parser() -> ArgumentParser:
     return parser
 
 
-def parse_args() -> SampleConfig:
+def get_config() -> SampleConfig:
     """
-    Parses command-line arguments to create a SampleConfig object.
+    Retrieves configuration for the SampleConfig class.
+
+    This function can be extended to load configurations from different sources.
 
     Returns:
         SampleConfig: An instance of SampleConfig with values populated from the command line.
