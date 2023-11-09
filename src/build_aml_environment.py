@@ -30,7 +30,7 @@ def _build_sample_environment(
     Returns:
         Environment: The built or updated Azure ML Environment.
     """
-    name = "base"
+    name = "sample"
     env_name = f"{runtime_env}-{name}-env"
 
     _logger.info(f"Building environment: {env_name}")
