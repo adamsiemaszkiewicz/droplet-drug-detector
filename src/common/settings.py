@@ -30,12 +30,12 @@ class AzureMachineLearningSettings(BaseModel):
 class DatabaseSettings(BaseModel):
     """The database settings."""
 
-    user_name: str
-    password: str
-    host: str
-    port: int
-    name: str
-    ssl_mode: str
+    user_name: Optional[str] = None
+    password: Optional[str] = None
+    host: Optional[str] = None
+    port: Optional[str] = None
+    name: Optional[str] = None
+    ssl_mode: Optional[str] = None
 
     @property
     def uri(self) -> str:
