@@ -14,3 +14,4 @@ dependencies:
       - azureml-mlflow
       - azure-ai-ml
       - azure-identity
+      - python-dotenv
