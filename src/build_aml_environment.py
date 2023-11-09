@@ -10,6 +10,8 @@ from typing_extensions import Literal
 
 from src.common.azure.environment import build_environment
 from src.common.azure.ml_client import get_ml_client
+from src.common.consts.directories import ENVIRONMENTS_DIR
+from src.common.consts.extensions import YAML
 from src.common.logger import get_logger
 from src.common.settings import Settings
 
@@ -32,13 +34,15 @@ def _build_sample_environment(
     """
     name = "sample"
     env_name = f"{runtime_env}-{name}-env"
+    conda_dependencies_file_path = ENVIRONMENTS_DIR / f"{name}{YAML}"
 
     _logger.info(f"Building environment: {env_name}")
 
     return build_environment(
         ml_client=ml_client,
-        name=env_name,
+        name=name,
         enable_gpu=False,
+        conda_dependencies_file_path=conda_dependencies_file_path,
         tag=tag,
     )
 

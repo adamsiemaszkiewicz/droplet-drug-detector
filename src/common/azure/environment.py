@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
+from pathlib import Path
 from typing import Optional
 
 from azure.ai.ml import MLClient
 from azure.ai.ml.entities import BuildContext, Environment
 from azureml.core.runconfig import DEFAULT_CPU_IMAGE, DEFAULT_GPU_IMAGE
 
-from src.common.consts.directories import DOCKER_DIR, ENVIRONMENTS_DIR
-from src.common.consts.extensions import YAML
+from src.common.consts.directories import DOCKER_DIR
 from src.common.logger import get_logger
 
 _logger = get_logger(__name__)
@@ -16,6 +16,8 @@ def build_environment(
     ml_client: MLClient,
     name: str,
     enable_gpu: bool,
+    conda_dependencies_file_path: Path,
+    dockerfile_path: Optional[Path] = None,
     tag: Optional[str] = None,
 ) -> Environment:
     """
@@ -25,32 +27,27 @@ def build_environment(
         ml_client (MLClient): The MLClient object.
         name (str): The name of the environment.
         enable_gpu (bool): Flag to enable GPU.
+        conda_dependencies_file_path (Path): The path to the conda dependencies file.
         tag (Optional[str]): The version tag for the environment.
 
     Returns:
         Environment: The built or updated Azure ML Environment.
     """
-    _logger.info(f"Building or updating environment {name}")
-
-    conda_dependencies_file_path = ENVIRONMENTS_DIR / f"{name}{YAML}"
-    dockerfile_path = DOCKER_DIR / name / "Dockerfile"
+    _logger.info(f"Building or updating environment {name} using {conda_dependencies_file_path.as_posix()}")
 
     if not conda_dependencies_file_path.exists():
         raise FileNotFoundError(
             f"Conda dependencies file not found for {name}: {conda_dependencies_file_path.as_posix()}"
         )
 
-    if not dockerfile_path.exists():
-        _logger.warning(
-            f"Dockerfile not found for {name} in {dockerfile_path.as_posix()}, "
-            f"using {'GPU' if enable_gpu else 'CPU'} default image."
-        )
+    if dockerfile_path is None or not dockerfile_path.exists():
+        _logger.warning(f"Dockerfile not found for {name}, using {'GPU' if enable_gpu else 'CPU'} default image.")
         image = DEFAULT_GPU_IMAGE if enable_gpu else DEFAULT_CPU_IMAGE
         env = Environment(name=name, image=image, conda_file=conda_dependencies_file_path, tags={"version": tag})
     else:
         env = Environment(
             name=name,
-            build=BuildContext(path=DOCKER_DIR.as_posix(), dockerfile_path=dockerfile_path),
+            build=BuildContext(path=DOCKER_DIR.as_posix(), dockerfile_path=dockerfile_path.as_posix()),
             tags={"version": tag},
         )
 
