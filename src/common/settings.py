@@ -16,7 +16,7 @@ class AzureSettings(BaseModel):
     tenant_id: Optional[str] = None
     subscription_id: Optional[str] = None
     location: Optional[str] = None
-    resource_group_name: Optional[str] = None
+    resource_group: Optional[str] = None
 
 
 class AzureMachineLearningSettings(BaseModel):

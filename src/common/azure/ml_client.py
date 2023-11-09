@@ -14,7 +14,7 @@ def get_ml_client(settings: Settings) -> MLClient:
     ml_client = MLClient(
         credential=credential,
         subscription_id=settings.az.subscription_id,
-        resource_group_name=settings.az.resource_group_name,
+        resource_group_name=settings.az.resource_group,
         workspace_name=settings.aml.workspace_name,
     )
     return ml_client
