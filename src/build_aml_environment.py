@@ -27,7 +27,7 @@ def _build_sample_environment(
     Args:
         ml_client (MLClient): The MLClient object.
         runtime_env (Literal["dev", "prod"]): The runtime environment. Can be either "dev" or "prod".
-        tag (str): The version tag for the environment.
+        tag (Optional[str]): The version tag for the environment.
 
     Returns:
         Environment: The built or updated Azure ML Environment.
@@ -40,7 +40,7 @@ def _build_sample_environment(
 
     return build_environment(
         ml_client=ml_client,
-        name=name,
+        name=env_name,
         enable_gpu=False,
         conda_dependencies_file_path=conda_dependencies_file_path,
         tag=tag,
