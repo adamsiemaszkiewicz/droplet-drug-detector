@@ -12,8 +12,8 @@ from src.common.azure.environment import build_environment
 from src.common.azure.ml_client import get_ml_client
 from src.common.consts.directories import ENVIRONMENTS_DIR
 from src.common.consts.extensions import YAML
-from src.common.logger import get_logger
-from src.common.settings import Settings
+from src.common.utils.logger import get_logger
+from src.common.utils.settings import Settings
 
 _logger = get_logger(__name__)
 
