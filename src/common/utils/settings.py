@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, BaseSettings
 
 from src.common.consts.directories import ROOT_DIR
-from src.common.logger import get_logger
+from src.common.utils.logger import get_logger
 from src.common.utils.serialization import JsonEncoder
 
 _logger = get_logger(__name__)
