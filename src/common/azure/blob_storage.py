@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import List
 
 import structlog
+from azure.core.exceptions import ResourceExistsError
 from azure.storage.blob import BlobBlock, BlobClient, BlobProperties, BlobServiceClient, ContainerClient
 from tqdm import tqdm
 
@@ -82,11 +83,11 @@ class BlobStorageService:
         try:
             self.container_client.create_container()
             logger.info(f"Container '{self.container_name}' created.")
+        except ResourceExistsError:
+            logger.info(f"Container '{self.container_name}' already exists.")
         except Exception as e:
-            if "ContainerAlreadyExists" in str(e):
-                logger.info(f"Container '{self.container_name}' already exists.")
-            else:
-                raise e
+            logger.error(f"An unexpected error occurred: {e}")
+            raise
 
     def upload_file(
         self,
@@ -277,7 +278,7 @@ class BlobStorageService:
 
         downloaded_files = []
         for blob in tqdm(blobs, desc="Downloading files"):
-            output_path = output_dir / blob.name[len(input_dir) :]  # noqa E203
+            output_path = output_dir / blob.name[len(input_dir) :]
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
             downloaded_file = self.download_blob(blob_path=blob.name, output_path=output_path, overwrite=overwrite)
