@@ -108,14 +108,15 @@ stages:
               # Set custom experiment ID
               timestamp=$(date +%Y-%m-%d-%H:%M:%S)
               build_id=$(Build.BuildId)
-              experiment_id="${build_id}_${timestamp}"
+              job_id="${build_id}_${timestamp}"
+              experiment_name="custom_experiment_name"
 
               # Create and run the pipeline
               run_id=$( \
                 az ml job create -f src/sample_project/aml/pipelines/sample_pipeline/pipeline_spec.yaml \
                 --set \
-                experiment_name="custom_experiment_name" \
-                display_name=${experiment_id} \
+                experiment_name=${experiment_name} \
+                display_name=${job_id} \
                 inputs.parameter_1=${{parameters.parameter_1}} \
                 inputs.parameter_2=${{parameters.parameter_2}} \
                 inputs.parameter_3=${{parameters.parameter_3}} \
