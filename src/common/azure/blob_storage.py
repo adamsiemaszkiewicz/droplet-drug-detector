@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import base64
 import os
 import uuid
 from pathlib import Path
@@ -134,10 +133,8 @@ class BlobStorageService:
                     read_data = src.read(chunk_size)
                     if not read_data:
                         break  # Done reading file
-
-                    # Generate a base64-encoded block ID
-                    block_id = base64.b64encode(uuid.uuid4().bytes).decode("utf-8")
-                    blob_client.stage_block(block_id=block_id, data=read_data)
+                    block_id = str(uuid.uuid4())
+                    blob_client.stage_block(block_id=block_id, data=read_data)  # type: ignore
                     block_list.append(BlobBlock(block_id=block_id))
 
                     pbar.update(1)
