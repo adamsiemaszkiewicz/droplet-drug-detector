@@ -136,7 +136,7 @@ A detailed explanation of the layout and purpose of the `src` directory contents
     - `consts`: Definitions of constants used throughout the codebase, like Azure-specific constants, directory paths, and extensions.
     - `configs`: Base configuration settings for the project.
 
-- `sample`: Core modules specific to the project's primary aim.
+- `sample_project`: Core modules specific to the project's primary aim.
     - `aml`: Azure Machine Learning components and pipelines.
     - `data`: Data-related logic.
     - `features`: Feature engineering and transformation logic.
