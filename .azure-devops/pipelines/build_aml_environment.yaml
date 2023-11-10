@@ -12,7 +12,7 @@ parameters:
 - name: environment_name
   displayName: Environment name
   type: string
-  default: "sample"
+  default: "sample_project"
   values:
     - sample
 - name: tag

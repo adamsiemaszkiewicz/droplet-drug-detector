@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from src.common.utils.logger import get_logger
-from src.sample.aml.components.sample_component.config import SampleConfig
-from src.sample.aml.components.sample_component.options import get_config
+from src.sample_project.aml.components.sample_component.config import SampleConfig
+from src.sample_project.aml.components.sample_component.options import get_config
 
 _logger = get_logger(__name__)
 

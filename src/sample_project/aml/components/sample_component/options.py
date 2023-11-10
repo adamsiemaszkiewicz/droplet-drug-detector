@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 from typing import Any, Dict
 
-from src.sample.aml.components.sample_component.config import SampleConfig
+from src.sample_project.aml.components.sample_component.config import SampleConfig
 
 
 def create_arg_parser() -> ArgumentParser:
