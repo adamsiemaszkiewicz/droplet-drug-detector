@@ -114,7 +114,7 @@ stages:
               run_id=$( \
                 az ml job create -f src/sample_project/aml/pipelines/sample_pipeline/pipeline_spec.yaml \
                 --set \
-                experiment_name="h4e_deposit_parameters_${{parameters.deposit_parameter}}_dl_training" \
+                experiment_name="custom_experiment_name" \
                 display_name=${experiment_id} \
                 inputs.parameter_1=${{parameters.parameter_1}} \
                 inputs.parameter_2=${{parameters.parameter_2}} \
