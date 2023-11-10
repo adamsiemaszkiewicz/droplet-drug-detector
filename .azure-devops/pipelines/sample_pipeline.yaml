@@ -116,6 +116,13 @@ stages:
                 az ml job create -f src/sample_project/aml/pipelines/sample_pipeline/pipeline_spec.yaml \
                 --set \
                 inputs.parameter_1=${{parameters.parameter_1}} \
+                inputs.parameter_2=${{parameters.parameter_2}} \
+                inputs.parameter_3=${{parameters.parameter_3}} \
+                inputs.parameter_4=${{parameters.parameter_4}} \
+                inputs.parameter_5=${{parameters.parameter_5}} \
+                inputs.parameter_6=${{parameters.parameter_6}} \
+                inputs.parameter_7=${{parameters.parameter_7}} \
+                inputs.parameter_8=${{parameters.parameter_8}} \
                 --query name -o tsv \
                 --verbose \
               )
