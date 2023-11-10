@@ -14,7 +14,7 @@ parameters:
   type: string
   default: "sample_project"
   values:
-    - sample
+    - "sample_project"
 - name: tag
   displayName: Custom tag
   type: string
