@@ -106,7 +106,7 @@ The `notebooks` directory contains Jupyter notebooks that are integral to the pr
 
 ### Data
 
-Describe how to use the data directory, including how to add new data.
+Store all project related data inside `data` folder.
 
 [Back to the top](#project-title)
 
