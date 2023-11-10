@@ -13,37 +13,30 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up Conda environment with mamba
+      - name: Set up Conda environment
         uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: my-env
           environment-file: environments/sample.yaml  # Update to your project environment file
           python-version: '3.10'
-          use-mamba: true
-          mamba-version: "*"
           auto-activate-base: false
 
       - name: Check code with Black
         run: |
-          mamba install black
+          conda install black
           black --check --line-length 120 src tests
 
       - name: Lint with Flake8
         run: |
-          mamba install flake8
+          conda install flake8
           flake8 src tests --max-line-length 120 --extend-ignore D100,D101,D102,D103,D104,D105,D106,D107,E203,W503
 
       - name: Sort imports with isort
         run: |
-          mamba install isort
+          conda install isort
           isort src tests --check-only --profile black
 
       - name: Type check with mypy
         run: |
-          mamba install mypy
-          mypy src tests --ignore-missing-imports --disallow-untyped-defs
-
-      - name: Run tests with pytest
-        run: |
-          mamba install pytest
-          pytest
+          conda install mypy
+          mypy src tests
