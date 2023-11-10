@@ -98,13 +98,6 @@ stages:
             workingDirectory: $(System.DefaultWorkingDirectory)
             scriptLocation: inlineScript
             inlineScript: |
-              # Determine whether the compute target is CPU or GPU based and set device accordingly
-              if [[ "${{parameters.compute}}" == azureml:GPU* ]]; then
-                device="gpu"
-              else
-                device="cpu"
-              fi
-
               # Set custom experiment ID
               timestamp=$(date +%Y-%m-%d-%H:%M:%S)
               build_id=$(Build.BuildId)
