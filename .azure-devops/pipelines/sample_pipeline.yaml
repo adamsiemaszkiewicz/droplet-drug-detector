@@ -70,11 +70,11 @@ stages:
         - checkout: self
           path: s/
 
-        - template: ../../templates/install-azure-cli.yaml
+        - template: ../templates/install_azure_cli.yaml
 
-        - template: ../../templates/configure-aml-extension.yaml
+        - template: ../templates/configure_aml_extension.yaml
 
-        - template: ../../templates/connect-to-aml-workspace.yaml
+        - template: ../templates/connect_to_aml_workspace.yaml
 
         - task: qetza.replacetokens.replacetokens-task.replacetokens@3
           inputs:
