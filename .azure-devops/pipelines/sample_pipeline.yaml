@@ -39,7 +39,7 @@ parameters:
   - name: parameter_9
     displayName: Parameter 9
     type: boolean
-    default: False
+    default: True
 
   - name: compute
     displayName: Compute cluster to use
@@ -70,11 +70,11 @@ stages:
         - checkout: self
           path: s/
 
-        - template: ../templates/install-azure-cli.yaml
+        - template: ./templates/install-azure-cli.yaml
 
-        - template: ../templates/configure-aml-extension.yaml
+        - template: ./templates/configure-aml-extension.yaml
 
-        - template: ../templates/connect-to-aml-workspace.yaml
+        - template: ./templates/connect-to-aml-workspace.yaml
 
         - task: qetza.replacetokens.replacetokens-task.replacetokens@3
           inputs:
