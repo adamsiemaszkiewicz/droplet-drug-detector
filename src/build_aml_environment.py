@@ -18,7 +18,7 @@ from src.common.utils.logger import get_logger
 _logger = get_logger(__name__)
 
 
-def _build_sample_environment(
+def _build_sample_project_environment(
     ml_client: MLClient, runtime_env: Literal["dev", "prod"], tag: Optional[str] = None
 ) -> Environment:
     """
@@ -32,7 +32,7 @@ def _build_sample_environment(
     Returns:
         Environment: The built or updated Azure ML Environment.
     """
-    name = "sample"
+    name = "sample_project"
     env_name = f"{runtime_env}-{name}-env"
     conda_dependencies_file_path = ENVIRONMENTS_DIR / f"{name}{YAML}"
 
@@ -49,7 +49,7 @@ def _build_sample_environment(
 
 class EnvironmentBuildingConfig(BaseModel):
     runtime_env: Literal["dev", "prod"]
-    sample: bool
+    sample_project: bool
     tag: Optional[str] = None
 
     def __str__(self) -> str:
@@ -59,7 +59,7 @@ class EnvironmentBuildingConfig(BaseModel):
 def parse_args() -> EnvironmentBuildingConfig:
     parser = argparse.ArgumentParser()
     parser.add_argument("--runtime_env", type=str)
-    parser.add_argument("--sample", action="store_true")
+    parser.add_argument("--sample_project", action="store_true")
     parser.add_argument("--tag", type=str)
 
     args = parser.parse_args()
@@ -77,8 +77,8 @@ def main() -> None:
 
     ml_client = get_ml_client(settings=settings)
 
-    if config.sample:
-        _build_sample_environment(ml_client=ml_client, runtime_env=config.runtime_env, tag=config.tag)
+    if config.sample_project:
+        _build_sample_project_environment(ml_client=ml_client, runtime_env=config.runtime_env, tag=config.tag)
     else:
         raise NotImplementedError(f"Unknown environment specified ({config.runtime_env}).")
 
