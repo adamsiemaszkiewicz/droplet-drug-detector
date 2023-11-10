@@ -125,7 +125,6 @@ stages:
                 inputs.parameter_7=${{parameters.parameter_7}} \
                 inputs.parameter_8=${{parameters.parameter_8}} \
                 inputs.device=$device \
-                inputs.experiment_id="${experiment_id}" \
                 settings.default_compute=${{parameters.compute}} \
                 --query name -o tsv \
                 --verbose \
