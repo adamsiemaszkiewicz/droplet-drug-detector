@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Type, Union
+from typing import Any, List, Type, Union
 
 from pydantic import BaseModel
 from pydantic.json import pydantic_encoder
@@ -73,28 +73,6 @@ class BaseConfig(BaseModel):
         Log the string representation of the BaseConfig instance.
         """
         _logger.info(self.__str__())
-
-    @classmethod
-    def from_dict(cls: Type["BaseConfig"], config_dict: Dict[str, Union[Dict[str, Any], Any]]) -> "BaseConfig":
-        """
-        Create an instance of BaseConfig from a dictionary.
-
-        Args:
-            config_dict (Dict[str, Union[Dict[str, Any], Any]]): A dictionary containing the configuration.
-
-        Returns:
-            BaseConfig: An instance of BaseConfig with the configuration provided.
-        """
-        return cls(**config_dict)
-
-    def to_dict(self) -> Dict[str, Union[Dict[str, Any], Any]]:
-        """
-        Convert the BaseConfig instance to a dictionary.
-
-        Returns:
-            Dict[str, Union[Dict[str, Any], Any]]: A dictionary representation of the BaseConfig instance.
-        """
-        return self.dict()
 
     @staticmethod
     def convert_str_to_int(value: str) -> int:
