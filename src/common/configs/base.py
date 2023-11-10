@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Type, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from pydantic.json import pydantic_encoder
 
 from src.common.utils.logger import get_logger
@@ -138,7 +138,7 @@ class BaseConfig(BaseModel):
         return v
 
     @staticmethod
-    def convert_str_to_bool(v: Union[bool, str], field: Field) -> bool:
+    def convert_str_to_bool(v: Union[bool, str], field: str) -> bool:
         """
         Convert a string to a boolean, raising an error if conversion is not possible.
         """
@@ -150,7 +150,7 @@ class BaseConfig(BaseModel):
         elif v in ("false", "0", "f", "n", "no"):
             return False
         else:
-            raise ValueError(f"{field.name} must be a boolean value")
+            raise ValueError(f"{field} must be a boolean value")
 
     @staticmethod
     def check_if_positive(value: Any) -> Any:
@@ -171,7 +171,7 @@ class BaseConfig(BaseModel):
         return value
 
     @staticmethod
-    def convert_str_to_positive_int(v: Union[int, str], field: Field) -> int:
+    def convert_str_to_positive_int(v: Union[int, str], field: str) -> int:
         """
         Convert a string to a positive float, raising an error if conversion is not possible or the value is negative.
         """
@@ -179,13 +179,13 @@ class BaseConfig(BaseModel):
             try:
                 v = int(v)
             except ValueError:
-                raise ValueError(f"{field.name} must be convertible to a positive integer")
+                raise ValueError(f"{field} must be convertible to a positive integer")
         if v < 0:
-            raise ValueError(f"{field.name} must be a positive integer")
+            raise ValueError(f"{field} must be a positive integer")
         return v
 
     @staticmethod
-    def convert_str_to_positive_float(v: Union[float, str], field: Field) -> float:
+    def convert_str_to_positive_float(v: Union[float, str], field: str) -> float:
         """
         Convert a string to a boolean, raising an error if conversion is not possible.
         """
@@ -193,9 +193,9 @@ class BaseConfig(BaseModel):
             try:
                 v = float(v)
             except ValueError:
-                raise ValueError(f"{field.name} must be convertible to a positive float")
+                raise ValueError(f"{field} must be convertible to a positive float")
         if v < 0:
-            raise ValueError(f"{field.name} must be a positive float")
+            raise ValueError(f"{field} must be a positive float")
         return v
 
     @staticmethod
