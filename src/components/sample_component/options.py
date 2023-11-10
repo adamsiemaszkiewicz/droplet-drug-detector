@@ -19,11 +19,11 @@ def create_arg_parser() -> ArgumentParser:
     parser.add_argument("--parameter_2", type=str, default="42", help="Sample parameter 2")
     parser.add_argument("--parameter_3", type=str, default="0.52", help="Sample parameter 3")
     parser.add_argument("--parameter_4", type=str, default=".", help="Sample parameter 4")
-    parser.add_argument("--parameter_5", type=str, default="parameter,_,5", help="Sample parameter 5")
-    parser.add_argument("--parameter_6", type=str, default="1,2,3", help="Sample parameter 6")
-    parser.add_argument("--parameter_7", type=str, default="0.1,0.2,0.3", help="Sample parameter 7")
+    parser.add_argument("--parameter_5", type=str, default="parameter,_,5 ", help="Sample parameter 5")
+    parser.add_argument("--parameter_6", type=str, default="1, 2,3", help="Sample parameter 6")
+    parser.add_argument("--parameter_7", type=str, default=" 0.1,0.2,3e-4", help="Sample parameter 7")
     parser.add_argument("--parameter_8", type=str, default="True", help="Sample parameter 8")
-    # parser.add_argument("--parameter_9", action="store_true", help="Sample parameter 7")
+    parser.add_argument("--parameter_9", action="store_true", help="Sample parameter 7")
 
     return parser
 

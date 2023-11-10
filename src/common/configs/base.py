@@ -54,6 +54,80 @@ class BaseConfig(BaseModel):
     trainer: BaseTrainerConfig = BaseTrainerConfig()
     callbacks: BaseCallbacksConfig = BaseCallbacksConfig()
 
+    class Config:
+        json_encoders = {
+            Path: lambda v: v.as_posix(),
+        }
+
+    def __str__(self) -> str:
+        """
+        Return a string representation of the BaseConfig instance in JSON format.
+
+        Returns:
+            str: A JSON formatted string representation of the BaseConfig instance.
+        """
+        return json.dumps(self.dict(), indent=4, default=pydantic_encoder)
+
+    def log_self(self) -> None:
+        """
+        Log the string representation of the BaseConfig instance.
+        """
+        _logger.info(self.__str__())
+
+    @classmethod
+    def from_dict(cls: Type["BaseConfig"], config_dict: Dict[str, Union[Dict[str, Any], Any]]) -> "BaseConfig":
+        """
+        Create an instance of BaseConfig from a dictionary.
+
+        Args:
+            config_dict (Dict[str, Union[Dict[str, Any], Any]]): A dictionary containing the configuration.
+
+        Returns:
+            BaseConfig: An instance of BaseConfig with the configuration provided.
+        """
+        return cls(**config_dict)
+
+    def to_dict(self) -> Dict[str, Union[Dict[str, Any], Any]]:
+        """
+        Convert the BaseConfig instance to a dictionary.
+
+        Returns:
+            Dict[str, Union[Dict[str, Any], Any]]: A dictionary representation of the BaseConfig instance.
+        """
+        return self.dict()
+
+    @staticmethod
+    def convert_str_to_int(value: str) -> int:
+        """
+        Convert a string to an integer.
+
+        Args:
+            value (str): The string to convert.
+
+        Returns:
+            int: The converted integer.
+        """
+        try:
+            return int(value)
+        except ValueError as e:
+            raise ValueError(f"Error converting '{value}' to int: {e}")
+
+    @staticmethod
+    def convert_str_to_float(value: str) -> float:
+        """
+        Convert a string to a float.
+
+        Args:
+            value (str): The string to convert.
+
+        Returns:
+            float: The converted float.
+        """
+        try:
+            return float(value)
+        except ValueError as e:
+            raise ValueError(f"Error converting '{value}' to float: {e}")
+
     @staticmethod
     def convert_str_to_path(v: Union[str, Path]) -> Path:
         """
@@ -62,6 +136,39 @@ class BaseConfig(BaseModel):
         if isinstance(v, str):
             return Path(v)
         return v
+
+    @staticmethod
+    def convert_str_to_bool(v: Union[bool, str], field: Field) -> bool:
+        """
+        Convert a string to a boolean, raising an error if conversion is not possible.
+        """
+        if isinstance(v, bool):
+            return v
+        v = v.lower()
+        if v in ("true", "1", "t", "y", "yes"):
+            return True
+        elif v in ("false", "0", "f", "n", "no"):
+            return False
+        else:
+            raise ValueError(f"{field.name} must be a boolean value")
+
+    @staticmethod
+    def check_if_positive(value: Any) -> Any:
+        """
+        Check if the provided value is positive.
+
+        Args:
+            value (Any): The value to check for positivity.
+
+        Returns:
+            Any: The original value if positive.
+
+        Raises:
+            ValueError: If the value is not a positive number.
+        """
+        if isinstance(value, (int, float)) and value <= 0:
+            raise ValueError("The value must be a positive number.")
+        return value
 
     @staticmethod
     def convert_str_to_positive_int(v: Union[int, str], field: Field) -> int:
@@ -92,89 +199,21 @@ class BaseConfig(BaseModel):
         return v
 
     @staticmethod
-    def convert_str_to_bool(v: Union[bool, str], field: Field) -> bool:
+    def convert_comma_separated_str_to_list(v: str, convert_to_type: Type) -> List:
         """
-        Convert a string to a boolean, raising an error if conversion is not possible.
-        """
-        if isinstance(v, bool):
-            return v
-        v = v.lower()
-        if v in ("true", "1", "t", "y", "yes"):
-            return True
-        elif v in ("false", "0", "f", "n", "no"):
-            return False
-        else:
-            raise ValueError(f"{field.name} must be a boolean value")
-
-    @staticmethod
-    def convert_comma_separated_str_to_list_of_strings(v: Union[str, List[str]]) -> List[str]:
-        """
-        Convert a comma-separated string to a list of strings.
-        """
-        if isinstance(v, list):
-            return v
-        if isinstance(v, str):
-            return [item.strip() for item in v.split(",")]
-        raise ValueError("Input must be a comma-separated string or a list of strings")
-
-    @staticmethod
-    def convert_comma_separated_str_to_list_of_integers(v: str) -> List[int]:
-        """
-        Convert a comma-separated string to a list of integers.
-        """
-        try:
-            return [int(item.strip()) for item in v.split(",")]
-        except ValueError as e:
-            raise ValueError(f"Each item in the list should be convertible to an integer. Error: {e}")
-
-    @staticmethod
-    def convert_comma_separated_str_to_list_of_floats(v: str) -> List[float]:
-        """
-        Convert a comma-separated string to a list of floats.
-        """
-        try:
-            return [float(item.strip()) for item in v.split(",")]
-        except ValueError as e:
-            raise ValueError(f"Each item in the list should be convertible to a float. Error: {e}")
-
-    class Config:
-        json_encoders = {
-            Path: lambda v: v.as_posix(),
-        }
-
-    @classmethod
-    def from_dict(cls: Type["BaseConfig"], config_dict: Dict[str, Union[Dict[str, Any], Any]]) -> "BaseConfig":
-        """
-        Create an instance of BaseConfig from a dictionary.
+        Convert a comma-separated string to a list of a specified type.
 
         Args:
-            config_dict (Dict[str, Union[Dict[str, Any], Any]]): A dictionary containing the configuration.
+            v (str): The input string to convert.
+            convert_to_type: The type to convert the list items to. Defaults to str.
 
         Returns:
-            BaseConfig: An instance of BaseConfig with the configuration provided.
-        """
-        return cls(**config_dict)
+            List: A list of the specified type with the converted values.
 
-    def to_dict(self) -> Dict[str, Union[Dict[str, Any], Any]]:
+        Raises:
+            ValueError: If conversion of any list item fails.
         """
-        Convert the BaseConfig instance to a dictionary.
-
-        Returns:
-            Dict[str, Union[Dict[str, Any], Any]]: A dictionary representation of the BaseConfig instance.
-        """
-        return self.dict()
-
-    def __str__(self) -> str:
-        """
-        Return a string representation of the BaseConfig instance in JSON format.
-
-        Returns:
-            str: A JSON formatted string representation of the BaseConfig instance.
-        """
-        return json.dumps(self.dict(), indent=4, default=pydantic_encoder)
-
-    def log_self(self) -> None:
-        """
-        Log the string representation of the BaseConfig instance.
-        """
-        _logger.info(self.__str__())
+        try:
+            return [convert_to_type(item.strip()) for item in v.split(",") if item.strip()]
+        except ValueError as e:
+            raise ValueError(f"Error converting values to {convert_to_type.__name__}: {e}")
