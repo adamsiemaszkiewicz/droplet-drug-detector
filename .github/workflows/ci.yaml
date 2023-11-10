@@ -21,36 +21,26 @@ jobs:
           python-version: '3.10'
           auto-activate-base: false
 
-      - name: Install dependencies
-        shell: bash -l {0}
-        run: |
-          conda install flake8 flake8-bugbear flake8-print mypy types-setuptools types-requests safety pytest black isort
-
-      - name: Debug info
-        run: |
-          echo "PATH: $PATH"
-          conda info --envs
-
       - name: Check code with Black
         run: |
-          black --check --line-length 120 src tests
+          conda run --name sample-env --no-capture-output black --check --line-length 120 src tests
 
       - name: Lint with Flake8
         run: |
-          flake8 src tests --max-line-length=120 --extend-ignore=D100,D101,D102,D103,D104,D105,D106,D107,E203,W503 --exclude=.git,__pycache__,build,dist,venv,.venv,.mypy_cache,.tox
+          conda run --name sample-env --no-capture-output flake8 src tests --max-line-length=120 --extend-ignore=D100,D101,D102,D103,D104,D105,D106,D107,E203,W503 --exclude=.git,__pycache__,build,dist,venv,.venv,.mypy_cache,.tox
 
       - name: Sort imports with isort
         run: |
-          isort src tests --check-only --profile black
+          conda run --name sample-env --no-capture-output isort src tests --check-only --profile black
 
       - name: Type check with mypy
         run: |
-          mypy src tests --ignore-missing-imports
+          conda run --name sample-env --no-capture-output mypy src tests --ignore-missing-imports
 
       - name: Run pytest
         run: |
-          pytest
+          conda run --name sample-env --no-capture-output pytest
 
       - name: Safety Check
         run: |
-          safety check
+          conda run --name sample-env --no-capture-output safety check
