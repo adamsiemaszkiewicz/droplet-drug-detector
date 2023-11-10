@@ -16,8 +16,8 @@ jobs:
       - name: Set up Conda environment
         uses: conda-incubator/setup-miniconda@v2
         with:
-          activate-environment: sample-env  # Update to your environment name
-          environment-file: environments/sample.yaml  # Update to your project environment file
+          activate-environment: sample-project-env  # Update to your environment name
+          environment-file: environments/sample_project.yaml  # Update to your project environment file
           python-version: '3.10'
           auto-activate-base: false
 
