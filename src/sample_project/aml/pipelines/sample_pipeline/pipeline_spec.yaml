@@ -8,10 +8,19 @@ inputs:
   parameter_1:
     type: string
   parameter_2:
+    type: number
+  parameter_3:
+    type: number
+  parameter_4:
     type: string
-
-  device:
-      type: string
+  parameter_5:
+    type: string
+  parameter_6:
+    type: string
+  parameter_7:
+    type: string
+  parameter_8:
+    type: boolean
 
 
 settings:
@@ -25,6 +34,12 @@ jobs:
     inputs:
       parameter_1: ${{parent.inputs.parameter_1}}
       parameter_2: ${{parent.inputs.parameter_2}}
+      parameter_3: ${{parent.inputs.parameter_3}}
+      parameter_4: ${{parent.inputs.parameter_3}}
+      parameter_5: ${{parent.inputs.parameter_3}}
+      parameter_6: ${{parent.inputs.parameter_3}}
+      parameter_7: ${{parent.inputs.parameter_3}}
+      parameter_8: ${{parent.inputs.parameter_3}}
 
       device: ${{parent.inputs.device}}
 

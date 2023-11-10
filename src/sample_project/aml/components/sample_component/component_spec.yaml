@@ -9,7 +9,19 @@ inputs:
   parameter_1:
     type: string
   parameter_2:
+    type: number
+  parameter_3:
+    type: number
+  parameter_4:
     type: string
+  parameter_5:
+    type: string
+  parameter_6:
+    type: string
+  parameter_7:
+    type: string
+  parameter_8:
+    type: boolean
 
   device:
     type: string
@@ -29,44 +41,14 @@ is_deterministic: false
 code: ../../..
 command: >-
   PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
-  python ./h4e_ml/components/deposit_params_dl_training/entrypoint.py
+  python ./src/sample_project/aml/components/sample_components/entrypoint.py
+  --input_dir ${{inputs.input_dir}}
   --output_dir ${{outputs.output_dir}}
-  --mineralization_maps_dir ${{inputs.mineralization_maps_dir}}
-  --areas_of_interest_dir ${{inputs.areas_of_interest_dir}}
-  --hsi_data_dir ${{inputs.hsi_data_dir}}
-  --msi_data_dir ${{inputs.msi_data_dir}}
-  --deposit_parameter ${{inputs.deposit_parameter}}
-  --mineralization_maps_source ${{inputs.mineralization_maps_source}}
-  --alunite ${{inputs.alunite}}
-  --chlorite ${{inputs.chlorite}}
-  --epidote ${{inputs.epidote}}
-  --goethite ${{inputs.goethite}}
-  --hematite ${{inputs.hematite}}
-  --illite ${{inputs.illite}}
-  --jarosite ${{inputs.jarosite}}
-  --kaolinite ${{inputs.kaolinite}}
-  --magnetite ${{inputs.magnetite}}
-  --montmorillonite ${{inputs.montmorillonite}}
-  --sericite ${{inputs.sericite}}
-  --smectite ${{inputs.smectite}}
-  --train_areas_of_interest ${{inputs.train_areas_of_interest}}
-  --val_areas_of_interest ${{inputs.val_areas_of_interest}}
-  --test_areas_of_interest ${{inputs.test_areas_of_interest}}
-  --batch_size ${{inputs.batch_size}}
-  --augmentation_1 ${{inputs.augmentation_1}}
-  --augmentation_2 ${{inputs.augmentation_2}}
-  --augmentation_3 ${{inputs.augmentation_3}}
-  --augmentation_4 ${{inputs.augmentation_4}}
-  --augmentation_5 ${{inputs.augmentation_5}}
-  --model ${{inputs.model}}
-  --loss_function ${{inputs.loss_function}}
-  --optimizer ${{inputs.optimizer}}
-  --learning_rate ${{inputs.learning_rate}}
-  --metric_1 ${{inputs.metric_1}}
-  --metric_2 ${{inputs.metric_2}}
-  --metric_3 ${{inputs.metric_3}}
-  --metric_4 ${{inputs.metric_4}}
-  --metric_5 ${{inputs.metric_5}}
-  --max_epochs ${{inputs.max_epochs}}
-  --cross_validation_folds ${{inputs.cross_validation_folds}}
-  --device ${{inputs.device}}
+  --parameter_1 ${{inputs.parameter_1}}
+  --parameter_2 ${{inputs.parameter_2}}
+  --parameter_3 ${{inputs.parameter_3}}
+  --parameter_4 ${{inputs.parameter_4}}
+  --parameter_5 ${{inputs.parameter_5}}
+  --parameter_6 ${{inputs.parameter_6}}
+  --parameter_7 ${{inputs.parameter_7}}
+  --parameter_8 ${{inputs.parameter_8}}

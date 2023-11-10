@@ -7,15 +7,39 @@ parameters:
   - name: parameter_1
     displayName: Parameter 1
     type: string
-    default: "value 1"
-    values:
-      - "value 1"
-      - "value 2"
-      - "value 3"
+    default: "parameter-1"
   - name: parameter_2
     displayName: Parameter 2
+    type: number
+    default: 42
+  - name: parameter_3
+    displayName: Parameter 3
+    type: number
+    default: 0.52
+  - name: parameter_4
+    displayName: Parameter 4
+    type: string
+    default: "."
+  - name: parameter_5
+    displayName: Parameter 5
+    type: string
+    default: "parameter,_,5"
+  - name: parameter_6
+    displayName: Parameter 6
+    type: string
+    default: "1, 2,3"
+  - name: parameter_7
+    displayName: Parameter 7
+    type: string
+    default: " 0.1,0.2,3e-4"
+  - name: parameter_8
+    displayName: Parameter 8
     type: boolean
-    default: true
+    default: False
+  - name: parameter_9
+    displayName: Parameter 9
+    type: boolean
+    default: False
 
   - name: compute
     displayName: Compute cluster to use
@@ -88,12 +112,18 @@ stages:
 
               # Create and run the pipeline
               run_id=$( \
-                az ml job create -f .azure/aml/pipelines/sample_pipeline/pipeline_spec.yaml \
+                az ml job create -f src/sample_project/aml/pipelines/sample_pipeline/pipeline_spec.yaml \
                 --set \
                 experiment_name="h4e_deposit_parameters_${{parameters.deposit_parameter}}_dl_training" \
                 display_name=${experiment_id} \
                 inputs.parameter_1=${{parameters.parameter_1}} \
                 inputs.parameter_2=${{parameters.parameter_2}} \
+                inputs.parameter_3=${{parameters.parameter_3}} \
+                inputs.parameter_4=${{parameters.parameter_4}} \
+                inputs.parameter_5=${{parameters.parameter_5}} \
+                inputs.parameter_6=${{parameters.parameter_6}} \
+                inputs.parameter_7=${{parameters.parameter_7}} \
+                inputs.parameter_8=${{parameters.parameter_8}} \
                 inputs.device=$device \
                 inputs.experiment_id="${experiment_id}" \
                 settings.default_compute=${{parameters.compute}} \
