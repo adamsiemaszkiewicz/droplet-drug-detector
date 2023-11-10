@@ -81,10 +81,8 @@ repos:
     hooks:
       - id: nbqa
         args: [black]
-        exclude: ^\.github/|LICENSE.md|README.md
       - id: nbqa
         args: [isort]
-        exclude: ^\.github/|LICENSE.md|README.md
       - id: nbqa
         args: [flake8]
-        exclude: ^\.github/|LICENSE.md|README.md
+    exclude: ^\.github/|LICENSE.md|README.md
