@@ -3,7 +3,13 @@
 from argparse import ArgumentParser
 from typing import Any, Dict
 
-from src.sample_project.aml.components.sample_component.config import SampleConfig
+from src.sample_project.aml.components.sample_component.config import (
+    SampleCallbacksConfig,
+    SampleConfig,
+    SampleDataConfig,
+    SampleModelConfig,
+    SampleTrainerConfig,
+)
 
 
 def create_arg_parser() -> ArgumentParser:
@@ -83,7 +89,12 @@ def get_config() -> SampleConfig:
         },
     }
 
-    config = SampleConfig(**config_dict)
+    data_config = SampleDataConfig(**config_dict["data"])
+    model_config = SampleModelConfig(**config_dict["model"])
+    trainer_config = SampleTrainerConfig(**config_dict["trainer"])
+    callbacks_config = SampleCallbacksConfig(**config_dict["callbacks"])
+
+    config = SampleConfig(data=data_config, model=model_config, trainer=trainer_config, callbacks=callbacks_config)
     config.log_self()
 
     return config
