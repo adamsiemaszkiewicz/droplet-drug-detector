@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import base64
 import os
 import uuid
 from pathlib import Path
@@ -71,7 +72,9 @@ class BlobStorageService:
         Returns:
             List[BlobProperties]: A sorted list containing properties of each blob in the container.
         """
-        return sorted(list(self.container_client.list_blobs()))
+        blobs = list(self.container_client.list_blobs())
+        sorted_blobs = sorted(blobs, key=lambda blob: blob.name)
+        return sorted_blobs
 
     def create_container_if_not_exists(self) -> None:
         """
@@ -131,7 +134,9 @@ class BlobStorageService:
                     read_data = src.read(chunk_size)
                     if not read_data:
                         break  # Done reading file
-                    block_id = str(uuid.uuid4())
+
+                    # Generate a base64-encoded block ID
+                    block_id = base64.b64encode(uuid.uuid4().bytes).decode("utf-8")
                     blob_client.stage_block(block_id=block_id, data=read_data)
                     block_list.append(BlobBlock(block_id=block_id))
 
