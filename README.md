@@ -48,7 +48,7 @@ Follow these steps to set up your local environment:
 3. **Create and activate a Conda environment**: Use the provided environment YAML files to create and activate your Conda environment:
 
     ```bash
-    mamba env create -f environments/sample.yaml  # Replace with the appropriate YAML for your setup
+    mamba env create -f environments/[environment-name].yaml  # Replace with the appropriate YAML for your setup
     conda activate [environment-name]             # Replace with your environment name
     ```
 
@@ -143,7 +143,9 @@ A detailed explanation of the layout and purpose of the `src` directory contents
     - `models`: Machine learning model logic.
 
 - `components`: Contains code for individual Azure Machine Learning components.
-    - `sample_component`: An example component, complete with its specification, entry points, options, and custom functions.
+    - `sample_component`: An example component, complete with its specification YAML, entrypoints script, options, configuration and custom functions.
+- `pipelines`: Contains code for Azure Machine Learning pipelines.
+    - `sample_pipeline`: An example pipeline specification YAML
 
 - `build_aml_environment.py`: A script to set up the Azure Machine Learning environment.
 
