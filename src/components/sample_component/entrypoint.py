@@ -8,7 +8,6 @@ _logger = get_logger(__name__)
 
 def main() -> None:
     config: SampleConfig = get_config()
-
     _logger.info(f"Running with following config: {config}")
 
 
