@@ -112,6 +112,7 @@ stages:
               experiment_name="custom_experiment_name"
 
               # Create and run the pipeline
+              # Remember to add quotes around the string parameters to avoid YAML parsing errors
               run_id=$( \
                 az ml job create -f src/sample_project/aml/pipelines/sample_pipeline/pipeline_spec.yaml \
                 --set \
@@ -122,7 +123,7 @@ stages:
                 inputs.parameter_5="${{parameters.parameter_5}}" \
                 inputs.parameter_6="${{parameters.parameter_6}}" \
                 inputs.parameter_7="${{parameters.parameter_7}}" \
-                inputs.parameter_8="${{parameters.parameter_8}}" \
+                inputs.parameter_8=${{parameters.parameter_8}} \
                 --query name -o tsv \
                 --verbose \
               )
