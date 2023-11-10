@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, BaseSettings
 
@@ -76,7 +76,7 @@ class Settings(BaseSettings):
         env_file_encoding = "utf-8"
         env_nested_delimiter = "__"
 
-    def __init__(self, *args: List[Any], **kwargs: Dict[str, Any]) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.check_if_env_file_exists()
         self.check_if_all_variables_loaded()
