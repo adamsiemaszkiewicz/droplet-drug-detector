@@ -141,11 +141,10 @@ A detailed explanation of the layout and purpose of the `src` directory contents
     - `data`: Data-related logic.
     - `features`: Feature engineering and transformation logic.
     - `models`: Machine learning model logic.
-
-- `components`: Contains code for individual Azure Machine Learning components.
-    - `sample_component`: An example component, complete with its specification YAML, entrypoints script, options, configuration and custom functions.
-- `pipelines`: Contains code for Azure Machine Learning pipelines.
-    - `sample_pipeline`: An example pipeline specification YAML
+    - `components`: Contains code for individual Azure Machine Learning components.
+        - `sample_component`: An example component, complete with its specification YAML, entrypoints script, options, configuration and custom functions.
+    - `pipelines`: Contains code for Azure Machine Learning pipelines.
+        - `sample_pipeline`: An example pipeline specification YAML
 
 - `build_aml_environment.py`: A script to set up the Azure Machine Learning environment.
 
