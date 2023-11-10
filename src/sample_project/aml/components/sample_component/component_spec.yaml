@@ -23,9 +23,6 @@ inputs:
   parameter_8:
     type: boolean
 
-  device:
-    type: string
-
   input_dir:
     type: uri_folder
 

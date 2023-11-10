@@ -21,8 +21,6 @@ inputs:
     type: string
   parameter_8:
     type: boolean
-  device:
-    type: string
 
 
 settings:
