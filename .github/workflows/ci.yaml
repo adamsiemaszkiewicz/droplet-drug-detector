@@ -22,8 +22,14 @@ jobs:
           auto-activate-base: false
 
       - name: Install dependencies
+        shell: bash -l {0}
         run: |
           conda install flake8 flake8-bugbear flake8-print mypy types-setuptools types-requests safety pytest black isort
+
+      - name: Debug info
+        run: |
+          echo "PATH: $PATH"
+          conda info --envs
 
       - name: Check code with Black
         run: |
