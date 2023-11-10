@@ -8,7 +8,7 @@ Overview of the project.
 - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
 - [Usage](#usage)
-    - [Azure Machine Learning (AML) and DevOps](#azure-machine-learning-aml-and-devops)
+    - [Azure DevOps](#azure-devops)
     - [Jupyter Notebooks](#jupyter-notebooks)
     - [Data](#data)
     - [Testing](#testing)
@@ -75,15 +75,7 @@ Follow these steps to set up your local environment:
 
 ## Usage
 
-### Azure Machine Learning (AML) and DevOps
-
-The `.azure` directory is organized into subdirectories for managing Azure Machine Learning (`aml`) and Azure DevOps (`devops`) configurations:
-
-#### Azure Machine Learning (AML) Pipelines
-
-- `aml/pipelines`: Contains Azure Machine Learning pipeline specifications used to automate and scale the machine learning lifecycle. For example, `sample_pipeline` defines a sequence of data preparation, model training, and deployment tasks that can be triggered in an Azure ML workspace.
-
-#### Azure DevOps Pipelines and Templates
+### Azure DevOps
 
 - `devops/pipelines`: This folder holds the YAML pipeline definitions for building and deploying using Azure DevOps services.
   - `build_aml_environment.yaml` file sets up the environment needed for Azure ML tasks,
@@ -145,6 +137,7 @@ A detailed explanation of the layout and purpose of the `src` directory contents
     - `configs`: Base configuration settings for the project.
 
 - `sample`: Core modules specific to the project's primary aim.
+    - `aml`: Azure Machine Learning components and pipelines.
     - `data`: Data-related logic.
     - `features`: Feature engineering and transformation logic.
     - `models`: Machine learning model logic.
