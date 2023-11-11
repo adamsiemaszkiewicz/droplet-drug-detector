@@ -12,17 +12,7 @@ from timm.loss import (
 )
 from torch.nn import CrossEntropyLoss, Module
 
-
-class LossConfig(BaseModel):
-    """
-    Configuration for loss function creation.
-    """
-
-    loss_name: str
-    loss_args: Dict[str, Any]
-
-
-LOSS_FUNCTIONS = {
+AVAILABLE_LOSS_FUNCTIONS = {
     "asymmetric_loss_multi_label": AsymmetricLossMultiLabel,
     "asymmetric_loss_single_label": AsymmetricLossSingleLabel,
     "binary_cross_entropy": BinaryCrossEntropy,
@@ -31,6 +21,15 @@ LOSS_FUNCTIONS = {
     "label_smoothing": LabelSmoothingCrossEntropy,
     "soft_target": SoftTargetCrossEntropy,
 }
+
+
+class LossConfig(BaseModel):
+    """
+    Configuration for loss function creation.
+    """
+
+    loss_name: str
+    loss_args: Dict[str, Any]
 
 
 def create_loss_function(config: LossConfig) -> Module:
@@ -46,7 +45,7 @@ def create_loss_function(config: LossConfig) -> Module:
     Raises:
         NotImplementedError: If the loss_name is not recognized.
     """
-    loss_constructor = LOSS_FUNCTIONS.get(config.loss_name)
+    loss_constructor = AVAILABLE_LOSS_FUNCTIONS.get(config.loss_name)
     if not loss_constructor:
         raise NotImplementedError(f"Augmentation {config.loss_name} is not implemented")
 
