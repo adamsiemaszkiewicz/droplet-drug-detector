@@ -3,11 +3,12 @@ from typing import Any, Dict
 
 from pydantic import BaseModel
 from torch.optim import Optimizer
-from torch.optim.lr_scheduler import CosineAnnealingLR, ExponentialLR, LRScheduler, StepLR
+from torch.optim.lr_scheduler import CosineAnnealingLR, ExponentialLR, LRScheduler, OneCycleLR, StepLR
 
 AVAILABLE_SCHEDULERS: Dict[str, Any] = {
     "cosine_annealing": CosineAnnealingLR,
     "exponential": ExponentialLR,
+    "one_cycle": OneCycleLR,
     "step_lr": StepLR,
 }
 
