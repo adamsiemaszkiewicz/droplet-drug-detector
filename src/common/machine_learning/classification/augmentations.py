@@ -26,7 +26,6 @@ from src.common.utils.logger import get_logger
 
 _logger = get_logger(__name__)
 
-# Dictionaries mapping augmentation names to their respective kornia classes
 INTENSITY_AUGMENTATIONS: Dict[str, Type[AugmentationBase2D]] = {
     "color_jitter": ColorJitter,
     "random_brightness": RandomBrightness,
@@ -54,6 +53,10 @@ ALL_AUGMENTATIONS: Dict[str, Type[AugmentationBase2D]] = {**INTENSITY_AUGMENTATI
 class AugmentationConfig(BaseModel):
     """
     Configuration for creating a sequence of augmentations.
+
+    Attributes:
+        names: A list of augmentation names.
+        arguments: A list of dictionaries containing the arguments for each augmentation.
     """
 
     names: List[str]
