@@ -25,20 +25,6 @@ from src.common.utils.logger import get_logger
 
 _logger = get_logger(__name__)
 
-
-class AugmentationConfig(BaseModel):
-    names: List[str]
-    arguments: List[Dict[str, Any]]
-
-    @validator("arguments")
-    def check_lengths(cls, v: List[Dict[str, Any]], values: Dict[str, Any]) -> None:
-        """
-        Validates that the 'names' and 'arguments' lists are of the same length.
-        """
-        if "names" in values and len(values["names"]) != len(v):
-            raise ValueError("The number of augmentation names and arguments must be the same.")
-
-
 INTENSITY_AUGMENTATIONS = {
     "color_jitter": ColorJitter,
     "random_brightness": RandomBrightness,
@@ -59,6 +45,19 @@ GEOMETRIC_AUGMENTATIONS = {
     "random_resized_crop": RandomResizedCrop,
 }
 ALL_AUGMENTATIONS = {**INTENSITY_AUGMENTATIONS, **GEOMETRIC_AUGMENTATIONS}
+
+
+class AugmentationConfig(BaseModel):
+    names: List[str]
+    arguments: List[Dict[str, Any]]
+
+    @validator("arguments")
+    def check_lengths(cls, v: List[Dict[str, Any]], values: Dict[str, Any]) -> None:
+        """
+        Validates that the 'names' and 'arguments' lists are of the same length.
+        """
+        if "names" in values and len(values["names"]) != len(v):
+            raise ValueError("The number of augmentation names and arguments must be the same.")
 
 
 def create_augmentations(config: AugmentationConfig) -> Sequential:
