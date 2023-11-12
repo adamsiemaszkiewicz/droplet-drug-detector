@@ -122,7 +122,7 @@ def create_augmentations(config: AugmentationsConfig) -> Sequential:
         config (AugmentationsConfig): The configuration object containing augmentation settings.
 
     Returns:
-        Sequential: A torch.nn.Sequential object containing the configured augmentation pipeline.
+        Sequential: A Sequential object containing the configured augmentation pipeline.
 
     Raises:
         ValueError: If `extra_arguments_list` is None, which is required to be a list for the pipeline.
@@ -130,9 +130,11 @@ def create_augmentations(config: AugmentationsConfig) -> Sequential:
     if config.extra_arguments_list is None:
         raise ValueError("'extra_arguments_list' cannot be None")
 
+    _logger.info(f"Creating augmentation sequence with the following transformations: {config.name_list}")
+
     augmentations = [
         create_augmentation(augmentation_class=ALL_AUGMENTATIONS[name], arguments=arguments)
         for name, arguments in zip(config.name_list, config.extra_arguments_list)
     ]
-    _logger.info(f"Augmentation sequence created with {len(augmentations)} augmentations.")
+    _logger.info("Augmentation sequence successfully created.")
     return Sequential(*augmentations)
