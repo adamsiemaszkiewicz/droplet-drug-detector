@@ -3,6 +3,7 @@ from typing import Optional
 
 from pydantic import BaseSettings
 
+from src.machine_learning.augmentations import AugmentationsConfig
 from src.machine_learning.classification.loss_functions import ClassificationLossFunctionConfig
 from src.machine_learning.classification.metrics import ClassificationMetricsConfig
 from src.machine_learning.classification.models import ClassificationModelConfig
@@ -16,3 +17,4 @@ class ClassificationConfig(BaseSettings):
     optimizer: OptimizerConfig
     scheduler: Optional[SchedulerConfig] = None
     metrics: ClassificationMetricsConfig
+    augmentations: Optional[AugmentationsConfig] = None
