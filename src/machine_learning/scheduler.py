@@ -40,19 +40,24 @@ class SchedulerConfig(BaseModel):
             )
         return v
 
-    @validator("extra_arguments")
-    def check_default_extra_args(cls, v: Dict[str, Any], values: Dict[str, Any]) -> Dict[str, Any]:
+    @validator("extra_arguments", pre=True, always=True)
+    def check_default_extra_args(cls, v: Optional[Dict[str, Any]], values: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Validates the 'extra_arguments' if necessary keys are present for different types of schedulers.
+        Validates the 'extra_arguments' by assigning a default empty dictionary if None is provided,
+        and also checks necessary keys for different scheduler types.
         """
-        if "name" in values and values["name"] == "cosine_annealing" and "T_max" not in v:
-            raise ValueError("T_max must be provided for CosineAnnealingLR")
-        if "name" in values and values["name"] == "exponential" and "gamma" not in v:
-            raise ValueError("gamma must be provided for ExponentialLR")
-        if "name" in values and values["name"] == "one_cycle" and "max_lr" not in v:
-            raise ValueError("max_lr must be provided for OneCycleLR")
-        if "name" in values and values["name"] == "step_lr" and "step_size" not in v:
-            raise ValueError("step_size must be provided for StepLR")
+        if v is None:
+            v = {}
+        if "name" in values:
+            scheduler_name = values["name"]
+            required_keys = {
+                "cosine_annealing": "T_max",
+                "exponential": "gamma",
+                "one_cycle": "max_lr",
+                "step_lr": "step_size",
+            }
+            if scheduler_name in required_keys and required_keys[scheduler_name] not in v:
+                raise ValueError(f"{required_keys[scheduler_name]} must be provided for {scheduler_name}")
         return v
 
 
