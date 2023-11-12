@@ -24,7 +24,7 @@ class ClassificationMetricsConfig(BaseModel):
     Configuration for creating metrics used for model evaluation.
 
     Attributes:
-        namelist: A list of strings indicating the names of the metrics to be used.
+        name_list: A list of strings indicating the names of the metrics to be used.
         task: A type of classification task
         num_classes: The number of classes, applicable to all metrics.
         extra_arguments_list: A list of dictionaries, each containing metric-specific arguments.
@@ -64,13 +64,11 @@ class ClassificationMetricsConfig(BaseModel):
         Validator to ensure each name in `name_list` corresponds to a valid metric.
         """
         if v not in AVAILABLE_METRICS:
-            raise ValueError(
-                f"Augmentation '{v}' is not implemented. Available augmentations: {list(AVAILABLE_METRICS.keys())}"
-            )
+            raise ValueError(f"Metric '{v}' is not implemented. Available metrics: {list(AVAILABLE_METRICS.keys())}")
         return v
 
 
-def create_metric(metric_class: Type[Metric], task: str, num_classes: int, extra_arguments: Dict[str, Any]) -> Metric:
+def create_metric(metric_class: Type[Metric], task: str, num_classes: int, arguments: Dict[str, Any]) -> Metric:
     """
     Create a metric based on the given name and parameters.
 
@@ -78,7 +76,7 @@ def create_metric(metric_class: Type[Metric], task: str, num_classes: int, extra
         metric_class (Type[Metric]): The metric name.
         task: The task type (binary, multiclass, multilabel).
         num_classes: The number of classes for classification metrics.
-        extra_arguments: Additional arguments specific to the metric.
+        arguments: Additional arguments specific to the metric.
 
     Returns:
         An instance of a PyTorch Metric.
@@ -87,9 +85,11 @@ def create_metric(metric_class: Type[Metric], task: str, num_classes: int, extra
         ValueError: If the metric name is invalid or required arguments are missing.
     """
     try:
-        metric = metric_class(task=task, num_classes=num_classes, **extra_arguments)
+        metric = metric_class(task=task, num_classes=num_classes, **arguments)
     except TypeError as e:
         raise ValueError(f"Incorrect arguments for {metric_class.__name__}: {e}")
+
+    _logger.info(f"Created {metric_class.__name__} with arguments: {arguments}")
 
     return metric
 
@@ -115,7 +115,7 @@ def create_metrics(config: ClassificationMetricsConfig) -> ModuleDict:
             metric_class=AVAILABLE_METRICS[name],
             task=config.task,
             num_classes=config.num_classes,
-            extra_arguments=extra_arguments,
+            arguments=extra_arguments,
         )
     _logger.info("Metrics configured successfully.")
 
