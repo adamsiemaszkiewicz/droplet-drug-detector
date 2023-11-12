@@ -58,7 +58,7 @@ class AugmentationsConfig(BaseModel):
     name_list: List[str]
     extra_arguments_list: Optional[List[Dict[str, Any]]] = None
 
-    @validator(pre=True)
+    @validator("extra_arguments_list", pre=True)
     def fill_empty_extra_arguments_list(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """
         Pre-validator to ensure `extra_arguments_list` is populated with empty dictionaries if None.
@@ -69,7 +69,7 @@ class AugmentationsConfig(BaseModel):
         values["extra_arguments_list"] = extra_arguments_list
         return values
 
-    @validator
+    @validator("name_list", "extra_arguments_list")
     def validate_list_lengths(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """
         Validator to check the length of `name_list` and `extra_arguments_list` are the same.
