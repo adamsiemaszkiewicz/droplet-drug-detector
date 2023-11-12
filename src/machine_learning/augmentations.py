@@ -51,11 +51,18 @@ ALL_AUGMENTATIONS: Dict[str, Type[AugmentationBase2D]] = {**INTENSITY_AUGMENTATI
 
 
 class AugmentationsConfig(BaseModel):
+    """
+    Configuration for creating a sequence of augmentations.
+    """
+
     name_list: List[str]
     extra_arguments_list: Optional[List[Dict[str, Any]]] = None
 
     @validator(pre=True)
     def fill_empty_extra_arguments_list(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Pre-validator to ensure `extra_arguments_list` is populated with empty dictionaries if None.
+        """
         name_list, extra_arguments_list = values.get("name_list"), values.get("extra_arguments_list")
         if extra_arguments_list is None and name_list is not None:
             extra_arguments_list = [{} for _ in name_list]
@@ -64,6 +71,9 @@ class AugmentationsConfig(BaseModel):
 
     @validator
     def validate_list_lengths(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Validator to check the length of `name_list` and `extra_arguments_list` are the same.
+        """
         name_list, extra_arguments_list = values.get("name_list"), values.get("extra_arguments_list")
         if name_list is not None and extra_arguments_list is not None:
             if len(name_list) != len(extra_arguments_list):
@@ -72,6 +82,9 @@ class AugmentationsConfig(BaseModel):
 
     @validator("name_list", each_item=True)
     def validate_names(cls, v: str) -> str:
+        """
+        Validator to ensure each name in `name_list` corresponds to a valid augmentation.
+        """
         if v not in ALL_AUGMENTATIONS:
             raise ValueError(
                 f"Augmentation '{v}' is not implemented. Available augmentations: {list(ALL_AUGMENTATIONS.keys())}"
@@ -80,6 +93,19 @@ class AugmentationsConfig(BaseModel):
 
 
 def create_augmentation(augmentation_class: Type[AugmentationBase2D], arguments: Dict[str, Any]) -> AugmentationBase2D:
+    """
+    Creates an augmentation from a given class with provided arguments.
+
+    Args:
+        augmentation_class (Type[AugmentationBase2D]): The class of the augmentation to create.
+        arguments (Dict[str, Any]): A dictionary of arguments for the augmentation's constructor.
+
+    Returns:
+        AugmentationBase2D: An instance of the specified augmentation class.
+
+    Raises:
+        ValueError: If the provided arguments are not suitable for the augmentation class.
+    """
     try:
         augmentation = augmentation_class(**arguments)
     except TypeError as e:
@@ -89,6 +115,18 @@ def create_augmentation(augmentation_class: Type[AugmentationBase2D], arguments:
 
 
 def create_augmentations(config: AugmentationsConfig) -> Sequential:
+    """
+    Creates a sequential pipeline of augmentations from an AugmentationsConfig instance.
+
+    Args:
+        config (AugmentationsConfig): The configuration object containing augmentation settings.
+
+    Returns:
+        Sequential: A torch.nn.Sequential object containing the configured augmentation pipeline.
+
+    Raises:
+        ValueError: If `extra_arguments_list` is None, which is required to be a list for the pipeline.
+    """
     if config.extra_arguments_list is None:
         raise ValueError("'extra_arguments_list' cannot be None")
 
