@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, Tuple, Union
 
 from lightning import LightningModule
 from torch import Tensor
-from torch.nn import Module
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
 
 from src.common.consts.machine_learning import STAGE_TESTING, STAGE_TRAINING, STAGE_VALIDATION
+from src.machine_learning.augmentations import create_augmentations
 from src.machine_learning.classification.config import ClassificationConfig
 from src.machine_learning.classification.loss_functions import create_loss_function
 from src.machine_learning.classification.metrics import create_metrics
@@ -29,17 +29,18 @@ class ClassificationLightningModule(LightningModule):
         model (Module): The neural network model defined by the create_model function.
         loss_function (Module): The loss function, instantiated based on config.
         metrics (Dict[str, Metric]): A dictionary mapping metric names to Metric instances.
-        augmenter (Optional[Module]): An optional data augmentation module.
+        augmentations (Optional[Module]): An optional data augmentation module.
     """
 
-    def __init__(self, config: ClassificationConfig, augmenter: Optional[Module] = None):
+    def __init__(self, config: ClassificationConfig):
         super().__init__()
         self.config = config
         self.model = create_model(config=self.config.model)
         self.loss_function = create_loss_function(config=self.config.loss_function)
         self.metrics = create_metrics(config=self.config.metrics)
-
-        self.augmenter = augmenter
+        self.augmentations = (
+            create_augmentations(config=self.config.augmentations) if self.config.augmentations else None
+        )
 
     def forward(self, x: Tensor) -> Tensor:
         return self.model(x)
@@ -122,8 +123,8 @@ class ClassificationLightningModule(LightningModule):
             if no augmentation is to be applied.
         """
         x, y = batch
-        if self.trainer.training and self.augmenter:
-            x = self.augmenter(x)
+        if self.trainer.training and self.augmentations:
+            x = self.augmentations(x)
         return x, y
 
     def configure_optimizers(self) -> Dict[str, Union[Optimizer, LRScheduler]]:
