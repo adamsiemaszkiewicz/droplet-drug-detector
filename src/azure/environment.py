@@ -2,10 +2,10 @@
 from pathlib import Path
 from typing import Optional
 
-from azure.ai.ml import MLClient
-from azure.ai.ml.entities import BuildContext, Environment
 from azureml.core.runconfig import DEFAULT_CPU_IMAGE, DEFAULT_GPU_IMAGE
 
+from azure.ai.ml import MLClient
+from azure.ai.ml.entities import BuildContext, Environment
 from src.common.consts.directories import DOCKER_DIR
 from src.common.utils.logger import get_logger
 

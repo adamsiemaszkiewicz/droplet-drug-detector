@@ -5,10 +5,10 @@ from pathlib import Path
 from typing import List
 
 import structlog
-from azure.core.exceptions import ResourceExistsError
-from azure.storage.blob import BlobBlock, BlobClient, BlobProperties, BlobServiceClient, ContainerClient
 from tqdm import tqdm
 
+from azure.core.exceptions import ResourceExistsError
+from azure.storage.blob import BlobBlock, BlobClient, BlobProperties, BlobServiceClient, ContainerClient
 from src.common.consts.azure import BLOB_UPLOAD_CHUNK_SIZE
 
 logger = structlog.get_logger()
