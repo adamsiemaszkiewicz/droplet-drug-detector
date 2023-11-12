@@ -36,22 +36,46 @@ class ClassificationMetricsConfig(BaseModel):
     num_classes: int
     extra_arguments_list: Optional[List[Dict[str, Any]]] = None
 
-    @validator("extra_arguments_list")
-    def check_lengths(cls, v: List[Dict[str, Any]], values: Dict[str, Any]) -> List[Dict[str, Any]]:
+    @validator("extra_arguments_list", pre=True)
+    def fill_empty_extra_arguments_list(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Validates that the 'names' and 'arguments' lists are of the same length.
+        Pre-validator to ensure `extra_arguments_list` is populated with empty dictionaries if None.
         """
-        if "names" in values and len(values["names"]) != len(v):
-            raise ValueError("The number of augmentation names and arguments must be the same.")
+        name_list, extra_arguments_list = values.get("name_list"), values.get("extra_arguments_list")
+        if extra_arguments_list is None and name_list is not None:
+            extra_arguments_list = [{} for _ in name_list]
+        values["extra_arguments_list"] = extra_arguments_list
+        return values
+
+    @validator("name_list", "extra_arguments_list")
+    def validate_list_lengths(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Validator to check the length of `name_list` and `extra_arguments_list` are the same.
+        """
+        name_list, extra_arguments_list = values.get("name_list"), values.get("extra_arguments_list")
+        if name_list is not None and extra_arguments_list is not None:
+            if len(name_list) != len(extra_arguments_list):
+                raise ValueError("The length of 'name_list' and 'extra_arguments_list' must be the same.")
+        return values
+
+    @validator("name_list", each_item=True)
+    def validate_names(cls, v: str) -> str:
+        """
+        Validator to ensure each name in `name_list` corresponds to a valid metric.
+        """
+        if v not in AVAILABLE_METRICS:
+            raise ValueError(
+                f"Augmentation '{v}' is not implemented. Available augmentations: {list(AVAILABLE_METRICS.keys())}"
+            )
         return v
 
 
-def create_metric(name: str, task: str, num_classes: int, extra_arguments: Dict[str, Any]) -> Metric:
+def create_metric(metric_class: Type[Metric], task: str, num_classes: int, extra_arguments: Dict[str, Any]) -> Metric:
     """
     Create a metric based on the given name and parameters.
 
     Args:
-        name: The metric name.
+        metric_class (Type[Metric]): The metric name.
         task: The task type (binary, multiclass, multilabel).
         num_classes: The number of classes for classification metrics.
         extra_arguments: Additional arguments specific to the metric.
@@ -62,21 +86,10 @@ def create_metric(name: str, task: str, num_classes: int, extra_arguments: Dict[
     Raises:
         ValueError: If the metric name is invalid or required arguments are missing.
     """
-    if name not in AVAILABLE_METRICS:
-        raise ValueError(f"Metric '{name}' is not available. Available metrics: {list(AVAILABLE_METRICS.keys())}")
-
-    metric_args = {"num_classes": num_classes, "task": task}
-    if extra_arguments:
-        metric_args.update(extra_arguments)
-    metric_class = AVAILABLE_METRICS[name]
-
     try:
-        metric = metric_class(**metric_args)
-        _logger.info(f"Metric '{name}' created with arguments: {metric_args}")
+        metric = metric_class(task=task, num_classes=num_classes, **extra_arguments)
     except TypeError as e:
-        error_message = f"Incorrect arguments for metric '{name}'. Error: {e}"
-        _logger.error(error_message)
-        raise ValueError(error_message)
+        raise ValueError(f"Incorrect arguments for {metric_class.__name__}: {e}")
 
     return metric
 
@@ -94,10 +107,15 @@ def create_metrics(config: ClassificationMetricsConfig) -> ModuleDict:
     if config.extra_arguments_list is None:
         raise ValueError("'extra_arguments_list' cannot be None")
 
+    _logger.info(f"Creating module dictionary with the following metrics: {config.name_list}")
+
     metrics = ModuleDict()
     for name, extra_arguments in zip(config.name_list, config.extra_arguments_list):
         metrics[name] = create_metric(
-            name=name, task=config.task, num_classes=config.num_classes, extra_arguments=extra_arguments
+            metric_class=AVAILABLE_METRICS[name],
+            task=config.task,
+            num_classes=config.num_classes,
+            extra_arguments=extra_arguments,
         )
     _logger.info("Metrics configured successfully.")
 
