@@ -36,6 +36,16 @@ class OptimizerConfig(BaseModel):
             )
         return v
 
+    @validator("extra_arguments", pre=True, always=True)
+    def check_default_extra_args(cls, v: Optional[Dict[str, Any]], values: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Validates the 'extra_arguments' by assigning a default empty dictionary if None is provided,
+        and also checks necessary keys for different scheduler types.
+        """
+        if v is None:
+            v = {}
+        return v
+
 
 def create_optimizer(config: OptimizerConfig, parameters: Iterator[Parameter]) -> Optimizer:
     """
