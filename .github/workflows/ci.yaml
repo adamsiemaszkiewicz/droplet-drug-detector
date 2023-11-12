@@ -9,10 +9,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # Define environment variables for the entire job
+
     env:
-      PROJECT_NAME: sample-project
-      PYTHON_VERSION: '3.10'
+      CONDA_ENV: sample-project-env  # Define the conda environment variable
+      PYTHON_VERSION: '3.10'  # Define the python version variable
 
     steps:
       - uses: actions/checkout@v2
@@ -20,28 +20,31 @@ jobs:
       - name: Set up Conda environment
         uses: conda-incubator/setup-miniconda@v2
         with:
-          activate-environment: ${{ env.PROJECT_NAME }}-env
-          environment-file: environments/${{ env.PROJECT_NAME }}.yaml
-          python-version: ${{ env.PYTHON_VERSION }}
+          activate-environment: ${{ env.CONDA_ENV }}
+          environment-file: environments/${{ env. CONDA_ENC }}.yaml
+          python-version: '3.10'
           auto-activate-base: false
 
-      - name: Define CONDA_ENV
-        run: echo "CONDA_ENV=${{ env.PROJECT_NAME }}-env" >> $GITHUB_ENV
-
       - name: Check code with Black
-        run: conda run --name ${{ env.CONDA_ENV }} --no-capture-output black --check --line-length 120 src tests
+        run: |
+          conda run --name sample-project-env --no-capture-output black --check --line-length 120 src tests
 
       - name: Lint with Flake8
-        run: conda run --name ${{ env.CONDA_ENV }} --no-capture-output flake8 src tests --max-line-length=120 --extend-ignore=D100,D101,D102,D103,D104,D105,D106,D107,E203,W503 --exclude=.git,__pycache__,build,dist,venv,.venv,.mypy_cache,.tox
+        run: |
+          conda run --name sample-project-env --no-capture-output flake8 src tests --max-line-length=120 --extend-ignore=D100,D101,D102,D103,D104,D105,D106,D107,E203,W503 --exclude=.git,__pycache__,build,dist,venv,.venv,.mypy_cache,.tox
 
       - name: Sort imports with isort
-        run: conda run --name ${{ env.CONDA_ENV }} --no-capture-output isort src tests --check-only --profile black
+        run: |
+          conda run --name sample-project-env --no-capture-output isort src tests --check-only --profile black
 
       - name: Type check with mypy
-        run: conda run --name ${{ env.CONDA_ENV }} --no-capture-output mypy src tests --ignore-missing-imports
+        run: |
+          conda run --name sample-project-env --no-capture-output mypy src tests --ignore-missing-imports
 
       - name: Run pytest
-        run: conda run --name ${{ env.CONDA_ENV }} --no-capture-output pytest
+        run: |
+          conda run --name sample-project-env --no-capture-output pytest
 
       - name: Safety Check
-        run: conda run --name ${{ env.CONDA_ENV }} --no-capture-output safety check
+        run: |
+          conda run --name sample-project-env --no-capture-output safety check
