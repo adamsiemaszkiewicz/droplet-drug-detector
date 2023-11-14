@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Any, Dict, Type
+from typing import Any, Dict, Optional, Type
 
 from pydantic import BaseModel, validator
 from timm.loss import (
@@ -37,12 +37,28 @@ class ClassificationLossFunctionConfig(BaseModel):
     """
 
     name: str
-    extra_arguments: Dict[str, Any] = {}
+    extra_arguments: Optional[Dict[str, Any]] = None
 
-    @validator("extra_arguments")
-    def check_extra_args(cls, v: Dict[str, Any], values: Dict[str, Any]) -> Dict[str, Any]:
-        if "name" in values and values["name"].startswith("asymmetric_loss") and "gamma" not in v:
-            raise ValueError("gamma must be provided for asymmetric loss functions")
+    @validator("name")
+    def validate_name(cls, v: str) -> str:
+        """
+        Validates if the loss function is available.
+        """
+        if v not in AVAILABLE_LOSS_FUNCTIONS:
+            raise ValueError(
+                f"Loss function '{v}' is not implemented.\n"
+                f"Available loss functions: {list(AVAILABLE_LOSS_FUNCTIONS.keys())}"
+            )
+        return v
+
+    @validator("extra_arguments", pre=True, always=True)
+    def validate_empty_extra_arguments(cls, v: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Validates if the extra_arguments are empty.
+        """
+        if v is None:
+            _logger.info("No extra arguments provided for the loss function.")
+            return {}
         return v
 
 
@@ -55,15 +71,13 @@ def create_loss_function(config: ClassificationLossFunctionConfig) -> Module:
 
     Returns:
         Module: A PyTorch loss function module.
-
-    Raises:
-        NotImplementedError: If the loss function name is not recognized or required arguments are missing.
     """
     loss_class = AVAILABLE_LOSS_FUNCTIONS.get(config.name)
+
     if loss_class is None:
-        valid_loss_functions = list(AVAILABLE_LOSS_FUNCTIONS.keys())
         raise ValueError(
-            f"Scheduler '{config.name}' is not implemented. Available loss functions: {valid_loss_functions}"
+            f"Loss function '{config.name}' is not implemented.\n"
+            f"Available loss functions: {list(AVAILABLE_LOSS_FUNCTIONS.keys())}"
         )
 
     loss_function = loss_class(**config.extra_arguments)
