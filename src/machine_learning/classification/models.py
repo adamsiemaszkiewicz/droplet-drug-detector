@@ -2,7 +2,7 @@
 from typing import List
 
 import timm
-from pydantic import BaseModel, conint, validator
+from pydantic import BaseModel, validator
 from torch.nn import Module
 
 from src.common.utils.logger import get_logger
@@ -19,8 +19,8 @@ class ClassificationModelConfig(BaseModel):
 
     name: str
     pretrained: bool
-    num_classes: int = conint(gt=0)  # Ensure a positive integer
-    in_channels: int = conint(gt=0)  # Ensure a positive integer
+    num_classes: int
+    in_channels: int
 
     @validator("name")
     def validate_model_name(cls, v: str) -> str:
@@ -31,6 +31,15 @@ class ClassificationModelConfig(BaseModel):
             raise ValueError(
                 f"Model '{v}' is not implemented. Check available architectures at https://huggingface.co/timm"
             )
+        return v
+
+    @validator("num_classes", "in_channels")
+    def validate_positive_integer(cls, v: int) -> int:
+        """
+        Validates if the provided value is a positive integer.
+        """
+        if not isinstance(v, int) or v <= 0:
+            raise ValueError(f"The value {v} must be a positive integer.")
         return v
 
 
