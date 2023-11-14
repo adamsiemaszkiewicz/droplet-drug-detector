@@ -1,21 +1,17 @@
 # -*- coding: utf-8 -*-
 from typing import Any, Dict, List, Optional, Type
 
+from lightning.pytorch.loggers import CSVLogger, Logger, MLFlowLogger, TensorBoardLogger
 from pydantic import BaseModel, validator
-from pytorch_lightning.loggers import LightningLoggerBase
 
 from src.common.utils.logger import get_logger
 
-# Obtain a logger for this module
 _logger = get_logger(__name__)
 
-# Define a dictionary of available loggers for easy reference and validation
-AVAILABLE_LOGGERS: Dict[str, Type[LightningLoggerBase]] = {
-    # "logger_name": LoggerClass,
-    # Populate this dictionary with actual logger classes, like:
-    # "tensorboard": TensorBoardLogger,
-    # "csv": CSVLogger,
-    # ... Add more as you import or define them
+AVAILABLE_LOGGERS: Dict[str, Type[Logger]] = {
+    "csv": CSVLogger,
+    "mlflow": MLFlowLogger,
+    "tensorboard": TensorBoardLogger,
 }
 
 
@@ -55,7 +51,7 @@ class LoggersConfig(BaseModel):
         return v
 
 
-def create_logger(logger_name: str, config: Dict[str, Any]) -> LightningLoggerBase:
+def create_logger(logger_name: str, config: Dict[str, Any]) -> Logger:
     """
     Creates a logger instance from a given name and configuration.
 
@@ -64,7 +60,7 @@ def create_logger(logger_name: str, config: Dict[str, Any]) -> LightningLoggerBa
         config (Dict[str, Any]): A dictionary of configuration for the logger's constructor.
 
     Returns:
-        LightningLoggerBase: An instance of the specified logger class.
+        Logger: An instance of the specified logger class.
     """
     logger_class = AVAILABLE_LOGGERS.get(logger_name)
     if not logger_class:
@@ -75,10 +71,11 @@ def create_logger(logger_name: str, config: Dict[str, Any]) -> LightningLoggerBa
         raise ValueError(f"Incorrect arguments for {logger_name}: {e}")
 
     _logger.info(f"Created logger {logger_name} with configuration: {config}")
+
     return logger
 
 
-def create_loggers(config: LoggersConfig) -> List[LightningLoggerBase]:
+def create_loggers(config: LoggersConfig) -> List[Logger]:
     """
     Creates a list of logger instances from a LoggersConfig instance.
 
