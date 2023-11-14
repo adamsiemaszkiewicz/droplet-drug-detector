@@ -2,19 +2,19 @@
 from typing import List
 
 import timm
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from torch.nn import Module
 
 from src.common.utils.logger import get_logger
 
 _logger = get_logger(__name__)
 
-AVAILABLE_CLASSIFICATION_MODELS: List[str] = timm.list_models()
+AVAILABLE_MODELS: List[str] = timm.list_models()
 
 
 class ClassificationModelConfig(BaseModel):
     """
-    Configuration for creating a timm model.
+    Configuration for creating a classification model.
     """
 
     name: str
@@ -22,11 +22,21 @@ class ClassificationModelConfig(BaseModel):
     num_classes: int
     in_channels: int
 
+    @validator("name")
+    def validate_name(cls, v: str) -> str:
+        """
+        Ensures the model name is available in timm.
+        """
+        if v not in AVAILABLE_MODELS:
+            raise ValueError(
+                f"Model '{v}' is not implemented. Check available architectures at https://huggingface.co/timm"
+            )
+        return v
+
 
 def create_model(config: ClassificationModelConfig) -> Module:
     """
-    Create a timm model based on a configuration instance.
-
+    Create a classification model based on a configuration instance.
     List of available architectures: https://huggingface.co/timm
 
     Args:
@@ -34,15 +44,7 @@ def create_model(config: ClassificationModelConfig) -> Module:
 
     Returns:
         Module: The created model.
-
-    Raises:
-        NotImplementedError: If the model_name is not recognized.
     """
-    if config.name not in AVAILABLE_CLASSIFICATION_MODELS:
-        raise NotImplementedError(
-            f"Model '{config.name}' not found in timm. Check available architectures at https://huggingface.co/timm"
-        )
-
     model = timm.create_model(
         model_name=config.name,
         pretrained=config.pretrained,
