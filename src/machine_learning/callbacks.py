@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from typing import Any, Dict, List, Optional, Type
 
+from lightning.pytorch.callbacks import Callback
 from pydantic import BaseModel, validator
-from pytorch_lightning import Callback
 
 from src.common.utils.logger import get_logger
 
