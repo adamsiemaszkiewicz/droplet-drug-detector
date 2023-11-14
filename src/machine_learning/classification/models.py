@@ -31,7 +31,7 @@ class ClassificationModelConfig(BaseModel):
     @validator("name")
     def validate_name(cls, v: str) -> str:
         """
-        Validates if the model is available.
+        Validates if the model is implemented.
         """
         if v not in AVAILABLE_MODELS:
             raise ValueError(
