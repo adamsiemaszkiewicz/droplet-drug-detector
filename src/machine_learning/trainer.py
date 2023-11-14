@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from typing import List, Optional, Type
+from pathlib import Path
+from typing import List, Literal, Optional, Type, Union
 
 from lightning import Trainer
 from lightning.pytorch.callbacks import Callback
@@ -17,11 +18,25 @@ class TrainerConfig(BaseModel):
 
     Attributes:
         max_epochs: The maximum number of epochs to train for.
+        precision: The precision to use for training.
+        accumulate_grad_batches: The number of batches to accumulate gradients for.
+        default_root_dir: The default root directory for storing logs and checkpoints.
+        fast_dev_run: Enable for debugging purposes only.
+        overfit_batches: Amount of data to use for overfitting (0.0-1.0 as percentage or integer number of batches).
         callbacks: A list of PyTorch Lightning callbacks to use.
         logger: A list of PyTorch Lightning loggers to use.
     """
 
     max_epochs: int
+    precision: Literal["16", "32", "64"] = "32"
+    accumulate_grad_batches: int = 1
+    default_root_dir: Optional[Union[str, Path]] = None
+
+    fast_dev_run: bool = False
+    overfit_batches: float = 0.0
+
+    inference_mode: bool = False
+
     callbacks: Optional[List[Type[Callback]]] = None
     logger: Optional[List[Type[Logger]]] = None
 
