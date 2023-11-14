@@ -51,14 +51,14 @@ class ClassificationModelConfig(BaseModel):
 
 def create_model(config: ClassificationModelConfig) -> Module:
     """
-    Create a classification model based on a configuration instance.
+    Create a classification model based on the configuration.
     List of available architectures: https://huggingface.co/timm
 
     Args:
         config (ClassificationModelConfig): Configuration object containing model parameters.
 
     Returns:
-        Module: The created model.
+        Module: A PyTorch model.
     """
     _logger.info(f"Creating model with the following configuration: {config.dict()}")
 
