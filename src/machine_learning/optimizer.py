@@ -63,14 +63,14 @@ class OptimizerConfig(BaseModel):
 
 def create_optimizer(config: OptimizerConfig, parameters: Iterator[Parameter]) -> Optimizer:
     """
-    Create an optimizer based on the configuration provided in OptimizerConfig.
+    Create an optimizer based on the configuration.
 
     Args:
-        config: Configuration object specifying the type and parameters of the optimizer.
-        parameters: An iterator over the model parameters (typically the result of model.parameters()).
+        config (OptimizerConfig): Configuration object containing optimizer parameters.
+        parameters (Iterator[Parameter]: Mmodel parameters iterator (typically the result of model.parameters()).
 
     Returns:
-        An instance of a PyTorch Optimizer.
+        Optimizer: A PyTorch optimizer.
     """
     _logger.info(f"Creating optimizer with the following configuration: {config.dict()}")
 
