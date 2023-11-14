@@ -54,13 +54,13 @@ class ClassificationLossFunctionConfig(BaseModel):
 
 def create_loss_function(config: ClassificationLossFunctionConfig) -> Module:
     """
-    Create a loss function based on the configuration provided in LossFunctionConfig.
+    Create a loss function based on the configuration.
 
     Args:
-        config: Configuration object specifying the name and arguments of the loss function.
+        config (ClassificationLossFunctionConfig): Configuration object containing loss function parameters.
 
     Returns:
-        Module: A PyTorch loss function module.
+        Module: A PyTorch loss function.
     """
     _logger.info(f"Creating loss function with the following configuration: {config.dict()}")
 
