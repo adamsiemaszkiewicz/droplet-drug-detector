@@ -36,27 +36,27 @@ class ClassificationMetricsConfig(BaseModel):
     num_classes: int
     extra_arguments_list: Optional[List[Dict[str, Any]]] = None
 
-    @validator("extra_arguments_list", pre=True)
-    def fill_empty_extra_arguments_list(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    @validator("extra_arguments_list", pre=True, always=True)
+    def fill_empty_extra_arguments_list(
+        cls, v: Optional[List[Dict[str, Any]]], values: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
         """
         Pre-validator to ensure `extra_arguments_list` is populated with empty dictionaries if None.
         """
-        name_list, extra_arguments_list = values.get("name_list"), values.get("extra_arguments_list")
-        if extra_arguments_list is None and name_list is not None:
-            extra_arguments_list = [{} for _ in name_list]
-        values["extra_arguments_list"] = extra_arguments_list
-        return values
+        if v is None:
+            name_list = values.get("name_list", [])
+            return [{} for _ in name_list]
+        return v
 
-    @validator("name_list", "extra_arguments_list")
-    def validate_list_lengths(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    @validator("extra_arguments_list")
+    def validate_list_lengths(cls, v: List[Dict[str, Any]], values: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
-        Validator to check the length of `name_list` and `extra_arguments_list` are the same.
+        Validator to check that `extra_arguments_list` has the same length as `name_list`.
         """
-        name_list, extra_arguments_list = values.get("name_list"), values.get("extra_arguments_list")
-        if name_list is not None and extra_arguments_list is not None:
-            if len(name_list) != len(extra_arguments_list):
-                raise ValueError("The length of 'name_list' and 'extra_arguments_list' must be the same.")
-        return values
+        if v is None:
+            name_list = values.get("name_list", [])
+            return [{} for _ in name_list]
+        return v
 
     @validator("name_list", each_item=True)
     def validate_names(cls, v: str) -> str:
