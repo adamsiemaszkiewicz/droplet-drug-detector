@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from typing import Any, Dict, List, Optional
 
+from lightning import Trainer
 from lightning.pytorch.callbacks import Callback
 from lightning.pytorch.loggers import Logger
 from pydantic import BaseModel, root_validator
-from pytorch_lightning import Trainer
 
 from src.common.utils.logger import get_logger
 
@@ -19,13 +19,9 @@ class TrainerConfig(BaseModel):
     as required for your specific configuration needs.
     """
 
-    max_epochs: int = 10
-    gpus: Optional[int] = None
-    auto_lr_find: bool = False
+    max_epochs: int = 20
     callbacks: Optional[list] = None  # Expect this to be a list of PyTorch Lightning Callback instances
     logger: Optional[list] = None  # Expect this to be a list of PyTorch Lightning Logger instances
-
-    # ... include other Trainer parameters as needed
 
     @root_validator(pre=True)
     def check_gpu_availability(cls, values: Dict[str, Any]) -> Dict[str, Any]:
@@ -52,8 +48,6 @@ def create_trainer(config: TrainerConfig, callbacks: List[Callback], loggers: Li
     Returns:
         Trainer: An instance of the PyTorch Lightning Trainer configured as per the provided settings.
     """
-    trainer_settings = config.dict(exclude_unset=True)  # Convert Pydantic model to a dictionary
-    trainer = Trainer(**trainer_settings)
-    _logger.info(f"Created PyTorch Lightning Trainer with configuration: {trainer_settings}")
+    trainer = Trainer(max_epochs=config.max_epochs, logger=loggers, callbacks=callbacks)
 
     return trainer
