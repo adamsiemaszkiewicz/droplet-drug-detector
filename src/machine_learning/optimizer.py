@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Any, Dict, Iterator, Optional, Type
+from typing import Any, Dict, Iterator, Type
 
 from pydantic import BaseModel, validator
 from torch.nn.parameter import Parameter
@@ -23,27 +23,29 @@ class OptimizerConfig(BaseModel):
     name: str
     learning_rate: float
     weight_decay: float = 0
-    extra_arguments: Optional[Dict[str, Any]] = None
+    extra_arguments: Dict[str, Any] = {}
 
     @validator("name")
-    def validate_names(cls, v: str) -> str:
+    def validate_name(cls, v: str) -> str:
         """
-        Validator to ensure each name in `name_list` corresponds to a valid augmentation.
+        Validates if the optimizer is implemented.
         """
         if v not in AVAILABLE_OPTIMIZERS:
             raise ValueError(
-                f"Optimizer '{v}' is not implemented. Available optimizers: {list(AVAILABLE_OPTIMIZERS.keys())}"
+                f"Optimizer '{v}' is not implemented.\n" f"Available optimizers: {list(AVAILABLE_OPTIMIZERS.keys())}"
             )
         return v
 
-    @validator("extra_arguments", pre=True, always=True)
-    def check_default_extra_args(cls, v: Optional[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        Validates the 'extra_arguments' by assigning a default empty dictionary if None is provided,
-        and also checks necessary keys for different scheduler types.
-        """
-        if v is None:
-            v = {}
+    @validator("learning_rate")
+    def validate_learning_rate(cls, v: float) -> float:
+        if v <= 0:
+            raise ValueError("Learning rate must be a positive number.")
+        return v
+
+    @validator("weight_decay")
+    def validate_weight_decay(cls, v: float) -> float:
+        if v < 0:
+            raise ValueError("Weight decay must be a non-negative number.")
         return v
 
 
