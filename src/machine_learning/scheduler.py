@@ -60,13 +60,14 @@ class SchedulerConfig(BaseModel):
         return v
 
 
-def create_scheduler(config: SchedulerConfig, optimizer: Optimizer) -> LRScheduler:
+def create_scheduler(config: SchedulerConfig, optimizer: Optimizer, total_steps: int) -> LRScheduler:
     """
     Create a learning rate scheduler based on the configuration.
 
     Args:
         config (SchedulerConfig): A SchedulerConfig instance containing the scheduler name and extra arguments.
         optimizer (Optimizer): An Optimizer instance for which the scheduler will manage the learning rate.
+        total_steps (int): Total number of training steps required for some schedulers like OneCycleLR.
 
     Returns:
         LRScheduler: A PyTorch learning rate scheduler.
@@ -79,6 +80,10 @@ def create_scheduler(config: SchedulerConfig, optimizer: Optimizer) -> LRSchedul
             f"Scheduler '{config.name}' is not implemented.\n"
             f"Available schedulers: {list(AVAILABLE_SCHEDULERS.keys())}"
         )
+
+    if config.name == "one_cycle":
+        config.extra_arguments["total_steps"] = total_steps
+
     scheduler = scheduler_class(optimizer, **config.extra_arguments)
 
     _logger.info("Learning rate scheduler successfully created.")
