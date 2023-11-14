@@ -38,7 +38,7 @@ class OptimizerConfig(BaseModel):
         """
         if v not in AVAILABLE_OPTIMIZERS:
             raise ValueError(
-                f"Optimizer '{v}' is not implemented.\n" f"Available optimizers: {list(AVAILABLE_OPTIMIZERS.keys())}"
+                f"Optimizer '{v}' is not implemented.\nAvailable optimizers: {list(AVAILABLE_OPTIMIZERS.keys())}"
             )
         return v
 
