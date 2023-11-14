@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, Type
 
 from pydantic import BaseModel, validator
 from timm.loss import (
@@ -37,7 +37,7 @@ class ClassificationLossFunctionConfig(BaseModel):
     """
 
     name: str
-    extra_arguments: Optional[Dict[str, Any]] = None
+    extra_arguments: Dict[str, Any] = {}
 
     @validator("name")
     def validate_name(cls, v: str) -> str:
@@ -49,16 +49,6 @@ class ClassificationLossFunctionConfig(BaseModel):
                 f"Loss function '{v}' is not implemented.\n"
                 f"Available loss functions: {list(AVAILABLE_LOSS_FUNCTIONS.keys())}"
             )
-        return v
-
-    @validator("extra_arguments", pre=True, always=True)
-    def validate_empty_extra_arguments(cls, v: Optional[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        Validates if the extra_arguments are empty.
-        """
-        if v is None:
-            _logger.info("No extra arguments provided for the loss function.")
-            return {}
         return v
 
 
