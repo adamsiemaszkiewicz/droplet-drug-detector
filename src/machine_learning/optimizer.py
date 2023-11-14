@@ -17,7 +17,13 @@ AVAILABLE_OPTIMIZERS: Dict[str, Type[Optimizer]] = {
 
 class OptimizerConfig(BaseModel):
     """
-    Configuration schema for optimizers with explicit common fields and provisions for additional arguments.
+    Configuration for creating optimizer.
+
+    Attributes:
+        name: The name of the optimizer.
+        learning_rate: The learning rate of the optimizer.
+        weight_decay: The weight decay of the optimizer.
+        extra_arguments: A dictionary containing all other loss optimizer-specific arguments.
     """
 
     name: str
@@ -48,7 +54,7 @@ class OptimizerConfig(BaseModel):
     @validator("weight_decay")
     def validate_weight_decay(cls, v: float) -> float:
         """
-        Validates if the weight decay is a non-negative number.:
+        Validates if the weight decay is a non-negative number.
         """
         if v < 0:
             raise ValueError("Weight decay must be a non-negative number.")
