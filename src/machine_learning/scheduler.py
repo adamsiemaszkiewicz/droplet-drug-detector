@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, Type
 
 from pydantic import BaseModel, validator
 from torch.optim import Optimizer
@@ -16,6 +16,13 @@ AVAILABLE_SCHEDULERS: Dict[str, Type[LRScheduler]] = {
     "step_lr": StepLR,
 }
 
+REQUIRED_ARGUMENTS: Dict[str, str] = {
+    "cosine_annealing": "T_max",
+    "exponential": "gamma",
+    "one_cycle": "max_lr",
+    "step_lr": "step_size",
+}
+
 
 class SchedulerConfig(BaseModel):
     """
@@ -27,67 +34,53 @@ class SchedulerConfig(BaseModel):
     """
 
     name: str
-    extra_arguments: Optional[Dict[str, Any]] = None
+    extra_arguments: Dict[str, Any] = {}
 
     @validator("name")
-    def validate_names(cls, v: str) -> str:
+    def validate_name(cls, v: str) -> str:
         """
-        Validator to ensure each name in `name_list` corresponds to a valid augmentation.
+        Validates if the optimizer is implemented.
         """
         if v not in AVAILABLE_SCHEDULERS:
             raise ValueError(
-                f"Scheduler '{v}' is not implemented. Available schedulers: {list(AVAILABLE_SCHEDULERS.keys())}"
+                f"Scheduler '{v}' is not implemented.\nAvailable schedulers: {list(AVAILABLE_SCHEDULERS.keys())}"
             )
         return v
 
-    @validator("extra_arguments", pre=True, always=True)
-    def check_default_extra_args(cls, v: Optional[Dict[str, Any]], values: Dict[str, Any]) -> Dict[str, Any]:
+    @validator("extra_arguments")
+    def validate_required_arguments(cls, v: Dict[str, Any], values: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Validates the 'extra_arguments' by assigning a default empty dictionary if None is provided,
-        and also checks necessary keys for different scheduler types.
+        Validates if the required arguments for the chosen scheduler are provided.
         """
-        if v is None:
-            v = {}
-        if "name" in values:
-            scheduler_name = values["name"]
-            required_keys = {
-                "cosine_annealing": "T_max",
-                "exponential": "gamma",
-                "one_cycle": "max_lr",
-                "step_lr": "step_size",
-            }
-            if scheduler_name in required_keys and required_keys[scheduler_name] not in v:
-                raise ValueError(f"{required_keys[scheduler_name]} must be provided for {scheduler_name}")
+        scheduler_name = values.get("name")
+        if scheduler_name in REQUIRED_ARGUMENTS:
+            required_arg = REQUIRED_ARGUMENTS[scheduler_name]
+            if required_arg not in v:
+                raise ValueError(f"Required argument '{required_arg}' for scheduler '{scheduler_name}' is missing.")
         return v
 
 
 def create_scheduler(config: SchedulerConfig, optimizer: Optimizer) -> LRScheduler:
     """
-    Factory function to create a learning rate scheduler based on provided configuration.
+    Create a learning rate scheduler based on the configuration.
 
     Args:
-        config: A SchedulerConfig instance containing the scheduler name and extra arguments.
-        optimizer: An Optimizer instance for which the scheduler will manage the learning rate.
+        config (SchedulerConfig): A SchedulerConfig instance containing the scheduler name and extra arguments.
+        optimizer (Optimizer): An Optimizer instance for which the scheduler will manage the learning rate.
 
     Returns:
-        An instantiated learning rate scheduler object.
-
-    Raises:
-        ValueError: If the scheduler name is not recognized, or if required arguments are missing or incorrect.
+        LRScheduler: A PyTorch learning rate scheduler.
     """
+    _logger.info(f"Creating learning rate scheduler with the following configuration: {config.dict()}")
+
     scheduler_class = AVAILABLE_SCHEDULERS.get(config.name)
     if scheduler_class is None:
-        valid_schedulers = list(AVAILABLE_SCHEDULERS.keys())
-        error_message = f"Scheduler '{config.name}' is not implemented. Available schedulers: {valid_schedulers}"
-        _logger.error(error_message)
-        raise ValueError(error_message)
+        raise ValueError(
+            f"Scheduler '{config.name}' is not implemented.\n"
+            f"Available schedulers: {list(AVAILABLE_SCHEDULERS.keys())}"
+        )
+    scheduler = scheduler_class(optimizer, **config.extra_arguments)
 
-    try:
-        scheduler = scheduler_class(optimizer, **config.extra_arguments)
-        _logger.info(f"Scheduler '{config.name}' created with arguments: {config.extra_arguments}")
-    except TypeError as e:
-        error_message = f"Incorrect arguments for scheduler '{config.name}'. Error: {e}"
-        _logger.error(error_message)
-        raise ValueError(error_message)
+    _logger.info("Learning rate scheduler successfully created.")
 
     return scheduler
