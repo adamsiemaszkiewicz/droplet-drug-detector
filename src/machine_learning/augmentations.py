@@ -68,6 +68,21 @@ class AugmentationsConfig(BaseModel):
         name_list = values.get("name_list")
         if v is None and name_list is not None:
             return [{} for _ in name_list]
+        if "name" in values:
+            augmentation_name_list = values["name_list"]
+            required_keys = {
+                "random_affine": "degrees",
+                "random_crop": "size",
+                "random_rotation": "degrees",
+                "random_resized_crop": "size",
+            }
+            if v is not None:
+                for augmentation_name in augmentation_name_list:
+                    if augmentation_name in required_keys:
+                        if not any(required_keys[augmentation_name] in d for d in v):
+                            raise ValueError(
+                                f"{required_keys[augmentation_name]} must be provided for {augmentation_name}"
+                            )
         return v
 
     @validator("extra_arguments_list")
