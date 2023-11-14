@@ -29,13 +29,13 @@ class ClassificationModelConfig(BaseModel):
     in_channels: int
 
     @validator("name")
-    def validate_model_name(cls, v: str) -> str:
+    def validate_name(cls, v: str) -> str:
         """
-        Validates if the model name is available.
+        Validates if the model is available.
         """
         if v not in AVAILABLE_MODELS:
             raise ValueError(
-                f"Model '{v}' is not implemented. Check available architectures at https://huggingface.co/timm"
+                f"Model '{v}' is not implemented.\n" f"Available model architecture: https://huggingface.co/timm"
             )
         return v
 
