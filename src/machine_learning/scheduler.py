@@ -47,7 +47,7 @@ class SchedulerConfig(BaseModel):
             )
         return v
 
-    @validator("extra_arguments")
+    @validator("extra_arguments", pre=True, always=True)
     def validate_required_arguments(cls, v: Dict[str, Any], values: Dict[str, Any]) -> Dict[str, Any]:
         """
         Validates if the required arguments for the chosen scheduler are provided.
