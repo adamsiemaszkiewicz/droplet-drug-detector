@@ -80,12 +80,21 @@ class ClassificationMetricsConfig(BaseModel):
             return {}
         return v
 
+    @validator("num_classes")
+    def validate_positive_integer(cls, v: int) -> int:
+        """
+        Validates if the provided value is a positive integer.
+        """
+        if not isinstance(v, int) or v <= 0:
+            raise ValueError(f"The value {v} must be a positive integer.")
+        return v
+
 
 def create_metric(
     metric_class: Type[Metric], task: str, num_classes: int, arguments: Optional[Dict[str, Any]] = None
 ) -> Metric:
     """
-    Create a metric based on the given name and parameters.
+    Create a metric based on the configuration.
 
     Args:
         metric_class (Type[Metric]): The metric name.
