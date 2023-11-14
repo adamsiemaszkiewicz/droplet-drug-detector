@@ -21,7 +21,7 @@ AVAILABLE_METRICS: Dict[str, Type[Metric]] = {
 
 class ClassificationMetricsConfig(BaseModel):
     """
-    Configuration for creating metrics used for model evaluation.
+    Configuration for creating model evaluation metrics.
 
     Attributes:
         name_list: A list of strings indicating the names of the metrics to be used.
@@ -34,62 +34,76 @@ class ClassificationMetricsConfig(BaseModel):
     name_list: List[str]
     task: Literal["binary", "multiclass", "multilabel"]
     num_classes: int
-    extra_arguments_list: Optional[List[Dict[str, Any]]] = None
-
-    @validator("extra_arguments_list", pre=True, always=True)
-    def fill_empty_extra_arguments_list(
-        cls, v: Optional[List[Dict[str, Any]]], values: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
-        """
-        Pre-validator to ensure `extra_arguments_list` is populated with empty dictionaries if None.
-        """
-        if v is None:
-            name_list = values.get("name_list", [])
-            return [{} for _ in name_list]
-        return v
-
-    @validator("extra_arguments_list")
-    def validate_list_lengths(cls, v: List[Dict[str, Any]], values: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """
-        Validator to check that `extra_arguments_list` has the same length as `name_list`.
-        """
-        if v is None:
-            name_list = values.get("name_list", [])
-            return [{} for _ in name_list]
-        return v
+    extra_arguments_list: List[Optional[Dict[str, Any]]] = []
 
     @validator("name_list", each_item=True)
     def validate_names(cls, v: str) -> str:
         """
-        Validator to ensure each name in `name_list` corresponds to a valid metric.
+        Validates if all metric names are implemented.
         """
         if v not in AVAILABLE_METRICS:
             raise ValueError(f"Metric '{v}' is not implemented. Available metrics: {list(AVAILABLE_METRICS.keys())}")
         return v
 
+    @validator("extra_arguments_list", pre=True, always=True)
+    def default_extra_arguments(
+        cls, v: List[Optional[Dict[str, Any]]], values: Dict[str, Any]
+    ) -> List[Optional[Dict[str, Any]]]:
+        """
+        Ensures a correct length of `extra_arguments_list` if none are provided.
+        """
+        if not v:
+            name_list = values.get("name_list", [])
+            return [{} for _ in name_list]
+        return v
 
-def create_metric(metric_class: Type[Metric], task: str, num_classes: int, arguments: Dict[str, Any]) -> Metric:
+    @validator("extra_arguments_list")
+    def validate_number_of_extra_arguments(
+        cls, v: List[Dict[str, Any]], values: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """
+        Ensures that all required arguments are provided.
+        """
+        name_list = values.get("name_list")
+        if name_list is not None and len(v) != len(name_list):
+            raise ValueError(
+                f"The number of extra arguments ({len(v)}) does not match the number of metrics ({len(name_list)})."
+            )
+        return v
+
+    @validator("extra_arguments_list", always=True, each_item=True)
+    def validate_missing_extra_arguments(cls, v: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Replaces missing extra arguments with empty dictionaries
+        """
+        if v is None:
+            return {}
+        return v
+
+
+def create_metric(
+    metric_class: Type[Metric], task: str, num_classes: int, arguments: Optional[Dict[str, Any]] = None
+) -> Metric:
     """
     Create a metric based on the given name and parameters.
 
     Args:
         metric_class (Type[Metric]): The metric name.
-        task: The task type (binary, multiclass, multilabel).
-        num_classes: The number of classes for classification metrics.
-        arguments: Additional arguments specific to the metric.
+        task (str): The task type (binary, multiclass, multilabel).
+        num_classes (int): The number of classes for classification metrics.
+        arguments (Optional[Dict[str, Any]]: Additional arguments specific to the metric.
 
     Returns:
-        An instance of a PyTorch Metric.
-
-    Raises:
-        ValueError: If the metric name is invalid or required arguments are missing.
+        Metric: An evaluation metric.
     """
-    try:
-        metric = metric_class(task=task, num_classes=num_classes, **arguments)
-    except TypeError as e:
-        raise ValueError(f"Incorrect arguments for {metric_class.__name__}: {e}")
+    config = {"task": task, "num_classes": num_classes}
+    config.update(arguments or {})
 
-    _logger.info(f"Created {metric_class.__name__} with arguments: {arguments}")
+    _logger.info(f"Creating evaluation metric with the following configuration: {config}")
+
+    metric = metric_class(task=task, num_classes=num_classes, **arguments)
+
+    _logger.info(f"Metric {metric_class.__name__} successfully created.")
 
     return metric
 
@@ -104,10 +118,7 @@ def create_metrics(config: ClassificationMetricsConfig) -> ModuleDict:
     Returns:
         A ModuleDict of configured metrics.
     """
-    if config.extra_arguments_list is None:
-        raise ValueError("'extra_arguments_list' cannot be None")
-
-    _logger.info(f"Creating module dictionary with the following metrics: {config.name_list}")
+    _logger.info(f"Creating {len(config.name_list)} evaluation metrics")
 
     metrics = ModuleDict()
     for name, extra_arguments in zip(config.name_list, config.extra_arguments_list):
@@ -117,6 +128,7 @@ def create_metrics(config: ClassificationMetricsConfig) -> ModuleDict:
             num_classes=config.num_classes,
             arguments=extra_arguments,
         )
+
     _logger.info("Metrics configured successfully.")
 
     return metrics
