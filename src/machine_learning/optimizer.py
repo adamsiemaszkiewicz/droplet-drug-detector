@@ -38,12 +38,18 @@ class OptimizerConfig(BaseModel):
 
     @validator("learning_rate")
     def validate_learning_rate(cls, v: float) -> float:
+        """
+        Validates if the learning rate is a positive number.
+        """
         if v <= 0:
             raise ValueError("Learning rate must be a positive number.")
         return v
 
     @validator("weight_decay")
     def validate_weight_decay(cls, v: float) -> float:
+        """
+        Validates if the weight decay is a non-negative number.:
+        """
         if v < 0:
             raise ValueError("Weight decay must be a non-negative number.")
         return v
@@ -52,8 +58,6 @@ class OptimizerConfig(BaseModel):
 def create_optimizer(config: OptimizerConfig, parameters: Iterator[Parameter]) -> Optimizer:
     """
     Create an optimizer based on the configuration provided in OptimizerConfig.
-    This function unpacks common arguments explicitly and passes any additional arguments
-    found in the `extra_arguments` attribute of the configuration.
 
     Args:
         config: Configuration object specifying the type and parameters of the optimizer.
@@ -62,18 +66,8 @@ def create_optimizer(config: OptimizerConfig, parameters: Iterator[Parameter]) -
     Returns:
         An instance of a PyTorch Optimizer.
     """
-    if config.extra_arguments is None:
-        raise ValueError("'extra_arguments' cannot be None")
-
-    _logger.info(
-        f"Creating optimizer sequence with the following configuration: "
-        f"weight_decay={config.weight_decay}, "
-        f"learning_rate={config.learning_rate}, "
-        f"extra_arguments={config.extra_arguments}"
-    )
-
     optimizer_class = AVAILABLE_OPTIMIZERS[config.name]
-    optimizer_args = {"lr": config.learning_rate, "weight_decay": config.weight_decay, **config.extra_arguments}
-    optimizer = optimizer_class(params=parameters, **optimizer_args)
+    optimizer_arguments = {"lr": config.learning_rate, "weight_decay": config.weight_decay, **config.extra_arguments}
+    optimizer = optimizer_class(params=parameters, **optimizer_arguments)
 
     return optimizer
