@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Any, Dict, List
+from typing import List
 
 import timm
 from pydantic import BaseModel, conint, validator
@@ -10,7 +10,6 @@ from src.common.utils.logger import get_logger
 _logger = get_logger(__name__)
 
 AVAILABLE_MODELS: List[str] = timm.list_models()
-AVAILABLE_PRETRAINED_MODELS: List[str] = timm.list_models(pretrained=True)
 
 
 class ClassificationModelConfig(BaseModel):
@@ -32,15 +31,6 @@ class ClassificationModelConfig(BaseModel):
             raise ValueError(
                 f"Model '{v}' is not implemented. Check available architectures at https://huggingface.co/timm"
             )
-        return v
-
-    @validator("pretrained")
-    def validate_pretrained(cls, v: bool, values: Dict[str, Any]) -> bool:
-        """
-        Validates that the model supports pretrained weights if pretrained is set to True.
-        """
-        if v and "name" in values and values["name"] not in AVAILABLE_PRETRAINED_MODELS:
-            raise ValueError(f"Pretrained weights not available for model '{values['name']}'.")
         return v
 
 
