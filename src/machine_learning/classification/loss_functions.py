@@ -29,7 +29,7 @@ AVAILABLE_LOSS_FUNCTIONS: Dict[str, Type[Module]] = {
 
 class ClassificationLossFunctionConfig(BaseModel):
     """
-    Configuration schema for loss functions with explicit common fields and provisions for additional arguments.
+    Configuration for creating a loss function.
 
     Attributes:
         name: The name of the loss function.
@@ -42,7 +42,7 @@ class ClassificationLossFunctionConfig(BaseModel):
     @validator("name")
     def validate_name(cls, v: str) -> str:
         """
-        Validates if the loss function is available.
+        Validates if the loss function is implemented.
         """
         if v not in AVAILABLE_LOSS_FUNCTIONS:
             raise ValueError(
