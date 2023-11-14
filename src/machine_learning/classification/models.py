@@ -60,11 +60,15 @@ def create_model(config: ClassificationModelConfig) -> Module:
     Returns:
         Module: The created model.
     """
+    _logger.info(f"Creating model with the following configuration: {config.dict()}")
+
     model = timm.create_model(
         model_name=config.name,
         pretrained=config.pretrained,
         num_classes=config.num_classes,
         in_chans=config.in_channels,
     )
+
+    _logger.info("Model successfully created.")
 
     return model

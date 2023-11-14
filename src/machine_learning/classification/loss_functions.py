@@ -62,14 +62,16 @@ def create_loss_function(config: ClassificationLossFunctionConfig) -> Module:
     Returns:
         Module: A PyTorch loss function module.
     """
-    loss_class = AVAILABLE_LOSS_FUNCTIONS.get(config.name)
+    _logger.info(f"Creating loss function with the following configuration: {config.dict()}")
 
+    loss_class = AVAILABLE_LOSS_FUNCTIONS.get(config.name)
     if loss_class is None:
         raise ValueError(
             f"Loss function '{config.name}' is not implemented.\n"
             f"Available loss functions: {list(AVAILABLE_LOSS_FUNCTIONS.keys())}"
         )
-
     loss_function = loss_class(**config.extra_arguments)
+
+    _logger.info("Loss function successfully created.")
 
     return loss_function

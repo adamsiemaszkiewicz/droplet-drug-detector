@@ -66,8 +66,12 @@ def create_optimizer(config: OptimizerConfig, parameters: Iterator[Parameter]) -
     Returns:
         An instance of a PyTorch Optimizer.
     """
+    _logger.info(f"Creating optimizer with the following configuration: {config.dict()}")
+
     optimizer_class = AVAILABLE_OPTIMIZERS[config.name]
     optimizer_arguments = {"lr": config.learning_rate, "weight_decay": config.weight_decay, **config.extra_arguments}
     optimizer = optimizer_class(params=parameters, **optimizer_arguments)
+
+    _logger.info("Optimizer successfully created.")
 
     return optimizer
