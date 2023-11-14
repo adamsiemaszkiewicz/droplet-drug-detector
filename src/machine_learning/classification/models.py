@@ -35,7 +35,7 @@ class ClassificationModelConfig(BaseModel):
         """
         if v not in AVAILABLE_MODELS:
             raise ValueError(
-                f"Model '{v}' is not implemented.\n" f"Available model architecture: https://huggingface.co/timm"
+                f"Model '{v}' is not implemented.\nAvailable model architecture: https://huggingface.co/timm"
             )
         return v
 
