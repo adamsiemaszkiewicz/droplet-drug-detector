@@ -15,6 +15,12 @@ AVAILABLE_MODELS: List[str] = timm.list_models()
 class ClassificationModelConfig(BaseModel):
     """
     Configuration for creating a classification model.
+
+    Attributes:
+        name: The name of the model architecture.
+        pretrained: Whether to use pretrained weights.
+        num_classes: Number of classes in the dataset.
+        in_channels: Number of input channels to the model.
     """
 
     name: str
