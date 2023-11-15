@@ -4,9 +4,15 @@ from typing import List, Union
 
 from pydantic import Field, validator
 
-from src.common.configs.base import BaseCallbacksConfig, BaseConfig, BaseDataConfig, BaseModelConfig, BaseTrainerConfig
 from src.common.utils.logger import get_logger
 from src.common.utils.validators import FieldValidators
+from src.configs.base import (
+    BaseCallbacksConfig,
+    BaseDataConfig,
+    BaseMachineLearningConfig,
+    BaseModelConfig,
+    BaseTrainerConfig,
+)
 
 _logger = get_logger(__name__)
 
@@ -37,7 +43,7 @@ class SampleDataConfig(BaseDataConfig):
     _parameter_7 = validator("parameter_7", allow_reuse=True)(
         lambda v: FieldValidators.convert_comma_separated_str_to_list(v, float)
     )
-    _parameter_8 = validator("parameter_8", allow_reuse=True)(BaseConfig.convert_str_to_bool)
+    _parameter_8 = validator("parameter_8", allow_reuse=True)(BaseMachineLearningConfig.convert_str_to_bool)
 
 
 class SampleModelConfig(BaseModelConfig):
@@ -52,7 +58,7 @@ class SampleCallbacksConfig(BaseCallbacksConfig):
     pass
 
 
-class SampleConfig(BaseConfig):
+class SampleConfig(BaseMachineLearningConfig):
     data: SampleDataConfig
     model: SampleModelConfig
     trainer: SampleTrainerConfig
