@@ -5,14 +5,15 @@ from typing import List, Literal, Optional, Union
 from lightning import Trainer
 from lightning.pytorch.callbacks import Callback
 from lightning.pytorch.loggers import Logger
-from pydantic import BaseModel, validator
+from pydantic import validator
 
 from src.common.utils.logger import get_logger
+from src.configs.base import BaseTrainerConfig
 
 _logger = get_logger(__name__)
 
 
-class TrainerConfig(BaseModel):
+class TrainerConfig(BaseTrainerConfig):
     """
     Configuration for creating a PyTorch Lightning trainer.
 

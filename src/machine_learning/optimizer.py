@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from typing import Any, Dict, Iterator, Type
 
-from pydantic import BaseModel, validator
+from pydantic import validator
 from torch.nn.parameter import Parameter
 from torch.optim import SGD, Adam, Optimizer
 
 from src.common.utils.logger import get_logger
+from src.configs.base import BaseOptimizerConfig
 
 _logger = get_logger(__name__)
 
@@ -15,7 +16,7 @@ AVAILABLE_OPTIMIZERS: Dict[str, Type[Optimizer]] = {
 }
 
 
-class OptimizerConfig(BaseModel):
+class OptimizerConfig(BaseOptimizerConfig):
     """
     Configuration for creating optimizer.
 

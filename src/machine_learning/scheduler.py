@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from typing import Any, Dict, Type
 
-from pydantic import BaseModel, validator
+from pydantic import validator
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import CosineAnnealingLR, ExponentialLR, LRScheduler, OneCycleLR, StepLR
 
 from src.common.utils.logger import get_logger
+from src.configs.base import BaseSchedulerConfig
 
 _logger = get_logger(__name__)
 
@@ -24,7 +25,7 @@ REQUIRED_ARGUMENTS: Dict[str, str] = {
 }
 
 
-class SchedulerConfig(BaseModel):
+class SchedulerConfig(BaseSchedulerConfig):
     """
     Configuration for creating a learning rate scheduler.
 

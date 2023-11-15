@@ -3,9 +3,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Type, Union
 
 from lightning.pytorch.loggers import CSVLogger, Logger, MLFlowLogger, TensorBoardLogger
-from pydantic import BaseModel, validator
+from pydantic import validator
 
 from src.common.utils.logger import get_logger
+from src.configs.base import BaseLoggersConfig
 
 _logger = get_logger(__name__)
 
@@ -16,7 +17,7 @@ AVAILABLE_LOGGERS: Dict[str, Type[Logger]] = {
 }
 
 
-class LoggersConfig(BaseModel):
+class LoggersConfig(BaseLoggersConfig):
     """
     Configuration for creating a list of loggers.
     """
