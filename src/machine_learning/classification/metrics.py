@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from typing import Any, Dict, List, Literal, Optional, Type
 
-from pydantic import BaseModel, validator
+from pydantic import validator
 from torch.nn import ModuleDict
 from torchmetrics import Accuracy, F1Score, JaccardIndex, Metric, Precision, Recall
 
 from src.common.utils.logger import get_logger
+from src.configs.base import BaseMetricsScheduler
 
 _logger = get_logger(__name__)
 
@@ -19,7 +20,7 @@ AVAILABLE_METRICS: Dict[str, Type[Metric]] = {
 }
 
 
-class ClassificationMetricsConfig(BaseModel):
+class ClassificationMetricsConfig(BaseMetricsScheduler):
     """
     Configuration for creating model evaluation metrics.
 

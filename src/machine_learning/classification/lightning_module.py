@@ -7,8 +7,8 @@ from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
 
 from src.common.consts.machine_learning import STAGE_TESTING, STAGE_TRAINING, STAGE_VALIDATION
+from src.configs.classification import ClassificationMachineLearningConfig
 from src.machine_learning.augmentations import create_augmentations
-from src.machine_learning.classification.config import ClassificationConfig
 from src.machine_learning.classification.loss_functions import create_loss_function
 from src.machine_learning.classification.metrics import create_metrics
 from src.machine_learning.classification.models import create_model
@@ -25,14 +25,14 @@ class ClassificationLightningModule(LightningModule):
     the optimizer and learning rate scheduler setup.
 
     Attributes:
-        config (ClassificationConfig): A configuration object
+        config (ClassificationMachineLearningConfig): A configuration object
         model (Module): The neural network model defined by the create_model function.
         loss_function (Module): The loss function, instantiated based on config.
         metrics (Dict[str, Metric]): A dictionary mapping metric names to Metric instances.
         augmentations (Optional[Module]): An optional data augmentation module.
     """
 
-    def __init__(self, config: ClassificationConfig):
+    def __init__(self, config: ClassificationMachineLearningConfig):
         super().__init__()
         self.config = config
         self.model = create_model(config=self.config.model)

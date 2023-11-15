@@ -2,17 +2,18 @@
 from typing import List
 
 import timm
-from pydantic import BaseModel, validator
+from pydantic import validator
 from torch.nn import Module
 
 from src.common.utils.logger import get_logger
+from src.configs.base import BaseModelConfig
 
 _logger = get_logger(__name__)
 
 AVAILABLE_MODELS: List[str] = timm.list_models()
 
 
-class ClassificationModelConfig(BaseModel):
+class ClassificationModelConfig(BaseModelConfig):
     """
     Configuration for creating a classification model.
 

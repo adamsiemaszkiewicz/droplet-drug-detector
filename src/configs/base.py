@@ -21,6 +21,14 @@ class BaseDataConfig(BaseModel):
     pass
 
 
+class BasePreprocessingConfig(BaseModel):
+    """
+    Base preprocessing configuration class from which all preprocessing config classes should inherit.
+    """
+
+    pass
+
+
 class BaseModelConfig(BaseModel):
     """
     Base model configuration class from which all model config classes should inherit.
@@ -96,11 +104,12 @@ class BaseTrainerConfig(BaseModel):
 class BaseMachineLearningConfig(BaseModel):
     """
     Base configuration class that aggregates all individual sections of the configuration.
-    It includes data, model, loss function, optimizer, scheduler, metric, augmentations,
+    It includes data, preprocessing, model, loss function, optimizer, scheduler, metric, augmentations,
     callbacks, loggers & trainer configurations.
     """
 
-    data: BaseDataConfig
+    data: Optional[BaseDataConfig] = None
+    preprocessing: Optional[BasePreprocessingConfig] = None
     model: BaseModelConfig
     loss_function: BaseLossFunctionConfig
     optimizer: BaseOptimizerConfig = BaseOptimizerConfig()
@@ -132,7 +141,7 @@ class BaseMachineLearningConfig(BaseModel):
         _logger.info(self.__str__())
 
     @classmethod
-    def from_yaml(cls, path: Path) -> "BaseMachineLearningConfig":
+    def from_yaml(cls, path: Union[str, Path]) -> "BaseMachineLearningConfig":
         """
         Create a BaseMachineLearningConfig instance from a YAML file.
 
@@ -145,12 +154,29 @@ class BaseMachineLearningConfig(BaseModel):
         with open(path) as f:
             args = yaml.safe_load(f)
 
-        for key, value in args.items():
-            if isinstance(value, str) and value.startswith("path:"):
-                relative_path = value.split("path:", 1)[1]
-                args[key] = str(ROOT_DIR / relative_path)
-
+        cls._process_yaml_values(data=args)
         return cls(**args)
+
+    @staticmethod
+    def _process_yaml_values(data: Any) -> None:
+        """
+        Recursively process values in the YAML structure.
+
+        Args:
+            data (Any): The current level of the YAML structure.
+        """
+        path_prefix = "path://"  # Prefix to indicate that the value is a path
+        if isinstance(data, dict):
+            for key, value in data.items():
+                if isinstance(value, str) and value.startswith(path_prefix):
+                    relative_path = value.split(path_prefix, 1)[1]  # Remove leading slashes
+                    absolute_path = (ROOT_DIR / relative_path).as_posix()
+                    data[key] = absolute_path
+                else:
+                    BaseMachineLearningConfig._process_yaml_values(data=value)
+        elif isinstance(data, list):
+            for item in data:
+                BaseMachineLearningConfig._process_yaml_values(item)
 
     @staticmethod
     def convert_str_to_int(value: str) -> int:
