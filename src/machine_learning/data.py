@@ -99,7 +99,7 @@ class DropletDrugClassificationDataset(Dataset):
 
 
 class ClassificationDataModule(LightningDataModule):
-    def __init__(self, config: ClassificationDataConfig, preprocessor: DataPreprocessor) -> None:
+    def __init__(self, config: ClassificationDataConfig, preprocessor: Optional[DataPreprocessor] = None) -> None:
         super().__init__()
         self.config = config
         self.preprocessor = preprocessor
