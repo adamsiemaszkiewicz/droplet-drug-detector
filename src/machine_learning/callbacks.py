@@ -40,7 +40,7 @@ class ModelCheckpointCallbackConfig(BaseModel):
     mode: Literal["min", "max"]
     verbose: bool
 
-    @validator("dir_path", pre=True)
+    @validator("dirpath", pre=True)
     def ensure_path_is_path(cls, v: Union[str, Path]) -> Path:
         """
         Ensures that paths are of type pathlib.Path.
