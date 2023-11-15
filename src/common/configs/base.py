@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import json
 from pathlib import Path
-from typing import Any, List, Type, Union
+from typing import Any, List, Optional, Type, Union
 
+import yaml
 from pydantic import BaseModel
 from pydantic.json import pydantic_encoder
 
+from src.common.consts.directories import ROOT_DIR
 from src.common.utils.logger import get_logger
 
 _logger = get_logger(__name__)
@@ -27,9 +29,41 @@ class BaseModelConfig(BaseModel):
     pass
 
 
-class BaseTrainerConfig(BaseModel):
+class BaseLossFunctionConfig(BaseModel):
     """
-    Base trainer configuration class from which all trainer config classes should inherit.
+    Base loss function configuration class from which all loss function config classes should inherit.
+    """
+
+    pass
+
+
+class BaseOptimizerConfig(BaseModel):
+    """
+    Base optimizer configuration class from which all optimizer config classes should inherit.
+    """
+
+    pass
+
+
+class BaseSchedulerConfig(BaseModel):
+    """
+    Base scheduler configuration class from which all scheduler config classes should inherit.
+    """
+
+    pass
+
+
+class BaseMetricsScheduler(BaseModel):
+    """
+    Base metrics scheduler configuration class from which all metrics scheduler config classes should inherit.
+    """
+
+    pass
+
+
+class BaseAugmentationsConfig(BaseModel):
+    """
+    Base augmentations configuration class from which all augmentations config classes should inherit.
     """
 
     pass
@@ -43,16 +77,39 @@ class BaseCallbacksConfig(BaseModel):
     pass
 
 
+class BaseLoggersConfig(BaseModel):
+    """
+    Base loggers configuration class from which all loggers config classes should inherit.
+    """
+
+    pass
+
+
+class BaseTrainerConfig(BaseModel):
+    """
+    Base trainer configuration class from which all trainer config classes should inherit.
+    """
+
+    pass
+
+
 class BaseConfig(BaseModel):
     """
     Base configuration class that aggregates all individual sections of the configuration.
-    It includes data, model, trainer, and callbacks configurations.
+    It includes data, model, loss function, optimizer, scheduler, metric, augmentations,
+    callbacks, loggers & trainer configurations.
     """
 
-    data: BaseDataConfig = BaseDataConfig()
-    model: BaseModelConfig = BaseModelConfig()
-    trainer: BaseTrainerConfig = BaseTrainerConfig()
-    callbacks: BaseCallbacksConfig = BaseCallbacksConfig()
+    data: BaseDataConfig
+    model: BaseModelConfig
+    loss_function: BaseLossFunctionConfig
+    optimizer: BaseOptimizerConfig = BaseOptimizerConfig()
+    scheduler: Optional[BaseSchedulerConfig] = None
+    metrics: BaseMetricsScheduler
+    augmentations: Optional[BaseAugmentationsConfig] = None
+    callbacks: Optional[BaseCallbacksConfig] = None
+    loggers: Optional[BaseLoggersConfig] = None
+    trainer: BaseTrainerConfig
 
     class Config:
         json_encoders = {
@@ -73,6 +130,27 @@ class BaseConfig(BaseModel):
         Log the string representation of the BaseConfig instance.
         """
         _logger.info(self.__str__())
+
+    @classmethod
+    def from_yaml(cls, path: Path) -> "BaseConfig":
+        """
+        Create a BaseConfig instance from a YAML file.
+
+        Args:
+            path (Union[str, Path]): The path to the YAML file.
+
+        Returns:
+            BaseConfig: A BaseConfig instance.
+        """
+        with open(path) as f:
+            args = yaml.safe_load(f)
+
+        for key, value in args.items():
+            if isinstance(value, str) and value.startswith("path:"):
+                relative_path = value.split("path:", 1)[1]
+                args[key] = str(ROOT_DIR / relative_path)
+
+        return cls(**args)
 
     @staticmethod
     def convert_str_to_int(value: str) -> int:
