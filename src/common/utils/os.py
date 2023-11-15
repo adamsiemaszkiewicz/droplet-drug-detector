@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
+import random
+
+import numpy as np
+import torch
 
 
 def get_cpu_worker_count() -> int:
@@ -18,3 +22,17 @@ def get_cpu_worker_count() -> int:
         return 1
     else:
         return 1 if cpu_count <= 2 else cpu_count - 2
+
+
+def set_global_seed(random_state: int) -> None:
+    """
+    Set the seed for all random number generators.
+
+    Args:
+        random_state (int): Seed for random number generator.
+    """
+    random.seed(random_state)
+    np.random.seed(random_state)
+    torch.manual_seed(random_state)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(random_state)
