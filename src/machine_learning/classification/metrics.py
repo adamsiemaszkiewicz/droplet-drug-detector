@@ -97,7 +97,7 @@ def create_metric(
     Create a metric based on the configuration.
 
     Args:
-        metric_class (Type[Metric]): The metric name.
+        metric_class (Type[Metric]): The metric class.
         task (str): The task type (binary, multiclass, multilabel).
         num_classes (int): The number of classes for classification metrics.
         arguments (Optional[Dict[str, Any]]: Additional arguments specific to the metric.
@@ -108,18 +108,16 @@ def create_metric(
     config = {"task": task, "num_classes": num_classes}
     config.update(arguments or {})
 
-    _logger.info(f"Creating evaluation metric with the following configuration: {config}")
-
     metric = metric_class(task=task, num_classes=num_classes, **arguments)
 
-    _logger.info(f"Metric {metric_class.__name__} successfully created.")
+    _logger.info(f"Created metric '{metric_class.__name__}' with the following configuration: {config}")
 
     return metric
 
 
 def create_metrics(config: ClassificationMetricsConfig) -> ModuleDict:
     """
-    Configure a set of metrics based on a MetricConfig instance.
+    Configure a set of metrics based on the configuration.
 
     Args:
         config: A MetricConfig instance specifying metrics to configure.
