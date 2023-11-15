@@ -47,7 +47,14 @@ GEOMETRIC_AUGMENTATIONS: Dict[str, Type[AugmentationBase2D]] = {
     "random_resized_crop": RandomResizedCrop,
 }
 
-ALL_AUGMENTATIONS: Dict[str, Type[AugmentationBase2D]] = {**INTENSITY_AUGMENTATIONS, **GEOMETRIC_AUGMENTATIONS}
+AVAILABLE_AUGMENTATIONS: Dict[str, Type[AugmentationBase2D]] = {**INTENSITY_AUGMENTATIONS, **GEOMETRIC_AUGMENTATIONS}
+
+REQUIRED_ARGUMENTS: Dict[str, str] = {
+    "random_affine": "degrees",
+    "random_crop": "size",
+    "random_rotation": "degrees",
+    "random_resized_crop": "size",
+}
 
 
 class AugmentationsConfig(BaseModel):
@@ -58,53 +65,71 @@ class AugmentationsConfig(BaseModel):
     name_list: List[str]
     extra_arguments_list: Optional[List[Dict[str, Any]]] = None
 
-    @validator("extra_arguments_list", pre=True, always=True)
-    def fill_empty_extra_arguments_list(
-        cls, v: Optional[List[Dict[str, Any]]], values: Dict[str, Any]
-    ) -> Optional[List[Dict[str, Any]]]:
-        """
-        Pre-validator to ensure `extra_arguments_list` is populated with empty dictionaries if None.
-        """
-        name_list = values.get("name_list")
-        if v is None and name_list is not None:
-            return [{} for _ in name_list]
-        if "name" in values:
-            augmentation_name_list = values["name_list"]
-            required_keys = {
-                "random_affine": "degrees",
-                "random_crop": "size",
-                "random_rotation": "degrees",
-                "random_resized_crop": "size",
-            }
-            if v is not None:
-                for augmentation_name in augmentation_name_list:
-                    if augmentation_name in required_keys:
-                        if not any(required_keys[augmentation_name] in d for d in v):
-                            raise ValueError(
-                                f"{required_keys[augmentation_name]} must be provided for {augmentation_name}"
-                            )
-        return v
-
-    @validator("extra_arguments_list")
-    def validate_list_lengths(cls, v: List[Dict[str, Any]], values: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """
-        Validator to check that `extra_arguments_list` has the same length as `name_list`.
-        """
-        name_list = values.get("name_list")
-        if name_list and len(name_list) != len(v):
-            raise ValueError("The length of 'name_list' and 'extra_arguments_list' must be the same.")
-        return v
-
     @validator("name_list", each_item=True)
     def validate_names(cls, v: str) -> str:
         """
-        Validator to ensure each name in `name_list` corresponds to a valid augmentation.
+        Validates if all augmentation names are implemented.
         """
-        if v not in ALL_AUGMENTATIONS:
+        if v not in AVAILABLE_AUGMENTATIONS:
             raise ValueError(
-                f"Augmentation '{v}' is not implemented. Available augmentations: {list(ALL_AUGMENTATIONS.keys())}"
+                f"Augmentation '{v}' is not implemented.\n"
+                f"Available augmentations: {list(AVAILABLE_AUGMENTATIONS.keys())}"
             )
         return v
+
+    @validator("extra_arguments_list", pre=True, always=True)
+    def default_extra_arguments(
+        cls, v: List[Optional[Dict[str, Any]]], values: Dict[str, Any]
+    ) -> List[Optional[Dict[str, Any]]]:
+        """
+        Ensures a correct length of `extra_arguments_list` if none are provided.
+        """
+        if not v:
+            name_list = values.get("name_list", [])
+            return [{} for _ in name_list]
+        return v
+
+    @validator("extra_arguments_list")
+    def validate_number_of_extra_arguments(
+        cls, v: List[Dict[str, Any]], values: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """
+        Ensures that all required arguments are provided.
+        """
+        name_list = values.get("name_list")
+        if name_list is not None and len(v) != len(name_list):
+            raise ValueError(
+                f"The number of extra arguments ({len(v)}) does not match the number of loggers ({len(name_list)})."
+            )
+        return v
+
+    @validator("extra_arguments_list", always=True, each_item=True)
+    def validate_missing_extra_arguments(cls, v: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Replaces missing extra arguments with empty dictionaries
+        """
+        if v is None:
+            return {}
+        return v
+
+    @validator("extra_arguments_list", always=True)
+    def validate_required_augmentation_arguments(
+        cls, extra_args_list: List[Optional[Dict[str, Any]]], values: Dict[str, Any]
+    ) -> List[Optional[Dict[str, Any]]]:
+        """
+        Validates if the required arguments for each chosen augmentation are provided.
+        """
+        name_list = values.get("name_list", [])
+        if not extra_args_list:
+            extra_args_list = [{} for _ in name_list]
+
+        for name, extra_args in zip(name_list, extra_args_list):
+            if name in REQUIRED_ARGUMENTS:
+                required_arg = REQUIRED_ARGUMENTS[name]
+                if extra_args is None or required_arg not in extra_args:
+                    raise ValueError(f"Required argument '{required_arg}' for augmentation '{name}' is missing.")
+
+        return extra_args_list
 
 
 def create_augmentation(augmentation_class: Type[AugmentationBase2D], arguments: Dict[str, Any]) -> AugmentationBase2D:
@@ -148,7 +173,7 @@ def create_augmentations(config: AugmentationsConfig) -> Sequential:
     _logger.info(f"Creating augmentation sequence with the following transformations: {config.name_list}")
 
     augmentations = [
-        create_augmentation(augmentation_class=ALL_AUGMENTATIONS[name], arguments=arguments)
+        create_augmentation(augmentation_class=AVAILABLE_AUGMENTATIONS[name], arguments=arguments)
         for name, arguments in zip(config.name_list, config.extra_arguments_list)
     ]
     _logger.info("Augmentation sequence successfully created.")
