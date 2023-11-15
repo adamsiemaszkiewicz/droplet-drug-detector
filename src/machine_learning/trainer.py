@@ -25,7 +25,8 @@ class TrainerConfig(BaseModel):
         default_root_dir (Optional[Union[str, Path]]): The default root directory for storing logs and checkpoints.
         fast_dev_run (bool): Test if training code run without errors (for debugging purposes only)
         overfit_batches (Union[float, int]): Amount of data to use for overfitting
-                (0.0-1.0 as percentage or integer number of batches; defaults to 0.0 which uses no overfitting)
+                                             0.0-1.0 as percentage or integer number of batches
+                                             Defaults to 0.0 which uses no overfitting)
     """
 
     max_epochs: int
