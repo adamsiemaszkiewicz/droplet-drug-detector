@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from typing import Any, Dict, List, Optional, Type
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Type, Union
 
 from lightning.pytorch.loggers import CSVLogger, Logger, MLFlowLogger, TensorBoardLogger
 from pydantic import BaseModel, validator
@@ -17,60 +18,78 @@ AVAILABLE_LOGGERS: Dict[str, Type[Logger]] = {
 
 class LoggersConfig(BaseModel):
     """
-    Configuration for creating a list of loggers based on their names and configurations.
+    Configuration for creating a list of loggers.
     """
 
     name_list: List[str]
-    config_list: Optional[List[Dict[str, Any]]] = None
-
-    @validator("config_list", pre=True, always=True)
-    def fill_empty_config_list(cls, v: Optional[List[Dict[str, Any]]], values: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """
-        Ensures `config_list` is populated with empty dictionaries if None is provided.
-        """
-        name_list = values.get("name_list", [])
-        return [{}] * len(name_list) if v is None else v
+    save_dir: Union[str, Path]
+    extra_arguments_list: List[Dict[str, Any]] = []
 
     @validator("name_list", each_item=True)
     def validate_names(cls, v: str) -> str:
         """
-        Ensures each name in `name_list` corresponds to an available logger.
+        Validates if all metric names are implemented.
         """
         if v not in AVAILABLE_LOGGERS:
-            raise ValueError(f"Logger '{v}' is not available. Available loggers: {list(AVAILABLE_LOGGERS.keys())}")
+            raise ValueError(f"Logger '{v}' is not implemented. Available loggers: {list(AVAILABLE_LOGGERS.keys())}")
         return v
 
-    @validator("config_list")
-    def validate_list_lengths(cls, v: List[Dict[str, Any]], values: Dict[str, Any]) -> List[Dict[str, Any]]:
+    @validator("extra_arguments_list", pre=True, always=True)
+    def default_extra_arguments(
+        cls, v: List[Optional[Dict[str, Any]]], values: Dict[str, Any]
+    ) -> List[Optional[Dict[str, Any]]]:
         """
-        Checks that `config_list` has the same length as `name_list`.
+        Ensures a correct length of `extra_arguments_list` if none are provided.
         """
-        name_list = values.get("name_list", [])
-        if len(name_list) != len(v):
-            raise ValueError("The length of 'name_list' and 'config_list' must be the same.")
+        if not v:
+            name_list = values.get("name_list", [])
+            return [{} for _ in name_list]
+        return v
+
+    @validator("extra_arguments_list")
+    def validate_number_of_extra_arguments(
+        cls, v: List[Dict[str, Any]], values: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """
+        Ensures that all required arguments are provided.
+        """
+        name_list = values.get("name_list")
+        if name_list is not None and len(v) != len(name_list):
+            raise ValueError(
+                f"The number of extra arguments ({len(v)}) does not match the number of loggers ({len(name_list)})."
+            )
+        return v
+
+    @validator("extra_arguments_list", always=True, each_item=True)
+    def validate_missing_extra_arguments(cls, v: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Replaces missing extra arguments with empty dictionaries
+        """
+        if v is None:
+            return {}
         return v
 
 
-def create_logger(logger_name: str, config: Dict[str, Any]) -> Logger:
+def create_logger(
+    logger_class: Type[Logger], save_dir: Union[str, Path], arguments: Optional[Dict[str, Any]] = None
+) -> Logger:
     """
-    Creates a logger instance from a given name and configuration.
+    Creates a logger based on the configuration.
 
     Args:
-        logger_name (str): The name of the logger to create.
-        config (Dict[str, Any]): A dictionary of configuration for the logger's constructor.
+        logger_class (Type[Logger]): The logger class.
+        save_dir (Union[str, Path]): The directory where the logs will be saved.
+        arguments (Optional[Dict[str, Any]]: Additional arguments specific to the metric.
 
     Returns:
         Logger: An instance of the specified logger class.
     """
-    logger_class = AVAILABLE_LOGGERS.get(logger_name)
-    if not logger_class:
-        raise ValueError(f"Logger '{logger_name}' is not defined in AVAILABLE_LOGGERS.")
-    try:
-        logger = logger_class(**config)
-    except TypeError as e:
-        raise ValueError(f"Incorrect arguments for {logger_name}: {e}")
+    config = {"save_dir": save_dir}
+    config.update(arguments or {})
 
-    _logger.info(f"Created logger {logger_name} with configuration: {config}")
+    logger = logger_class(save_dir=save_dir, **arguments)
+
+    _logger.info(f"Created logger '{logger_class.__name__}' with the following configuration: {config}")
 
     return logger
 
@@ -80,25 +99,18 @@ def create_loggers(config: LoggersConfig) -> List[Logger]:
     Creates a list of logger instances from a LoggersConfig instance.
 
     Args:
-        config (LoggersConfig): The configuration object containing logger settings.
+        config (LoggersConfig): A LoggersConfig instance.
 
     Returns:
-        List[LightningLoggerBase]: A list of logger instances configured as per the LoggersConfig.
+        List[LightningLoggerBase]: A list of logger instances.
     """
-    _logger.info(f"Creating loggers with the following configurations: {config.name_list}")
+    _logger.info(f"Creating {len(config.name_list)} loggers.")
 
     loggers = [
-        create_logger(logger_name=name, config=cfg) for name, cfg in zip(config.name_list, config.config_list or [])
+        create_logger(logger_class=AVAILABLE_LOGGERS[name], save_dir=config.save_dir, arguments=args)
+        for name, args in zip(config.name_list, config.extra_arguments_list)
     ]
 
-    _logger.info("Loggers successfully created.")
+    _logger.info("Metrics configured successfully.")
+
     return loggers
-
-
-# Example usage:
-# Define your logger configuration here. For example:
-# my_logger_config = LoggersConfig(name_list=["tensorboard", "csv"],
-#                                  config_list=[{"save_dir": "logs/", "name": "my_experiment"},
-#                                               {"save_dir": "logs/", "name": "my_experiment"}])
-# loggers = create_loggers(my_logger_config)
-# These 'loggers' can now be used with a PyTorch Lightning Trainer instance.
