@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      CONDA_ENV: sample-project-env  # Define the conda environment variable
+      PROJECT_NAME: sample-project  # Define the project name
       PYTHON_VERSION: '3.10'  # Define the python version variable
 
     steps:
@@ -20,8 +20,8 @@ jobs:
       - name: Set up Conda environment
         uses: conda-incubator/setup-miniconda@v2
         with:
-          activate-environment: ${{ env.CONDA_ENV }}
-          environment-file: environments/${{ env. CONDA_ENV }}.yaml
+          activate-environment: ${{env.PROJECT_NAME}}-env
+          environment-file: environments/${{env.PROJECT_NAME}}.yaml
           python-version: '3.10'
           auto-activate-base: false
 
