@@ -141,7 +141,7 @@ class ClassificationLightningModule(LightningModule):
             total_steps = self.trainer.estimated_stepping_batches
 
             scheduler = create_scheduler(config=self.config.scheduler, optimizer=optimizer, total_steps=total_steps)
-            optimizers_config["scheduler"] = scheduler
+            optimizers_config["lr_scheduler"] = scheduler
 
         return optimizers_config
 
