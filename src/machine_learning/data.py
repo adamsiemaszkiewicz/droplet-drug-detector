@@ -18,7 +18,7 @@ from src.machine_learning.preprocessing import DataPreprocessor
 _logger = get_logger(__name__)
 
 
-class DropletDatasetConfig(BaseDataConfig):
+class ClassificationDataConfig(BaseDataConfig):
     dataset_dir: Path = DATA_DIR / "dataset"
     val_split: float = 0.1
     test_split: float = 0.1
@@ -98,8 +98,8 @@ class DropletDrugClassificationDataset(Dataset):
         return image, label
 
 
-class DropletDataModule(LightningDataModule):
-    def __init__(self, config: DropletDatasetConfig, preprocessor: DataPreprocessor) -> None:
+class ClassificationDataModule(LightningDataModule):
+    def __init__(self, config: ClassificationDataConfig, preprocessor: DataPreprocessor) -> None:
         super().__init__()
         self.config = config
         self.preprocessor = preprocessor
