@@ -108,7 +108,7 @@ class BaseMachineLearningConfig(BaseModel):
     callbacks, loggers & trainer configurations.
     """
 
-    data: Optional[BaseDataConfig] = None
+    data: BaseDataConfig
     preprocessing: Optional[BasePreprocessingConfig] = None
     model: BaseModelConfig
     loss_function: BaseLossFunctionConfig
