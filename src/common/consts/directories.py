@@ -5,6 +5,7 @@ ROOT_DIR = Path(__file__).resolve().parents[3]
 
 DATA_DIR = ROOT_DIR / "data"
 ENVIRONMENTS_DIR = ROOT_DIR / "environments"
+CONFIGS_DIR = ROOT_DIR / "configs"
 DOCKER_DIR = ROOT_DIR / "docker"
 NOTEBOOKS_DIR = ROOT_DIR / "notebooks"
 TESTS_DIR = ROOT_DIR / "tests"
