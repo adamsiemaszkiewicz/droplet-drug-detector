@@ -22,7 +22,7 @@ class LoggersConfig(BaseModel):
     """
 
     name_list: List[str]
-    save_dir: Union[str, Path]
+    save_dir: Path
     extra_arguments_list: List[Dict[str, Any]] = []
 
     @validator("name_list", each_item=True)
@@ -67,6 +67,15 @@ class LoggersConfig(BaseModel):
         """
         if v is None:
             return {}
+        return v
+
+    @validator("save_dir", pre=True)
+    def ensure_path_is_path(cls, v: Union[str, Path]) -> Path:
+        """
+        Ensures that paths are of type pathlib.Path.
+        """
+        if not isinstance(v, Path):
+            return Path(v)
         return v
 
 
