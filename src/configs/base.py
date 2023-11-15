@@ -93,7 +93,7 @@ class BaseTrainerConfig(BaseModel):
     pass
 
 
-class BaseConfig(BaseModel):
+class BaseMachineLearningConfig(BaseModel):
     """
     Base configuration class that aggregates all individual sections of the configuration.
     It includes data, model, loss function, optimizer, scheduler, metric, augmentations,
@@ -118,29 +118,29 @@ class BaseConfig(BaseModel):
 
     def __str__(self) -> str:
         """
-        Return a string representation of the BaseConfig instance in JSON format.
+        Return a string representation of the BaseMachineLearningConfig instance in JSON format.
 
         Returns:
-            str: A JSON formatted string representation of the BaseConfig instance.
+            str: A JSON formatted string representation of the BaseMachineLearningConfig instance.
         """
         return json.dumps(self.dict(), indent=4, default=pydantic_encoder)
 
     def log_self(self) -> None:
         """
-        Log the string representation of the BaseConfig instance.
+        Log the string representation of the BaseMachineLearningConfig instance.
         """
         _logger.info(self.__str__())
 
     @classmethod
-    def from_yaml(cls, path: Path) -> "BaseConfig":
+    def from_yaml(cls, path: Path) -> "BaseMachineLearningConfig":
         """
-        Create a BaseConfig instance from a YAML file.
+        Create a BaseMachineLearningConfig instance from a YAML file.
 
         Args:
             path (Union[str, Path]): The path to the YAML file.
 
         Returns:
-            BaseConfig: A BaseConfig instance.
+            BaseMachineLearningConfig: A BaseMachineLearningConfig instance.
         """
         with open(path) as f:
             args = yaml.safe_load(f)
