@@ -1,3 +1,13 @@
+data:
+  dataset_dir: "path://data/dataset"  # relative to root directory (with `path://` prefix)
+  batch_size: 16
+
+preprocessing:
+  name_list:
+    - resize
+  extra_arguments_list:
+    - size: 256
+
 model:
   name: resnet18
   pretrained: true
@@ -30,7 +40,7 @@ callbacks:
     verbose: true
     mode: min
   model_checkpoint:
-    dirpath: "path:/data/checkpoints"  # relative to root directory (with `path:` prefix)
+    dirpath: "path://data/checkpoints"  # relative to root directory (with `path:` prefix)
     monitor: val_loss
     filename: "{epoch}-{val_loss:.2f}"
     save_top_k: 3
@@ -43,4 +53,4 @@ callbacks:
 loggers:
   name_list:
     - csv
-  save_dir: "path:data/logs"  # relative to root directory (with `path:` prefix)
+  save_dir: "path://data/logs"  # relative to root directory (with `path:` prefix)
