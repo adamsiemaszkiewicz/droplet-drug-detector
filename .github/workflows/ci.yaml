@@ -21,7 +21,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: ${{ env.CONDA_ENV }}
-          environment-file: environments/${{ env. CONDA_ENC }}.yaml
+          environment-file: environments/${{ env. CONDA_ENV }}.yaml
           python-version: '3.10'
           auto-activate-base: false
 
