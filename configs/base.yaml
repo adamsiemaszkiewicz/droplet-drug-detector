@@ -30,7 +30,7 @@ callbacks:
     verbose: true
     mode: min
   model_checkpoint:
-    dirpath: "../data/checkpoints"
+    dirpath: "data/checkpoints"  # relative to root directory
     monitor: val_loss
     filename: "{epoch}-{val_loss:.2f}"
     save_top_k: 3
@@ -43,4 +43,4 @@ callbacks:
 loggers:
   name_list:
     - csv
-  save_dir: "../data/logs"
+  save_dir: "data/logs"  # relative to root directory
