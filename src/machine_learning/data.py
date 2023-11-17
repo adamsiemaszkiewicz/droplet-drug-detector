@@ -107,7 +107,7 @@ class ClassificationDataModule(LightningDataModule):
         self.val_split = self.config.val_split
         self.test_split = self.config.test_split
         self.batch_size = self.config.batch_size
-        self.num_workers = get_cpu_worker_count()
+        self.cpu_workers = get_cpu_worker_count()
 
         self.train_dataset: Optional[DropletDrugClassificationDataset] = None
         self.val_dataset: Optional[DropletDrugClassificationDataset] = None
@@ -140,10 +140,10 @@ class ClassificationDataModule(LightningDataModule):
         self.test_dataset.samples = [full_dataset.samples[i] for i in test_subset.indices]
 
     def train_dataloader(self) -> DataLoader:
-        return DataLoader(self.train_dataset, batch_size=self.batch_size)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)
 
     def val_dataloader(self) -> DataLoader:
-        return DataLoader(self.val_dataset, batch_size=self.batch_size)
+        return DataLoader(self.val_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)
 
     def test_dataloader(self) -> DataLoader:
-        return DataLoader(self.test_dataset, batch_size=self.batch_size)
+        return DataLoader(self.test_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)
