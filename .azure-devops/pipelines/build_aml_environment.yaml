@@ -49,7 +49,7 @@ stages:
             if [ "${{parameters.tag}}" != "default" ]; then
               TAG="--tag ${{parameters.tag}}"
             fi
-            python ./src/build_aml_environment.py \
+            /home/vsts_azpcontainer/.conda/envs/infrastructure_env/bin/python ./src/build_aml_environment.py \
               --runtime_env ${{parameters.runtime_env}} \
               --${{parameters.environment_name}} \
               $TAG
