@@ -38,21 +38,18 @@ stages:
         - template: ../templates/create_conda_env.yaml
           parameters:
             env_file_location: $(Build.SourcesDirectory)/environments/infra.yaml
-            env_name: infrastructure_env
+            env_name: infrastructure-env
 
         - template: ../templates/substitute_env_vars.yaml
 
         - script: |
-            source /opt/conda/etc/profile.d/conda.sh
-            conda activate infrastructure_env
-            echo "Python interpreter path:"
-            which python
+            conda activate infrastructure-env
             PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH;
             TAG=""
             if [ "${{parameters.tag}}" != "default" ]; then
               TAG="--tag ${{parameters.tag}}"
             fi
-            /home/vsts_azpcontainer/.conda/envs/infrastructure_env/bin/python $(Build.SourcesDirectory)/src/build_aml_environment.py \
+            python ./src/build_aml_environment.py \
               --runtime_env ${{parameters.runtime_env}} \
               --${{parameters.environment_name}} \
               $TAG

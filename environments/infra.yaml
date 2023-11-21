@@ -1,4 +1,4 @@
-name: infrastructure_env
+name: infrastructure-env
 channels:
   - conda-forge
   - defaults
