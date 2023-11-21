@@ -18,12 +18,19 @@ def main() -> None:
     config_file_path = CONFIGS_DIR / "base.yaml"
     config = ClassificationMachineLearningConfig.from_yaml(path=config_file_path)
 
-    seed_everything(42, workers=True)
+    seed_everything(seed=42, workers=True)
 
     preprocessor = DataPreprocessor(config=config.preprocessing) if config.preprocessing else None
     dm = ClassificationDataModule(config=config.data, preprocessor=preprocessor)
 
-    model = ClassificationLightningModule(config=config)
+    model = ClassificationLightningModule(
+        model_config=config.model,
+        loss_function_config=config.loss_function,
+        optimizer_config=config.optimizer,
+        metrics_config=config.metrics,
+        augmentations_config=config.augmentations,
+        scheduler_config=config.scheduler,
+    )
 
     callbacks = create_callbacks(config=config.callbacks) if config.callbacks else None
     loggers = create_loggers(config=config.loggers) if config.loggers else None

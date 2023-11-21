@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Dict, Tuple, Union
+from typing import Dict, Optional, Tuple, Union
 
 from lightning import LightningModule
 from torch import Tensor
@@ -7,13 +7,12 @@ from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
 
 from src.common.consts.machine_learning import STAGE_TESTING, STAGE_TRAINING, STAGE_VALIDATION
-from src.configs.classification import ClassificationMachineLearningConfig
-from src.machine_learning.augmentations import create_augmentations
-from src.machine_learning.classification.loss_functions import create_loss_function
-from src.machine_learning.classification.metrics import create_metrics
-from src.machine_learning.classification.models import create_model
-from src.machine_learning.optimizer import create_optimizer
-from src.machine_learning.scheduler import create_scheduler
+from src.machine_learning.augmentations import AugmentationsConfig, create_augmentations
+from src.machine_learning.classification.loss_functions import ClassificationLossFunctionConfig, create_loss_function
+from src.machine_learning.classification.metrics import ClassificationMetricsConfig, create_metrics
+from src.machine_learning.classification.models import ClassificationModelConfig, create_model
+from src.machine_learning.optimizer import OptimizerConfig, create_optimizer
+from src.machine_learning.scheduler import SchedulerConfig, create_scheduler
 
 
 class ClassificationLightningModule(LightningModule):
@@ -24,23 +23,48 @@ class ClassificationLightningModule(LightningModule):
     It defines the forward pass, training step, validation step, and test step, as well as
     the optimizer and learning rate scheduler setup.
 
+    Arguments:
+        model_config (ClassificationModelConfig): The model configuration.
+        loss_function_config (ClassificationLossFunctionConfig): The loss function configuration.
+        optimizer_config (OptimizerConfig): The optimizer configuration.
+        metrics_config (ClassificationMetricsConfig): The metrics configuration.
+        augmentations_config (Optional[AugmentationsConfig]): The data augmentations configuration.
+        scheduler_config (Optional[SchedulerConfig]): The scheduler configuration.
+
     Attributes:
-        config (ClassificationMachineLearningConfig): A configuration object
+        model_config (ClassificationModelConfig): The model configuration.
+        loss_function_config (ClassificationLossFunctionConfig): The loss function configuration.
+        optimizer_config (OptimizerConfig): The optimizer configuration.
+        metrics_config (ClassificationMetricsConfig): The metrics configuration.
+        augmentations_config (Optional[AugmentationsConfig]): The data augmentations configuration.
+        scheduler_config (Optional[SchedulerConfig]): The scheduler configuration.
         model (Module): The neural network model defined by the create_model function.
         loss_function (Module): The loss function, instantiated based on config.
         metrics (Dict[str, Metric]): A dictionary mapping metric names to Metric instances.
         augmentations (Optional[Module]): An optional data augmentation module.
     """
 
-    def __init__(self, config: ClassificationMachineLearningConfig):
+    def __init__(
+        self,
+        model_config: ClassificationModelConfig,
+        loss_function_config: ClassificationLossFunctionConfig,
+        optimizer_config: OptimizerConfig,
+        metrics_config: ClassificationMetricsConfig,
+        augmentations_config: Optional[AugmentationsConfig] = None,
+        scheduler_config: Optional[SchedulerConfig] = None,
+    ):
         super().__init__()
-        self.config = config
-        self.model = create_model(config=self.config.model)
-        self.loss_function = create_loss_function(config=self.config.loss_function)
-        self.metrics = create_metrics(config=self.config.metrics)
-        self.augmentations = (
-            create_augmentations(config=self.config.augmentations) if self.config.augmentations else None
-        )
+        self.model_config = model_config
+        self.loss_function_config = loss_function_config
+        self.optimizer_config = optimizer_config
+        self.metrics_config = metrics_config
+        self.augmentations_config = augmentations_config
+        self.scheduler_config = scheduler_config
+
+        self.model = create_model(config=model_config)
+        self.loss_function = create_loss_function(config=loss_function_config)
+        self.metrics = create_metrics(config=metrics_config)
+        self.augmentations = create_augmentations(config=augmentations_config) if augmentations_config else None
 
     def forward(self, x: Tensor) -> Tensor:
         return self.model(x)
@@ -134,13 +158,13 @@ class ClassificationLightningModule(LightningModule):
         Returns:
             Dict[str, Union[Optimizer, LRScheduler]]: Optimizer and optional learning rate scheduler
         """
-        optimizer = create_optimizer(config=self.config.optimizer, parameters=self.parameters())
+        optimizer = create_optimizer(config=self.optimizer_config, parameters=self.parameters())
         optimizers_config = {"optimizer": optimizer}
 
-        if self.config.scheduler:
+        if self.scheduler_config:
             total_steps = self.trainer.estimated_stepping_batches
 
-            scheduler = create_scheduler(config=self.config.scheduler, optimizer=optimizer, total_steps=total_steps)
+            scheduler = create_scheduler(config=self.scheduler_config, optimizer=optimizer, total_steps=total_steps)
             optimizers_config["lr_scheduler"] = scheduler
 
         return optimizers_config
