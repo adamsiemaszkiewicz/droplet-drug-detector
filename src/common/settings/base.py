@@ -65,10 +65,10 @@ class Settings(BaseSettings):
     """Serves as a container for the settings."""
 
     env: str
-    az: AzureSettings = AzureSettings()
-    aml: AzureMachineLearningSettings = AzureMachineLearningSettings()
-    db: DatabaseSettings = DatabaseSettings()
-    blob: BlobStorageSettings = BlobStorageSettings()
+    az: AzureSettings
+    aml: AzureMachineLearningSettings
+    db: DatabaseSettings
+    blob: BlobStorageSettings
 
     class Config:
         env_file = ROOT_DIR / ".env"
@@ -116,3 +116,6 @@ class Settings(BaseSettings):
                     section[k] = f"{v[0]}***{v[-1]}" if len(v) > 1 else "*****"
 
         return json.dumps(settings_dict, indent=4, cls=JsonEncoder)
+
+
+CURRENT_SETTINGS = Settings()
