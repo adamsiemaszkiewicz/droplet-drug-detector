@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-from typing import Optional
 
 from pydantic import BaseModel, BaseSettings
 
@@ -16,29 +15,29 @@ _logger = get_logger(__name__)
 class AzureSettings(BaseModel):
     """The Azure settings."""
 
-    tenant_id: Optional[str] = None
-    subscription_id: Optional[str] = None
-    location: Optional[str] = None
-    resource_group: Optional[str] = None
+    tenant_id: str
+    subscription_id: str
+    location: str
+    resource_group: str
 
 
 class AzureMachineLearningSettings(BaseModel):
     """The Azure Machine Learning settings."""
 
-    workspace_name: Optional[str] = None
-    sp_client_id: Optional[str] = None
-    sp_client_secret: Optional[str] = None
+    workspace_name: str
+    sp_client_id: str
+    sp_client_secret: str
 
 
 class DatabaseSettings(BaseModel):
     """The database settings."""
 
-    user_name: Optional[str] = None
-    password: Optional[str] = None
-    host: Optional[str] = None
-    port: Optional[str] = None
-    name: Optional[str] = None
-    ssl_mode: Optional[str] = None
+    user_name: str
+    password: str
+    host: str
+    port: str
+    name: str
+    ssl_mode: str
 
     @property
     def uri(self) -> str:
@@ -48,8 +47,8 @@ class DatabaseSettings(BaseModel):
 class BlobStorageSettings(BaseModel):
     """The Azure Blob Storage settings."""
 
-    account_name: Optional[str] = None
-    account_key: Optional[str] = None
+    account_name: str
+    account_key: str
 
     @property
     def connection_string(self) -> str:
