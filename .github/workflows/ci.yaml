@@ -46,4 +46,4 @@ jobs:
 
       - name: Perform safety check
         run: |
-          conda run --name ${{ env.ENV_NAME }}--no-capture-output safety check
+          conda run --name ${{ env.ENV_NAME }} --no-capture-output safety check
