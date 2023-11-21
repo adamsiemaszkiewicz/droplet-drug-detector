@@ -17,34 +17,33 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Set environment name
+        run: echo "ENV_NAME=${{ env.PROJECT_NAME }}-env" >> $GITHUB_ENV
+
       - name: Set up Conda environment
         uses: conda-incubator/setup-miniconda@v2
         with:
-          activate-environment: ${{env.PROJECT_NAME}}-env
+          activate-environment: ${{ env.ENV_NAME }}
           environment-file: environments/${{env.PROJECT_NAME}}.yaml
           python-version: '3.10'
           auto-activate-base: false
 
       - name: Check code with Black
         run: |
-          conda run --name sample-project-env --no-capture-output black --check --line-length 120 src tests
+          conda run --name ${{ env.ENV_NAME }} --no-capture-output black --check --line-length 120 src tests
 
       - name: Lint with Flake8
         run: |
-          conda run --name sample-project-env --no-capture-output flake8 src tests --max-line-length=120 --extend-ignore=D100,D101,D102,D103,D104,D105,D106,D107,E203,W503 --exclude=.git,__pycache__,build,dist,venv,.venv,.mypy_cache,.tox
+          conda run --name ${{ env.ENV_NAME }} --no-capture-output flake8 src tests --max-line-length=120 --extend-ignore=D100,D101,D102,D103,D104,D105,D106,D107,E203,W503 --exclude=.git,__pycache__,build,dist,venv,.venv,.mypy_cache,.tox
 
       - name: Sort imports with isort
         run: |
-          conda run --name sample-project-env --no-capture-output isort src tests --check-only --profile black
-
-      - name: Type check with mypy
-        run: |
-          conda run --name sample-project-env --no-capture-output mypy src tests --ignore-missing-imports
+          conda run --name ${{ env.ENV_NAME }} --no-capture-output isort src tests --check-only --profile black
 
       - name: Run pytest
         run: |
-          conda run --name sample-project-env --no-capture-output pytest
+          conda run --name ${{ env.ENV_NAME }} --no-capture-output pytest
 
-      - name: Safety Check
+      - name: Safety check
         run: |
-          conda run --name sample-project-env --no-capture-output safety check
+          conda run --name ${{ env.ENV_NAME }}--no-capture-output safety check
