@@ -33,7 +33,7 @@ def _build_sample_project_environment(
         Environment: The built or updated Azure ML Environment.
     """
     name = "sample_project"
-    env_name = f"{runtime_env}-{name}-env"
+    env_name = f"{runtime_env}_{name}_env"
     conda_dependencies_file_path = ENVIRONMENTS_DIR / f"{name}{YAML}"
 
     _logger.info(f"Building environment: {env_name}")
