@@ -45,11 +45,8 @@ stages:
         - script: |
             source activate infrastructure_env
             echo "Activated environment: infrastructure_env"
-          displayName: Activate Conda environment
-
-        - script: |
             conda list
-          displayName: List installed Packages
+          displayName: Activate and List Packages in Conda Environment
 
         - script: |
             PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
