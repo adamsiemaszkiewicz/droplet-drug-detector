@@ -109,7 +109,7 @@ def create_metric(
     config = {"task": task, "num_classes": num_classes}
     config.update(arguments or {})
 
-    metric = metric_class(task=task, num_classes=num_classes, **arguments)
+    metric = metric_class(task=task, num_classes=num_classes, **(arguments or {}))
 
     _logger.info(f"Created metric '{metric_class.__name__}' with the following configuration: {config}")
 
