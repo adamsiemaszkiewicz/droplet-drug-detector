@@ -13,7 +13,7 @@ from src.common.consts.directories import DATA_DIR
 from src.common.utils.logger import get_logger
 from src.common.utils.os import get_cpu_worker_count
 from src.configs.base import BaseDataConfig
-from src.machine_learning.preprocessing import DataPreprocessor
+from src.machine_learning.preprocessing.factory import DataPreprocessor
 
 _logger = get_logger(__name__)
 

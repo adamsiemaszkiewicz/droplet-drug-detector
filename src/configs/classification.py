@@ -9,17 +9,17 @@ from pydantic.json import pydantic_encoder
 
 from src.common.consts.directories import ROOT_DIR
 from src.common.utils.logger import get_logger
-from src.machine_learning.augmentations import AugmentationsConfig
-from src.machine_learning.callbacks import CallbacksConfig
+from src.machine_learning.augmentations.config import AugmentationsConfig
+from src.machine_learning.callbacks.config import CallbacksConfig
 from src.machine_learning.classification.loss_functions import ClassificationLossFunctionConfig
 from src.machine_learning.classification.metrics import ClassificationMetricsConfig
 from src.machine_learning.classification.models import ClassificationModelConfig
 from src.machine_learning.data import ClassificationDataConfig
-from src.machine_learning.loggers import LoggersConfig
-from src.machine_learning.optimizer import OptimizerConfig
-from src.machine_learning.preprocessing import PreprocessingConfig
-from src.machine_learning.scheduler import SchedulerConfig
-from src.machine_learning.trainer import TrainerConfig
+from src.machine_learning.loggers.config import LoggersConfig
+from src.machine_learning.optimizer.config import OptimizerConfig
+from src.machine_learning.preprocessing.config import PreprocessingConfig
+from src.machine_learning.scheduler.config import SchedulerConfig
+from src.machine_learning.trainer.config import TrainerConfig
 
 _logger = get_logger(__name__)
 

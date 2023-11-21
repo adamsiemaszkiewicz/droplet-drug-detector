@@ -4,12 +4,12 @@ from lightning import seed_everything
 from src.common.consts.directories import CONFIGS_DIR
 from src.common.utils.logger import get_logger
 from src.configs.classification import ClassificationConfig
-from src.machine_learning.callbacks import create_callbacks
-from src.machine_learning.classification.lightning_module import ClassificationLightningModule
+from src.machine_learning.callbacks.factory import create_callbacks
 from src.machine_learning.data import ClassificationDataModule
-from src.machine_learning.loggers import create_loggers
-from src.machine_learning.preprocessing import DataPreprocessor
-from src.machine_learning.trainer import create_trainer
+from src.machine_learning.lightning_module.classification.module import ClassificationLightningModule
+from src.machine_learning.loggers.factory import create_loggers
+from src.machine_learning.preprocessing.factory import create_preprocessor
+from src.machine_learning.trainer.factory import create_trainer
 
 _logger = get_logger(__name__)
 
@@ -20,7 +20,7 @@ def main() -> None:
 
     seed_everything(seed=42, workers=True)
 
-    preprocessor = DataPreprocessor(config=config.preprocessing) if config.preprocessing else None
+    preprocessor = create_preprocessor(config=config.preprocessing) if config.preprocessing else None
     dm = ClassificationDataModule(config=config.data, preprocessor=preprocessor)
 
     model = ClassificationLightningModule(
