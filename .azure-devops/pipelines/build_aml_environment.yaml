@@ -43,9 +43,8 @@ stages:
         - template: ../templates/substitute_env_vars.yaml
 
         - script: |
-            source /opt/conda/etc/profile.d/conda.sh
-            conda activate infrastructure_env
-            PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH;
+            source activate infrastructure_env
+            PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
             TAG=""
             if [ "${{parameters.tag}}" != "default" ]; then
               TAG="--tag ${{parameters.tag}}"
