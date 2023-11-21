@@ -3,7 +3,6 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 import torch
 from kornia.augmentation import AugmentationBase2D, CenterCrop, Normalize, Resize
-from kornia.color import rgb_to_grayscale
 from pydantic import validator
 from torch import Tensor
 from torch.nn import Module, Sequential
@@ -13,11 +12,10 @@ from src.configs.base import BasePreprocessingConfig
 
 _logger = get_logger(__name__)
 
-AVAILABLE_TRANSFORMATIONS: Dict[str, Union[Type[AugmentationBase2D], Type[rgb_to_grayscale]]] = {
+AVAILABLE_TRANSFORMATIONS: Dict[str, Type[AugmentationBase2D]] = {
     "center_crop": CenterCrop,
     "normalize": Normalize,
     "resize": Resize,
-    "rgb_to_grayscale": rgb_to_grayscale,
 }
 
 REQUIRED_ARGUMENTS: Dict[str, Union[str, List[str]]] = {
