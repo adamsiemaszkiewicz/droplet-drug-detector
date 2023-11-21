@@ -97,7 +97,7 @@ def create_logger(
     config = {"save_dir": save_dir}
     config.update(arguments or {})
 
-    logger = logger_class(save_dir=save_dir, **arguments)
+    logger = logger_class(**config)
 
     _logger.info(f"Created logger '{logger_class.__name__}' with the following configuration: {config}")
 
