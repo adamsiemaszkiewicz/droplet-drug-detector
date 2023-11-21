@@ -12,7 +12,7 @@ jobs:
 
     env:
       PROJECT_NAME: sample-project  # Define the project name
-      PYTHON_VERSION: '3.10'  # Define the python version variable
+      PYTHON_VERSION: '3.10'        # Define the python version variable
 
     steps:
       - uses: actions/checkout@v2
@@ -32,7 +32,7 @@ jobs:
         run: |
           conda run --name ${{ env.ENV_NAME }} --no-capture-output black --check --line-length 120 src tests
 
-      - name: Lint with Flake8
+      - name: Lint code with Flake8
         run: |
           conda run --name ${{ env.ENV_NAME }} --no-capture-output flake8 src tests --max-line-length=120 --extend-ignore=D100,D101,D102,D103,D104,D105,D106,D107,E203,W503 --exclude=.git,__pycache__,build,dist,venv,.venv,.mypy_cache,.tox
 
