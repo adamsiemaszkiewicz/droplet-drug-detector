@@ -33,7 +33,7 @@ stages:
     jobs:
     - job: build_aml_environment
       container: condaforge/mambaforge:latest
-      displayName: Build "${{parameters.runtime_env}}-${{parameters.environment_name}}-env" AML environment
+      displayName: Build "${{parameters.runtime_env}}_${{parameters.environment_name}}_env" AML environment
       steps:
         - template: ../templates/create_conda_env.yaml
           parameters:
