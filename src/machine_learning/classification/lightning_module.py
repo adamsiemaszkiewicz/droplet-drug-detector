@@ -162,7 +162,7 @@ class ClassificationLightningModule(LightningModule):
         optimizers_config = {"optimizer": optimizer}
 
         if self.scheduler_config:
-            total_steps = self.trainer.estimated_stepping_batches
+            total_steps = int(self.trainer.estimated_stepping_batches)
 
             scheduler = create_scheduler(config=self.scheduler_config, optimizer=optimizer, total_steps=total_steps)
             optimizers_config["lr_scheduler"] = scheduler
