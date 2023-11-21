@@ -45,12 +45,14 @@ stages:
         - script: |
             source /opt/conda/etc/profile.d/conda.sh
             conda activate infrastructure_env
-            PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
+            echo "Python interpreter path:"
+            which python
+            PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH;
             TAG=""
             if [ "${{parameters.tag}}" != "default" ]; then
               TAG="--tag ${{parameters.tag}}"
             fi
-            python $(Build.SourcesDirectory)/src/build_aml_environment.py \
+            /opt/conda/envs/infrastructure_env/bin/python $(Build.SourcesDirectory)/src/build_aml_environment.py \
               --runtime_env ${{parameters.runtime_env}} \
               --${{parameters.environment_name}} \
               $TAG
