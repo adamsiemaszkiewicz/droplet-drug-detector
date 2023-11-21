@@ -44,11 +44,6 @@ stages:
 
         - script: |
             source activate infrastructure_env
-            echo "Activated environment: infrastructure_env"
-            conda list
-          displayName: Activate and List Packages in Conda Environment
-
-        - script: |
             PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
             TAG=""
             if [ "${{parameters.tag}}" != "default" ]; then
