@@ -81,3 +81,22 @@ def create_transformation(
     _logger.info(f"Created {transformation_class.__name__} with arguments: {arguments}")
 
     return transformation
+
+
+def create_preprocessor(config: PreprocessingConfig) -> DataPreprocessor:
+    """
+    Create a data preprocessor based on the configuration.
+
+    Args:
+        config (PreprocessingConfig): Configuration object containing preprocessing parameters.
+
+    Returns:
+        DataPreprocessor: An instance of DataPreprocessor configured as per the provided settings.
+    """
+    _logger.info(f"Creating DataPreprocessor with the following configuration: {config.dict()}")
+
+    preprocessor = DataPreprocessor(config=config)
+
+    _logger.info("DataPreprocessor successfully created.")
+
+    return preprocessor
