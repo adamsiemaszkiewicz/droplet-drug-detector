@@ -43,8 +43,8 @@ stages:
         - template: ../templates/substitute_env_vars.yaml
 
         - script: |
-            find / -name conda.sh
-          displayName: Find conda.sh
+            which conda
+          displayName: Find conda
 
         - script: |
             source /usr/share/miniconda3/etc/profile.d/conda.sh
