@@ -38,13 +38,13 @@ stages:
         - template: ../templates/create_conda_env.yaml
           parameters:
             env_file_location: $(Build.SourcesDirectory)/environments/infra.yaml
-            env_name: infrastructure-env
+            env_name: infrastructure_env
 
         - template: ../templates/substitute_env_vars.yaml
 
         - script: |
             source /opt/conda/etc/profile.d/conda.sh
-            conda activate infrastructure-env
+            conda activate infrastructure_env
             PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH;
             TAG=""
             if [ "${{parameters.tag}}" != "default" ]; then

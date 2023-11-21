@@ -1,4 +1,4 @@
-name: sample-project-env
+name: sample_project_env
 channels:
   - conda-forge
   - defaults
