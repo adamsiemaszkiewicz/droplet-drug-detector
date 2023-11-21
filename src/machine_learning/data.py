@@ -140,10 +140,10 @@ class ClassificationDataModule(LightningDataModule):
         self.test_dataset.samples = [full_dataset.samples[i] for i in test_subset.indices]
 
     def train_dataloader(self) -> DataLoader:
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)
+        return DataLoader(dataset=self.train_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)
 
     def val_dataloader(self) -> DataLoader:
-        return DataLoader(self.val_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)
+        return DataLoader(dataset=self.val_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)
 
     def test_dataloader(self) -> DataLoader:
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)
+        return DataLoader(dataset=self.test_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)
