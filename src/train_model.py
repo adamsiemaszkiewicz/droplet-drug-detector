@@ -3,7 +3,7 @@ from lightning import seed_everything
 
 from src.common.consts.directories import CONFIGS_DIR
 from src.common.utils.logger import get_logger
-from src.configs.classification import ClassificationMachineLearningConfig
+from src.configs.classification import ClassificationConfig
 from src.machine_learning.callbacks import create_callbacks
 from src.machine_learning.classification.lightning_module import ClassificationLightningModule
 from src.machine_learning.data import ClassificationDataModule
@@ -16,7 +16,7 @@ _logger = get_logger(__name__)
 
 def main() -> None:
     config_file_path = CONFIGS_DIR / "base.yaml"
-    config = ClassificationMachineLearningConfig.from_yaml(path=config_file_path)
+    config = ClassificationConfig.from_yaml(path=config_file_path)
 
     seed_everything(seed=42, workers=True)
 

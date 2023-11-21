@@ -24,7 +24,7 @@ from src.machine_learning.trainer import TrainerConfig
 _logger = get_logger(__name__)
 
 
-class ClassificationMachineLearningConfig(BaseModel):
+class ClassificationConfig(BaseModel):
     data: ClassificationDataConfig
     preprocessing: Optional[PreprocessingConfig] = None
     model: ClassificationModelConfig
@@ -58,7 +58,7 @@ class ClassificationMachineLearningConfig(BaseModel):
         _logger.info(self.__str__())
 
     @classmethod
-    def from_yaml(cls, path: Union[str, Path]) -> "ClassificationMachineLearningConfig":
+    def from_yaml(cls, path: Union[str, Path]) -> "ClassificationConfig":
         """
         Create a ClassificationMachineLearningConfig instance from a YAML file.
 
@@ -66,7 +66,7 @@ class ClassificationMachineLearningConfig(BaseModel):
             path (Union[str, Path]): The path to the YAML file.
 
         Returns:
-            ClassificationMachineLearningConfig: A ClassificationMachineLearningConfig instance.
+            ClassificationConfig: A ClassificationMachineLearningConfig instance.
         """
         with open(path) as f:
             args = yaml.safe_load(f)
@@ -90,7 +90,7 @@ class ClassificationMachineLearningConfig(BaseModel):
                     absolute_path = (ROOT_DIR / relative_path).as_posix()
                     data[key] = absolute_path
                 else:
-                    ClassificationMachineLearningConfig._process_yaml_values(data=value)
+                    ClassificationConfig._process_yaml_values(data=value)
         elif isinstance(data, list):
             for item in data:
-                ClassificationMachineLearningConfig._process_yaml_values(item)
+                ClassificationConfig._process_yaml_values(item)
