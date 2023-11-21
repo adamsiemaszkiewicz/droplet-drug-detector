@@ -43,6 +43,7 @@ stages:
         - template: ../templates/substitute_env_vars.yaml
 
         - script: |
+            source /opt/conda/etc/profile.d/conda.sh
             conda activate infrastructure-env
             PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH;
             TAG=""
