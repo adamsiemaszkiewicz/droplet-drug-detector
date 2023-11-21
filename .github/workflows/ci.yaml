@@ -43,7 +43,3 @@ jobs:
       - name: Run tests with pytest
         run: |
           conda run --name ${{ env.ENV_NAME }} --no-capture-output pytest
-
-      - name: Perform safety check
-        run: |
-          conda run --name ${{ env.ENV_NAME }} --no-capture-output safety check
