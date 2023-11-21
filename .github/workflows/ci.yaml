@@ -40,10 +40,10 @@ jobs:
         run: |
           conda run --name ${{ env.ENV_NAME }} --no-capture-output isort src tests --check-only --profile black
 
-      - name: Run pytest
+      - name: Run tests with pytest
         run: |
           conda run --name ${{ env.ENV_NAME }} --no-capture-output pytest
 
-      - name: Safety check
+      - name: Perform safety check
         run: |
           conda run --name ${{ env.ENV_NAME }}--no-capture-output safety check
