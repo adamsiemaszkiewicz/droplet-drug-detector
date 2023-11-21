@@ -43,6 +43,10 @@ stages:
         - template: ../templates/substitute_env_vars.yaml
 
         - script: |
+            find / -name conda.sh
+          displayName: Find conda.sh
+
+        - script: |
             source /usr/share/miniconda3/etc/profile.d/conda.sh
             conda activate infrastructure_env
             PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
