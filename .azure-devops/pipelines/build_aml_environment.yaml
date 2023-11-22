@@ -43,13 +43,18 @@ stages:
         - template: ../templates/substitute_env_vars.yaml
 
         - script: |
+            echo "Activating conda environment..."
             source activate infrastructure_env
+            echo "Python version:"
+            python --version
+            echo "Installed packages:"
+            python -m pip list
             PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
             TAG=""
             if [ "${{parameters.tag}}" != "default" ]; then
               TAG="--tag ${{parameters.tag}}"
             fi
-            /home/vsts_azpcontainer/.conda/envs/infrastructure_env/bin/python ./src/build_aml_environment.py \
+            python ./src/build_aml_environment.py \
               --runtime_env ${{parameters.runtime_env}} \
               --${{parameters.environment_name}} \
               $TAG
