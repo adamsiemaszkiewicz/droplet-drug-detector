@@ -12,9 +12,9 @@ parameters:
 - name: environment_name
   displayName: Environment name
   type: string
-  default: "sample_project"
+  default: "sample-project-env"
   values:
-    - "sample_project"
+    - "sample-project-env"
 - name: tag
   displayName: Custom tag
   type: string
@@ -38,19 +38,14 @@ stages:
         - template: ../templates/create_conda_env.yaml
           parameters:
             env_file_location: $(Build.SourcesDirectory)/environments/infrastructure.yaml
-            env_name: infrastructure_env
+            env_name: infrastructure-env
 
         - template: ../templates/substitute_env_vars.yaml
 
         - script: |
             source activate infrastructure_env
             PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
-            TAG=""
-            if [ "${{parameters.tag}}" != "default" ]; then
-              TAG="--tag ${{parameters.tag}}"
-            fi
             python ./src/build_aml_environment.py \
               --runtime_env ${{parameters.runtime_env}} \
-              --${{parameters.environment_name}} \
-              $TAG
+              --environment_name ${{parameters.environment_name}}
           displayName: Build Azure ML environment
