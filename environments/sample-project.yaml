@@ -1,9 +1,8 @@
-name: sample_project_env
+name: sample-project-env
 channels:
   - conda-forge
   - defaults
 dependencies:
-  - lightning=2.1.1
   - python=3.10
   - pip
   - pip:
@@ -18,7 +17,6 @@ dependencies:
       - black==23.10.1
       - flake8==6.1.0
       - isort==5.12.0
-      - kornia==0.7.0
       - mypy==1.6.1
       - nbqa==1.7.0
       - pre-commit==3.5.0
@@ -26,4 +24,3 @@ dependencies:
       - pydantic==1.10.13
       - pytest==7.4.3
       - structlog==23.2.0
-      - timm==0.9.10
