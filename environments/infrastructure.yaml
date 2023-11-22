@@ -3,9 +3,9 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.10
+  - python=3.12
   - pip
   - pip:
-      - azure-ai-ml==1.11.1
+      - azure-ai-ml
       - azure-identity
       - pydantic
