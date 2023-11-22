@@ -43,23 +43,8 @@ stages:
         - template: ../templates/substitute_env_vars.yaml
 
         - script: |
-            echo "Path to Python interpreter:"
-            which python
-
-        - script: |
-            conda env list
-
-        - script: |
-            echo "PYTHONPATH: $PYTHONPATH"
-
-        - script: |
-            echo "Activating conda environment..."
             source activate infrastructure_env
-            echo "Python version:"
-            python --version
-            echo "Installed packages:"
-            python -m pip list
-            PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH
+            PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
             TAG=""
             if [ "${{parameters.tag}}" != "default" ]; then
               TAG="--tag ${{parameters.tag}}"
