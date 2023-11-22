@@ -18,7 +18,6 @@ def build_environment(
     enable_gpu: bool,
     conda_dependencies_file_path: Path,
     dockerfile_path: Optional[Path] = None,
-    tag: Optional[str] = None,
 ) -> Environment:
     """
     Build or update an Azure ML Environment.
@@ -28,7 +27,7 @@ def build_environment(
         name (str): The name of the environment.
         enable_gpu (bool): Flag to enable GPU.
         conda_dependencies_file_path (Path): The path to the conda dependencies file.
-        tag (Optional[str]): The version tag for the environment.
+        dockerfile_path (Optional[Path]): The path to the Dockerfile.
 
     Returns:
         Environment: The built or updated Azure ML Environment.
@@ -43,12 +42,11 @@ def build_environment(
     if dockerfile_path is None or not dockerfile_path.exists():
         _logger.warning(f"Dockerfile not found for {name}, using {'GPU' if enable_gpu else 'CPU'} default image.")
         image = DEFAULT_GPU_IMAGE if enable_gpu else DEFAULT_CPU_IMAGE
-        env = Environment(name=name, image=image, conda_file=conda_dependencies_file_path, tags={"version": tag})
+        env = Environment(name=name, image=image, conda_file=conda_dependencies_file_path)
     else:
         env = Environment(
             name=name,
             build=BuildContext(path=DOCKER_DIR.as_posix(), dockerfile_path=dockerfile_path.as_posix()),
-            tags={"version": tag},
         )
 
     ml_client.environments.create_or_update(env)
