@@ -47,6 +47,12 @@ stages:
             which python
 
         - script: |
+            conda env list
+
+        - script: |
+            echo "PYTHONPATH: $PYTHONPATH"
+
+        - script: |
             echo "Activating conda environment..."
             source activate infrastructure_env
             echo "Python version:"
