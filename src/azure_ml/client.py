@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from azure.ai.ml import MLClient
 from azure.identity import ClientSecretCredential
+
 from src.common.utils.logger import get_logger
 
 _logger = get_logger(__name__)
