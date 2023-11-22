@@ -6,6 +6,5 @@ dependencies:
   - python=3.10
   - pip
   - pip:
-      - azure-ai-ml==1.11.1
-      - azure-identity==1.15.0
-      - pydantic==1.10.12
+      - azure-ai-ml
+      - pydantic
