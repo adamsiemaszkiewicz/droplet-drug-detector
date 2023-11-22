@@ -10,5 +10,5 @@ steps:
 
   - bash: |
       cd $(Build.SourcesDirectory)
-      conda env create -f ${{parameters.env_file_path}} -n ${{parameters.env_name}}
-    displayName: Create environment
+      mamba env create -f ${{parameters.env_file_path}} -n ${{parameters.env_name}}
+    displayName: Create environment (using Mamba)
