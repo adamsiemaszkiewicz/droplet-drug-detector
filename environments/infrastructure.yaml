@@ -1,18 +1,10 @@
 name: infrastructure_env
 channels:
+  - microsoft
   - conda-forge
   - defaults
 dependencies:
+  - azure-ai-ml
+  - pydantic
   - python=3.10
   - pip
-  - pip:
-      - azure-ai-ml==1.11.1
-      - azure-identity==1.15.0
-      - azureml-core==1.53.0
-      - azureml-sdk==1.53.0
-      - azureml-defaults==1.53.0
-      - azureml-widgets==1.53.0
-      - azureml-tensorboard==1.53.0
-      - azureml-mlflow==1.53.0
-      - pydantic==1.10.13
-      - python-dotenv==1.0.0
