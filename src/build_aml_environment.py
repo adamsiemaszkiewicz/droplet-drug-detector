@@ -2,13 +2,13 @@
 import argparse
 import json
 
+from azure.ai.ml import MLClient
+from azure.ai.ml.entities import Environment
 from pydantic import BaseModel
 from typing_extensions import Literal
 
-from azure.ai.ml import MLClient
-from azure.ai.ml.entities import Environment
-from src.azure.client import get_ml_client
-from src.azure.environment import build_environment
+from src.azure_ml.client import get_ml_client
+from src.azure_ml.environment import build_environment
 from src.common.consts.directories import ENVIRONMENTS_DIR
 from src.common.consts.extensions import YAML
 from src.common.settings.base import Settings
