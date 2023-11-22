@@ -12,9 +12,9 @@ parameters:
 - name: environment_name
   displayName: Environment name
   type: string
-  default: "sample-project-env"
+  default: "sample-project"
   values:
-    - "sample-project-env"
+    - "sample-project"
 
 pool:
   vmImage: ubuntu-latest
