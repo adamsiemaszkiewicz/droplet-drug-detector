@@ -28,15 +28,15 @@ stages:
 
     jobs:
     - job: build_aml_environment
-      container: condaforge/mambaforge:latest
-      displayName: Build "${{parameters.runtime_env}}-${{parameters.environment_name}}" AML environment
+      container: condaforge/condaforge:latest
+      displayName: Build "${{parameters.runtime_env}}-${{parameters.environment_name}}" Azure ML environment
       steps:
-        - template: ../templates/create_conda_env.yaml
+        - template: ../templates/create-conda-env.yaml
           parameters:
-            env_file_location: $(Build.SourcesDirectory)/environments/infrastructure.yaml
+            env_file: $(Build.SourcesDirectory)/environments/infrastructure.yaml
             env_name: infrastructure-env
 
-        - template: ../templates/substitute_env_vars.yaml
+        - template: ../templates/substitute-env-vars.yaml
 
         - script: |
             source activate infrastructure-env
