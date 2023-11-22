@@ -28,7 +28,7 @@ stages:
 
     jobs:
     - job: build_aml_environment
-      container: condaforge/condaforge:latest
+      container: continuumio/miniconda3:latest
       displayName: Build "${{parameters.runtime_env}}-${{parameters.environment_name}}" Azure ML environment
       steps:
         - template: ../templates/create-conda-env.yaml
