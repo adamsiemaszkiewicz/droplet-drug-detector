@@ -4,42 +4,397 @@ pr: none
 
 parameters:
 
-  - name: parameter_1
-    displayName: Parameter 1
+  ###########
+  # DATASET #
+  ###########
+  - name: val_split
+    displayName: Validation subset size (0.0-1.0)
     type: string
-    default: "parameter-1"
-  - name: parameter_2
-    displayName: Parameter 2
-    type: number
-    default: 42
-  - name: parameter_3
-    displayName: Parameter 3
-    type: number
-    default: 0.52
-  - name: parameter_4
-    displayName: Parameter 4
+    default: "0.1"
+  - name: test_split
+    displayName: Testing subset size (0.0-1.0)
     type: string
-    default: "."
-  - name: parameter_5
-    displayName: Parameter 5
+    default: "0.1"
+  - name: batch_size
+    displayName: Batch size
     type: string
-    default: "parameter,_,5"
-  - name: parameter_6
-    displayName: Parameter 6
+    default: "32"
+
+  ######################
+  # DATA PREPROCESSING #
+  ######################
+  - name: preprocessing_transform_1
+    displayName: Preprocessing transform 1
     type: string
-    default: "1, 2,3"
-  - name: parameter_7
-    displayName: Parameter 7
+    default: "resize"
+    values:
+      - "none"
+      - "center_crop"
+      - "normalize"
+      - "pad"
+      - "resize"
+  - name: preprocessing_transform_1_kwargs
+    displayName: Preprocessing transform 1 kwargs
     type: string
-    default: " 0.1,0.2,3e-4"
-  - name: parameter_8
-    displayName: Parameter 8
+  - name: preprocessing_transform_2
+    displayName: Preprocessing transform 2
+    type: string
+    default: "none"
+    values:
+      - "none"
+      - "center_crop"
+      - "normalize"
+      - "pad"
+      - "resize"
+  - name: preprocessing_transform_2_kwargs
+    displayName: Preprocessing transform 2 kwargs
+    type: string
+  - name: preprocessing_transform_3
+    displayName: Preprocessing transform 3
+    type: string
+    default: "none"
+    values:
+      - "none"
+      - "center_crop"
+      - "normalize"
+      - "pad"
+      - "resize"
+  - name: preprocessing_transform_3_kwargs
+    displayName: Preprocessing transform 3 kwargs
+    type: string
+  - name: preprocessing_transform_4
+    displayName: Preprocessing transform 4
+    type: string
+    default: "none"
+    values:
+      - "none"
+      - "center_crop"
+      - "normalize"
+      - "pad"
+      - "resize"
+  - name: preprocessing_transform_4_kwargs
+    displayName: Preprocessing transform 4 kwargs
+    type: string
+
+  #########
+  # MODEL #
+  #########
+  - name: model_name
+    displayName: Model architecture name (available values https://huggingface.co/timm)
+    type: string
+  - name: pretrained
+    displayName: Use pretrained weights
     type: boolean
-    default: False
-  - name: parameter_9
-    displayName: Parameter 9
+    default: false
+  - name: num_classes
+    displayName: Number of classes
+    type: string
+  - name: in_channels
+    displayName: Number of input channels
+    type: string
+
+  #################
+  # LOSS FUNCTION #
+  #################
+  - name: loss_function_name
+    displayName: Loss function name
+    type: string
+    values:
+      - "asymmetric_loss_multi_label"
+      - "asymmetric_loss_single_label"
+      - "binary_cross_entropy"
+      - "cross_entropy_loss"
+      - "jsd_cross_entropy"
+      - "label_smoothing_cross_entropy"
+      - "soft_target_cross_entropy"
+    default: "cross_entropy_loss"
+  - name: loss_function_kwargs
+    displayName: Loss function kwargs
+    type: string
+
+  #############
+  # OPTIMIZER #
+  #############
+  - name: optimizer_name
+    displayName: Optimizer name
+    type: string
+    values:
+      - "adam"
+      - "sgd"
+    default: "adam"
+  - name: learning_rate
+    displayName: Learning rate
+    type: string
+    default: "0.0003"
+  - name: weight_decay
+    displayName: Weight decay
+    type: string
+    default: "0.0"
+  - name: optimizer_kwargs
+    displayName: Optimizer kwargs
+    type: string
+
+  #############
+  # SCHEDULER #
+  #############
+  - name: scheduler_name
+    displayName: Scheduler name
+    type: string
+    values:
+      - "none"
+      - "cosine_annealing"
+      - "exponential"
+      - "one_cycle"
+      - "step_lr"
+    default: "none"
+  - name: scheduler_kwargs
+    displayName: Scheduler kwargs
+    type: string
+
+  ###########
+  # METRICS #
+  ###########
+  - name: task_type
+    displayName: Task type
+    type: string
+    values:
+      - "binary"
+      - "multiclass"
+      - "multilabel"
+    default: "multiclass"
+  - name: metric_name_1
+    displayName: Metric name 1
+    type: string
+    values:
+      - "none"
+      - "accuracy"
+      - "precision"
+      - "recall"
+      - "f1_score"
+      - "jaccard_index"
+    default: "accuracy"
+  - name: metric_name_2_kwargs
+    displayName: Metric name 2 kwargs
+    type: string
+  - name: metric_name_2
+    displayName: Metric name 2
+    type: string
+    values:
+      - "none"
+      - "accuracy"
+      - "precision"
+      - "recall"
+      - "f1_score"
+      - "jaccard_index"
+    default: "none"
+  - name: metric_name_2_kwargs
+    displayName: Metric name 2 kwargs
+    type: string
+  - name: metric_name_3
+    displayName: Metric name 3
+    type: string
+    values:
+      - "none"
+      - "accuracy"
+      - "precision"
+      - "recall"
+      - "f1_score"
+      - "jaccard_index"
+    default: "none"
+  - name: metric_name_3_kwargs
+    displayName: Metric name 3 kwargs
+    type: string
+  - name: metric_name_4
+    displayName: Metric name 4
+    type: string
+    values:
+      - "none"
+      - "accuracy"
+      - "precision"
+      - "recall"
+      - "f1_score"
+      - "jaccard_index"
+    default: "none"
+  - name: metric_name_4_kwargs
+    displayName: Metric name 4 kwargs
+    type: string
+  - name: metric_name_5
+    displayName: Metric name 5
+    type: string
+    values:
+      - "none"
+      - "accuracy"
+      - "precision"
+      - "recall"
+      - "f1_score"
+      - "jaccard_index"
+    default: "none"
+  - name: metric_name_5_kwargs
+    displayName: Metric name 5 kwargs
+    type: string
+
+  #################
+  # AUGMENTATIONS #
+  #################
+  - name: augmentation_name_1
+    displayName: Augmentation name 1
+    type: string
+    values:
+    - "none"
+    - "color_jitter"
+    - "random_brightness"
+    - "random_contrast"
+    - "random_gamma"
+    - "random_gaussian_noise"
+    - "random_saturation"
+    - "random_affine"
+    - "random_crop"
+    - "random_elastic_transform"
+    - "random_erasing"
+    - "random_horizontal_flip"
+    - "random_vertical_flip"
+    - "random_perspective"
+    - "random_rotation"
+    - "random_resized_crop"
+    default: "none"
+  - name: augmentation_name_1_kwargs
+    displayName: Augmentation name 1 kwargs
+    type: string
+  - name: augmentation_name_2
+    displayName: Augmentation name 2
+    type: string
+    values:
+      - "none"
+      - "color_jitter"
+      - "random_brightness"
+      - "random_contrast"
+      - "random_gamma"
+      - "random_gaussian_noise"
+      - "random_saturation"
+      - "random_affine"
+      - "random_crop"
+      - "random_elastic_transform"
+      - "random_erasing"
+      - "random_horizontal_flip"
+      - "random_vertical_flip"
+      - "random_perspective"
+      - "random_rotation"
+      - "random_resized_crop"
+    default: "none"
+  - name: augmentation_name_2_kwargs
+    displayName: Augmentation name 2 kwargs
+    type: string
+  - name: augmentation_name_3
+    displayName: Augmentation name 3
+    type: string
+    values:
+      - "none"
+      - "color_jitter"
+      - "random_brightness"
+      - "random_contrast"
+      - "random_gamma"
+      - "random_gaussian_noise"
+      - "random_saturation"
+      - "random_affine"
+      - "random_crop"
+      - "random_elastic_transform"
+      - "random_erasing"
+      - "random_horizontal_flip"
+      - "random_vertical_flip"
+      - "random_perspective"
+      - "random_rotation"
+      - "random_resized_crop"
+    default: "none"
+  - name: augmentation_name_3_kwargs
+    displayName: Augmentation name 3 kwargs
+    type: string
+  - name: augmentation_name_4
+    displayName: Augmentation name 4
+    type: string
+    values:
+      - "none"
+      - "color_jitter"
+      - "random_brightness"
+      - "random_contrast"
+      - "random_gamma"
+      - "random_gaussian_noise"
+      - "random_saturation"
+      - "random_affine"
+      - "random_crop"
+      - "random_elastic_transform"
+      - "random_erasing"
+      - "random_horizontal_flip"
+      - "random_vertical_flip"
+      - "random_perspective"
+      - "random_rotation"
+      - "random_resized_crop"
+    default: "none"
+  - name: augmentation_name_2_kwargs
+    displayName: Augmentation name 4 kwargs
+    type: string
+  - name: augmentation_name_5
+    displayName: Augmentation name 5
+    type: string
+    values:
+      - "none"
+      - "color_jitter"
+      - "random_brightness"
+      - "random_contrast"
+      - "random_gamma"
+      - "random_gaussian_noise"
+      - "random_saturation"
+      - "random_affine"
+      - "random_crop"
+      - "random_elastic_transform"
+      - "random_erasing"
+      - "random_horizontal_flip"
+      - "random_vertical_flip"
+      - "random_perspective"
+      - "random_rotation"
+      - "random_resized_crop"
+    default: "none"
+  - name: augmentation_name_5_kwargs
+    displayName: Augmentation name 5 kwargs
+    type: string
+
+  ###########
+  # TRAINER #
+  ###########
+  - name: max_epochs
+    displayName: Maximum number of epochs
+    type: string
+    default: "100"
+  - name: patience
+    displayName: Number of epochs with no improvement after which training will be stopped
+    type: string
+    default: "20"
+  - name: precision
+    displayName: Precision
+    type: string
+    values:
+      - "16"
+      - "32"
+      - "64"
+    default: "16"
+  - name: accumulate_grad_batches
+    displayName: Accumulate gradients over n batches
+    type: string
+    default: "none"
+  - name: accelerator
+    displayName: Accelerator
+    type: string
+    values:
+      - "cpu"
+      - "gpu"
+    default: "gpu"
+  - name: fast_dev_run
+    displayName: Run a full train, val and test loop using a single batch
     type: boolean
-    default: True
+    default: false
+  - name: overfit_batches
+    displayName: Overfit on a fraction of training data
+    type: string
+    default: "0.0"
 
   - name: compute
     displayName: Compute cluster to use
@@ -50,6 +405,7 @@ parameters:
       - azureml:CPU-DSeries-cluster
       - azureml:CPU-D14Series-cluster
     default: azureml:CPU-DSeries-cluster
+
 
 
 variables:
