@@ -33,7 +33,7 @@ stages:
       steps:
         - template: ../templates/create-conda-env.yaml
           parameters:
-            env_file: $(Build.SourcesDirectory)/environments/infrastructure.yaml
+            env_file_path: $(Build.SourcesDirectory)/environments/infrastructure.yaml
             env_name: infrastructure-env
 
         - template: ../templates/substitute-env-vars.yaml

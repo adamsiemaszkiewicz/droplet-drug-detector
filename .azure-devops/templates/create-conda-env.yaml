@@ -1,5 +1,5 @@
 parameters:
-- name: env_file_location
+- name: env_file_path
   type: string
 - name: env_name
   type: string
