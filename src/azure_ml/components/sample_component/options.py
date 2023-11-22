@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 from typing import Any, Dict
 
-from src.sample_project.aml.components.sample_component.config import (
+from src.azure_ml.components.sample_component.config import (
     SampleCallbacksConfig,
     SampleConfig,
     SampleDataConfig,
