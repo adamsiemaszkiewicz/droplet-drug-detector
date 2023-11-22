@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import argparse
 import json
-from typing import Optional
 
 from pydantic import BaseModel
 from typing_extensions import Literal
@@ -43,7 +42,6 @@ def _build_sample_project_environment(ml_client: MLClient, runtime_env: Literal[
 class EnvironmentBuildingConfig(BaseModel):
     runtime_env: Literal["dev", "prod"]
     environment_name: str
-    tag: Optional[str] = None
 
     def __str__(self) -> str:
         return json.dumps(self.dict(), indent=4)
