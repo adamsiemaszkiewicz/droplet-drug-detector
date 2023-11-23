@@ -3,7 +3,6 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - lightning=2.1.1
   - python=3.10
   - pip
   - pip:
