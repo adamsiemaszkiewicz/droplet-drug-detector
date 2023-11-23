@@ -26,7 +26,7 @@ parameters:
   - name: preprocessing_transform_1
     displayName: Preprocessing transform 1
     type: string
-    default: "resize"
+    default: "none"
     values:
       - "none"
       - "center_crop"
@@ -386,7 +386,7 @@ parameters:
     type: string
     default: "20"
   - name: precision
-    displayName: Precision
+    displayName: Training precision
     type: string
     values:
       - "16"
