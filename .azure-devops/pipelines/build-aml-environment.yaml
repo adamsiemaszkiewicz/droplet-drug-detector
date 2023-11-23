@@ -22,10 +22,6 @@ parameters:
   values:
     - "cpu"
     - "gpu"
-- name: use_dedicated_compute
-  displayName: Use dedicated compute for environment building (use in case of memory issues)
-  type: boolean
-  default: false
 
 pool:
   vmImage: ubuntu-latest
@@ -53,16 +49,9 @@ stages:
             source activate infrastructure-env
             PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
 
-            USE_DEDICATED_COMPUTE=""
-
-            if [ "$(echo ${{parameters.use_dedicated_compute}} | tr '[:upper:]' '[:lower:]')" = "true" ]; then
-              USE_DEDICATED_COMPUTE="--use_dedicated_compute"
-            fi
-
             python ./src/build_aml_environment.py \
               --runtime_env ${{parameters.runtime_env}} \
               --environment_name ${{parameters.environment_name}} \
-              --accelerator ${{parameters.accelerator}} \
-              $USE_DEDICATED_COMPUTE
+              --accelerator ${{parameters.accelerator}}
 
           displayName: Build Azure ML environment
