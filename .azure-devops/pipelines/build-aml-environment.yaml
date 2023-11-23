@@ -56,7 +56,7 @@ stages:
             USE_DEDICATED_COMPUTE=""
 
             if [ "$(echo ${{parameters.use_dedicated_compute}} | tr '[:upper:]' '[:lower:]')" = "true" ]; then
-              USE_DEDICATED_COMPUTE="--use_dedicated_compute ${{parameters.use_dedicated_compute}}"
+              USE_DEDICATED_COMPUTE="--use_dedicated_compute"
             fi
 
             python ./src/build_aml_environment.py \
