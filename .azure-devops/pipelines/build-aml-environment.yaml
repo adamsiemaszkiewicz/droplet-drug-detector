@@ -52,9 +52,17 @@ stages:
         - script: |
             source activate infrastructure-env
             PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
+
+            USE_DEDICATED_COMPUTE=""
+
+            if [ "$(echo ${{parameters.use_dedicated_compute}} | tr '[:upper:]' '[:lower:]')" = "true" ]; then
+              USE_DEDICATED_COMPUTE="--use_dedicated_compute ${{parameters.use_dedicated_compute}}"
+            fi
+
             python ./src/build_aml_environment.py \
               --runtime_env ${{parameters.runtime_env}} \
               --environment_name ${{parameters.environment_name}} \
               --accelerator ${{parameters.accelerator}} \
-              ${{ if eq(parameters.use_dedicated_compute, true) }}--use_dedicated_compute{{ endif }}
+              $USE_DEDICATED_COMPUTE
+
           displayName: Build Azure ML environment
