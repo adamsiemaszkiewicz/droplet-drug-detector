@@ -16,7 +16,7 @@ parameters:
   values:
     - "sample-project"
 - name: accelerator
-  displayName: Accelerator to use
+  displayName: Accelerator to use for training
   default: "gpu"
   values:
     - "cpu"
