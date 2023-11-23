@@ -175,7 +175,6 @@ command: >-
   --patience ${{inputs.patience}}
   --precision ${{inputs.precision}}
   --accumulate_grad_batches ${{inputs.accumulate_grad_batches}}
-  --accelerator ${{inputs.accelerator}}
   --fast_dev_run ${{inputs.fast_dev_run}}
   --overfit_batches ${{inputs.overfit_batches}}
   --device ${{inputs.device}}
