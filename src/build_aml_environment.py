@@ -20,7 +20,7 @@ _logger = get_logger(__name__)
 def _build_sample_project_environment(
     ml_client: MLClient,
     runtime_env: Literal["dev", "prod"],
-    accelerator: Literal["cpu", "gpu"],
+    device: Literal["cpu", "gpu"],
 ) -> Environment:
     """
     Build or update a specific Azure ML Environment. Use dedicated compute in case memory problems.
@@ -28,7 +28,7 @@ def _build_sample_project_environment(
     Args:
         ml_client (MLClient): The MLClient object.
         runtime_env (Literal["dev", "prod"]): The runtime environment. Can be either "dev" or "prod".
-        accelerator (Literal["cpu", "gpu"]): The accelerator to use. Can be either "cpu" or "gpu".
+        device (Literal["cpu", "gpu"]): The accelerator to use. Can be either "cpu" or "gpu".
 
     Returns:
         Environment: The built or updated Azure ML Environment.
@@ -39,7 +39,7 @@ def _build_sample_project_environment(
 
     _logger.info(f"Building environment: {env_name}")
 
-    enable_gpu = True if accelerator == "gpu" else False
+    enable_gpu = True if device == "gpu" else False
 
     return build_environment(
         ml_client=ml_client,
@@ -52,8 +52,7 @@ def _build_sample_project_environment(
 class EnvironmentBuildingConfig(BaseModel):
     runtime_env: Literal["dev", "prod"]
     environment_name: str
-    accelerator: Literal["cpu", "gpu"]
-    use_dedicated_compute: bool
+    device: Literal["cpu", "gpu"]
 
     def __str__(self) -> str:
         return json.dumps(self.dict(), indent=4)
@@ -63,8 +62,7 @@ def parse_args() -> EnvironmentBuildingConfig:
     parser = argparse.ArgumentParser()
     parser.add_argument("--runtime_env", type=str)
     parser.add_argument("--environment_name", type=str)
-    parser.add_argument("--accelerator", type=str)
-    parser.add_argument("--use_dedicated_compute", action="store_true")
+    parser.add_argument("--device", type=str)
 
     args = parser.parse_args()
 
@@ -92,7 +90,7 @@ def main() -> None:
         _build_sample_project_environment(
             ml_client=ml_client,
             runtime_env=config.runtime_env,
-            accelerator=config.accelerator,
+            device=config.device,
         )
     else:
         raise NotImplementedError(f"Unknown environment specified ({config.runtime_env}).")
