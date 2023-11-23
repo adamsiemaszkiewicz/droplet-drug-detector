@@ -397,13 +397,6 @@ parameters:
     displayName: Accumulate gradients over n batches
     type: string
     default: "none"
-  - name: accelerator
-    displayName: Accelerator
-    type: string
-    values:
-      - "cpu"
-      - "gpu"
-    default: "gpu"
   - name: fast_dev_run
     displayName: Run a full train, val and test loop using a single batch
     type: boolean
@@ -413,6 +406,9 @@ parameters:
     type: string
     default: "0.0"
 
+  - name: datastore
+    displayName: Datastore to use
+    type: string
   - name: compute
     displayName: Compute cluster to use
     type: string
@@ -477,19 +473,74 @@ stages:
               job_id="${build_id}_${timestamp}"
               experiment_name="custom_experiment_name"
 
+              # Determine whether the compute target is CPU or GPU based and set device accordingly
+              if [[ "${{parameters.compute}}" == azureml:GPU* ]]; then
+                device="gpu"
+              else
+                device="cpu"
+              fi
+
               # Create and run the pipeline
               # Remember to add quotes around the string parameters to avoid YAML parsing errors
               run_id=$( \
                 az ml job create -f src/sample_project/aml/pipelines/sample_pipeline/pipeline_spec.yaml \
                 --set \
-                inputs.parameter_1="${{parameters.parameter_1}}" \
-                inputs.parameter_2=${{parameters.parameter_2}} \
-                inputs.parameter_3=${{parameters.parameter_3}} \
-                inputs.parameter_4="${{parameters.parameter_4}}" \
-                inputs.parameter_5="${{parameters.parameter_5}}" \
-                inputs.parameter_6="${{parameters.parameter_6}}" \
-                inputs.parameter_7="${{parameters.parameter_7}}" \
-                inputs.parameter_8=${{parameters.parameter_8}} \
+                experiment_name=$experiment_name \
+                display_name=$job_id \
+                inputs.val_split="${{parameters.val_split}}" \
+                inputs.test_split="${{parameters.test_split}}" \
+                inputs.batch_size="${{parameters.batch_size}}" \
+                inputs.preprocessing_transform_1="${{parameters.preprocessing_transform_1}}" \
+                inputs.preprocessing_transform_1_kwargs="${{parameters.preprocessing_transform_1_kwargs}}" \
+                inputs.preprocessing_transform_2="${{parameters.preprocessing_transform_2}}" \
+                inputs.preprocessing_transform_2_kwargs="${{parameters.preprocessing_transform_2_kwargs}}" \
+                inputs.preprocessing_transform_3="${{parameters.preprocessing_transform_3}}" \
+                inputs.preprocessing_transform_3_kwargs="${{parameters.preprocessing_transform_3_kwargs}}" \
+                inputs.preprocessing_transform_4="${{parameters.preprocessing_transform_4}}" \
+                inputs.preprocessing_transform_4_kwargs="${{parameters.preprocessing_transform_4_kwargs}}" \
+                inputs.model_name="${{parameters.model_name}}" \
+                inputs.pretrained="${{parameters.pretrained}}" \
+                inputs.num_classes="${{parameters.num_classes}}" \
+                inputs.in_channels="${{parameters.in_channels}}" \
+                inputs.loss_function_name="${{parameters.loss_function_name}}" \
+                inputs.loss_function_kwargs="${{parameters.loss_function_kwargs}}" \
+                inputs.optimizer_name="${{parameters.optimizer_name}}" \
+                inputs.learning_rate="${{parameters.learning_rate}}" \
+                inputs.weight_decay="${{parameters.weight_decay}}" \
+                inputs.optimizer_kwargs="${{parameters.optimizer_kwargs}}" \
+                inputs.scheduler_name="${{parameters.scheduler_name}}" \
+                inputs.scheduler_kwargs="${{parameters.scheduler_kwargs}}" \
+                inputs.task_type="${{parameters.task_type}}" \
+                inputs.metric_name_1="${{parameters.metric_name_1}}" \
+                inputs.metric_name_1_kwargs="${{parameters.metric_name_1_kwargs}}" \
+                inputs.metric_name_2="${{parameters.metric_name_2}}" \
+                inputs.metric_name_2_kwargs="${{parameters.metric_name_2_kwargs}}" \
+                inputs.metric_name_3="${{parameters.metric_name_3}}" \
+                inputs.metric_name_3_kwargs="${{parameters.metric_name_3_kwargs}}" \
+                inputs.metric_name_4="${{parameters.metric_name_4}}" \
+                inputs.metric_name_4_kwargs="${{parameters.metric_name_4_kwargs}}" \
+                inputs.metric_name_5="${{parameters.metric_name_5}}" \
+                inputs.metric_name_5_kwargs="${{parameters.metric_name_5_kwargs}}" \
+                inputs.augmentation_name_1="${{parameters.augmentation_name_1}}" \
+                inputs.augmentation_name_1_kwargs="${{parameters.augmentation_name_1_kwargs}}" \
+                inputs.augmentation_name_2="${{parameters.augmentation_name_2}}" \
+                inputs.augmentation_name_2_kwargs="${{parameters.augmentation_name_2_kwargs}}" \
+                inputs.augmentation_name_3="${{parameters.augmentation_name_3}}" \
+                inputs.augmentation_name_3_kwargs="${{parameters.augmentation_name_3_kwargs}}" \
+                inputs.augmentation_name_4="${{parameters.augmentation_name_4}}" \
+                inputs.augmentation_name_4_kwargs="${{parameters.augmentation_name_4_kwargs}}" \
+                inputs.augmentation_name_5="${{parameters.augmentation_name_5}}" \
+                inputs.augmentation_name_5_kwargs="${{parameters.augmentation_name_5_kwargs}}" \
+                inputs.max_epochs="${{parameters.max_epochs}}" \
+                inputs.patience="${{parameters.patience}}" \
+                inputs.precision="${{parameters.precision}}" \
+                inputs.accumulate_grad_batches="${{parameters.accumulate_grad_batches}}" \
+                inputs.fast_dev_run="${{parameters.fast_dev_run}}" \
+                inputs.overfit_batches="${{parameters.overfit_batches}}" \
+                inputs.device=$device \
+                settings.default_datastore="${{parameters.datastore}}" \
+                settings.default_compute="${{parameters.compute}}" \
+
                 --query name -o tsv \
                 --verbose \
               )
