@@ -124,7 +124,7 @@ is_deterministic: false
 code: ../../..
 command: >-
   PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
-  python ./src/sample_project/aml/components/sample_components/entrypoint.py
+  python ./src/aml/components/sample_component/entrypoint.py
   --input_dir ${{inputs.input_dir}}
   --output_dir ${{outputs.output_dir}}
   --val_split ${{inputs.val_split}}

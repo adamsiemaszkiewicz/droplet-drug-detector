@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from src.azure_ml.components.sample_component.config import SampleConfig
-from src.azure_ml.components.sample_component.options import get_config
+from src.aml.components.sample_component.config import SampleConfig
+from src.aml.components.sample_component.options import get_config
 from src.common.utils.logger import get_logger
 
 _logger = get_logger(__name__)
