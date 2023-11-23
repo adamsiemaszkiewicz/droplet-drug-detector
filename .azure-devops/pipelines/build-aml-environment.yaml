@@ -15,6 +15,12 @@ parameters:
   default: "sample-project"
   values:
     - "sample-project"
+- name: accelerator
+  displayName: Accelerator to use
+  default: "gpu"
+  values:
+    - "cpu"
+    - "gpu"
 
 pool:
   vmImage: ubuntu-latest
@@ -44,4 +50,5 @@ stages:
             python ./src/build_aml_environment.py \
               --runtime_env ${{parameters.runtime_env}} \
               --environment_name ${{parameters.environment_name}}
+              --accelerator ${{parameters.accelerator}}
           displayName: Build Azure ML environment
