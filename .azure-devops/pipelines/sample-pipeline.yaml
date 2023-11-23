@@ -36,6 +36,7 @@ parameters:
   - name: preprocessing_transform_1_kwargs
     displayName: Preprocessing transform 1 kwargs
     type: string
+    default: "{}"
   - name: preprocessing_transform_2
     displayName: Preprocessing transform 2
     type: string
@@ -49,6 +50,7 @@ parameters:
   - name: preprocessing_transform_2_kwargs
     displayName: Preprocessing transform 2 kwargs
     type: string
+    default: "{}"
   - name: preprocessing_transform_3
     displayName: Preprocessing transform 3
     type: string
@@ -62,6 +64,7 @@ parameters:
   - name: preprocessing_transform_3_kwargs
     displayName: Preprocessing transform 3 kwargs
     type: string
+    default: "{}"
   - name: preprocessing_transform_4
     displayName: Preprocessing transform 4
     type: string
@@ -75,6 +78,7 @@ parameters:
   - name: preprocessing_transform_4_kwargs
     displayName: Preprocessing transform 4 kwargs
     type: string
+    default: "{}"
 
   #########
   # MODEL #
@@ -111,6 +115,7 @@ parameters:
   - name: loss_function_kwargs
     displayName: Loss function kwargs
     type: string
+    default: "{}"
 
   #############
   # OPTIMIZER #
@@ -133,6 +138,7 @@ parameters:
   - name: optimizer_kwargs
     displayName: Optimizer kwargs
     type: string
+    default: "{}"
 
   #############
   # SCHEDULER #
@@ -150,6 +156,7 @@ parameters:
   - name: scheduler_kwargs
     displayName: Scheduler kwargs
     type: string
+    default: "{}"
 
   ###########
   # METRICS #
@@ -365,6 +372,7 @@ parameters:
   - name: augmentation_name_5_kwargs
     displayName: Augmentation name 5 kwargs
     type: string
+    default: "{}"
 
   ###########
   # TRAINER #
