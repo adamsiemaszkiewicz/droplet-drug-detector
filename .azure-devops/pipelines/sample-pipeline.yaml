@@ -540,7 +540,6 @@ stages:
                 inputs.device=$device \
                 settings.default_datastore="azureml:${{parameters.datastore}}" \
                 settings.default_compute="azureml:${{parameters.compute}}" \
-
                 --query name -o tsv \
                 --verbose \
               )
