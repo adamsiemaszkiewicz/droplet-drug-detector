@@ -17,13 +17,16 @@ from src.common.utils.logger import get_logger
 _logger = get_logger(__name__)
 
 
-def _build_sample_project_environment(ml_client: MLClient, runtime_env: Literal["dev", "prod"]) -> Environment:
+def _build_sample_project_environment(
+    ml_client: MLClient, runtime_env: Literal["dev", "prod"], accelerator: Literal["cpu", "gpu"]
+) -> Environment:
     """
     Build or update a specific Azure ML Environment.
 
     Args:
         ml_client (MLClient): The MLClient object.
         runtime_env (Literal["dev", "prod"]): The runtime environment. Can be either "dev" or "prod".
+        accelerator (Literal["cpu", "gpu"]): The accelerator to use. Can be either "cpu" or "gpu".
 
     Returns:
         Environment: The built or updated Azure ML Environment.
@@ -34,14 +37,20 @@ def _build_sample_project_environment(ml_client: MLClient, runtime_env: Literal[
 
     _logger.info(f"Building environment: {env_name}")
 
+    enable_gpu = True if accelerator == "gpu" else False
+
     return build_environment(
-        ml_client=ml_client, name=env_name, enable_gpu=False, conda_dependencies_file_path=conda_dependencies_file_path
+        ml_client=ml_client,
+        name=env_name,
+        enable_gpu=enable_gpu,
+        conda_dependencies_file_path=conda_dependencies_file_path,
     )
 
 
 class EnvironmentBuildingConfig(BaseModel):
     runtime_env: Literal["dev", "prod"]
     environment_name: str
+    accelerator: Literal["cpu", "gpu"]
 
     def __str__(self) -> str:
         return json.dumps(self.dict(), indent=4)
@@ -51,7 +60,7 @@ def parse_args() -> EnvironmentBuildingConfig:
     parser = argparse.ArgumentParser()
     parser.add_argument("--runtime_env", type=str)
     parser.add_argument("--environment_name", type=str)
-    parser.add_argument("--tag", type=str)
+    parser.add_argument("--accelerator", type=str)
 
     args = parser.parse_args()
 
@@ -76,7 +85,9 @@ def main() -> None:
     )
 
     if config.environment_name == "sample-project":
-        _build_sample_project_environment(ml_client=ml_client, runtime_env=config.runtime_env)
+        _build_sample_project_environment(
+            ml_client=ml_client, runtime_env=config.runtime_env, accelerator=config.accelerator
+        )
     else:
         raise NotImplementedError(f"Unknown environment specified ({config.runtime_env}).")
 
