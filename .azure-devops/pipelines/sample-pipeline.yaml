@@ -447,7 +447,7 @@ stages:
 
         - task: qetza.replacetokens.replacetokens-task.replacetokens@3
           inputs:
-            targetFiles: "src/sample_project/aml/pipelines/sample_pipeline/pipeline_spec.yaml"
+            targetFiles: "src/aml/pipelines/sample_pipeline/pipeline_spec.yaml"
             encoding: "auto"
             writeBOM: true
             actionOnMissing: "warn"
