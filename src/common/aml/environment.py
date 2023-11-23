@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from azure.ai.ml import MLClient
-from azure.ai.ml.entities import BuildContext, Environment
+from azure.ai.ml.entities import AmlCompute, BuildContext, Environment
 from azureml.core.environment import DEFAULT_CPU_IMAGE, DEFAULT_GPU_IMAGE
 
 from src.common.consts.directories import DOCKER_DIR
@@ -49,9 +49,20 @@ def build_environment(
         env.build = BuildContext(path=DOCKER_DIR.as_posix(), dockerfile_path=dockerfile_path.as_posix())
 
     if use_dedicated_compute:
-        env.build_compute = "STANDARD_DS3_V2"
+        _logger.info("Using dedicated compute.")
+
+        compute_name = "temp-compute"
+        compute_config = AmlCompute(
+            name=compute_name, size="Standard_DS3_v2", min_instances=0, max_instances=1, idle_time_before_scale_down=120
+        )
+        ml_client.begin_create_or_update(compute_config).result()
+
+        env.build_compute = compute_name
 
     created_env = ml_client.environments.create_or_update(env)
+
+    if use_dedicated_compute:
+        ml_client.compute.begin_delete(name=compute_name)
 
     _logger.info(f"Environment {name} is built with version: {created_env.version}")
 
