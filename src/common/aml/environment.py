@@ -3,8 +3,8 @@ from pathlib import Path
 from typing import Optional
 
 from azure.ai.ml import MLClient
-from azure.ai.ml.entities import AmlCompute, BuildContext, Environment
-from azureml.core.runconfig import DEFAULT_CPU_IMAGE, DEFAULT_GPU_IMAGE
+from azure.ai.ml.entities import BuildContext, Environment
+from azureml.core.environment import DEFAULT_CPU_IMAGE, DEFAULT_GPU_IMAGE
 
 from src.common.consts.directories import DOCKER_DIR
 from src.common.utils.logger import get_logger
@@ -17,8 +17,8 @@ def build_environment(
     name: str,
     enable_gpu: bool,
     conda_dependencies_file_path: Path,
-    use_dedicated_compute: bool,
     dockerfile_path: Optional[Path] = None,
+    use_dedicated_compute: bool = False,
 ) -> Environment:
     """
     Build or update an Azure ML Environment, optionally using a temporary compute target.
@@ -28,40 +28,31 @@ def build_environment(
         name (str): The name of the environment.
         enable_gpu (bool): Flag to enable GPU.
         conda_dependencies_file_path (Path): The path to the conda dependencies file.
-        use_dedicated_compute (bool): Whether to use a temporary compute target for building.
         dockerfile_path (Optional[Path]): The path to the Dockerfile.
+        use_dedicated_compute (bool): Whether to use a temporary dedicated compute target for building environment.
 
     Returns:
         Environment: The built or updated Azure ML Environment.
     """
+    _logger.info(f"Building or updating environment {name} using {conda_dependencies_file_path.as_posix()}")
 
-    compute_target = None
-    temporary_compute_target_name = None
-
-    if use_dedicated_compute:
-        temporary_compute_target_name = f"tmp-compute-{name}"
-        compute_config = AmlCompute.provisioning_configuration(vm_size="STANDARD_B2s")
-        create_op = ml_client.compute.begin_create_or_update(name=temporary_compute_target_name, compute=compute_config)
-        compute_target = create_op.result()
-
-    if dockerfile_path is None or not dockerfile_path.exists():
-        _logger.warning(f"Dockerfile not found for {name}, using {'GPU' if enable_gpu else 'CPU'} default image.")
-        image = DEFAULT_GPU_IMAGE if enable_gpu else DEFAULT_CPU_IMAGE
-        env = Environment(name=name, image=image, conda_file=conda_dependencies_file_path, compute=compute_target)
-    else:
-        env = Environment(
-            name=name,
-            build=BuildContext(path=DOCKER_DIR.as_posix(), dockerfile_path=dockerfile_path.as_posix()),
-            compute=compute_target,
+    if not conda_dependencies_file_path.exists():
+        raise FileNotFoundError(
+            f"Conda dependencies file not found for {name}: {conda_dependencies_file_path.as_posix()}"
         )
 
-    ml_client.environments.create_or_update(env)
+    image = DEFAULT_GPU_IMAGE if enable_gpu else DEFAULT_CPU_IMAGE
 
-    _logger.info(f"Environment '{name}' version {env.version} created/updated successfully.")
+    env = Environment(name=name, conda_file=conda_dependencies_file_path, image=image)
+
+    if dockerfile_path is not None and dockerfile_path.exists():
+        env.build = BuildContext(path=DOCKER_DIR.as_posix(), dockerfile_path=dockerfile_path.as_posix())
 
     if use_dedicated_compute:
-        delete_op = ml_client.compute.begin_delete(name=temporary_compute_target_name)
-        delete_op.wait()
-        _logger.info(f"Temporary compute target '{temporary_compute_target_name}' deleted.")
+        env.build_compute = "STANDARD_DS3_V2"
 
-    return env
+    created_env = ml_client.environments.create_or_update(env)
+
+    _logger.info(f"Environment {name} is built with version: {created_env.version}")
+
+    return created_env
