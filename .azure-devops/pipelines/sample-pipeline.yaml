@@ -483,7 +483,7 @@ stages:
               # Create and run the pipeline
               # Remember to add quotes around the string parameters to avoid YAML parsing errors
               run_id=$( \
-                az ml job create -f src/sample_project/aml/pipelines/sample_pipeline/pipeline_spec.yaml \
+                az ml job create -f src/aml/pipelines/sample_pipeline/pipeline_spec.yaml \
                 --set \
                 experiment_name=$experiment_name \
                 display_name=$job_id \
