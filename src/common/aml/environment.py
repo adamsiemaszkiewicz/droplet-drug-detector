@@ -17,8 +17,8 @@ def build_environment(
     name: str,
     enable_gpu: bool,
     conda_dependencies_file_path: Path,
+    use_dedicated_compute: bool,
     dockerfile_path: Optional[Path] = None,
-    use_dedicated_compute: bool = False,
 ) -> Environment:
     """
     Build or update an Azure ML Environment, optionally using a temporary compute target.
@@ -28,8 +28,8 @@ def build_environment(
         name (str): The name of the environment.
         enable_gpu (bool): Flag to enable GPU.
         conda_dependencies_file_path (Path): The path to the conda dependencies file.
-        dockerfile_path (Optional[Path]): The path to the Dockerfile.
         use_dedicated_compute (bool): Whether to use a temporary compute target for building.
+        dockerfile_path (Optional[Path]): The path to the Dockerfile.
 
     Returns:
         Environment: The built or updated Azure ML Environment.

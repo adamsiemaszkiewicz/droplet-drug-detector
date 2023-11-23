@@ -17,10 +17,15 @@ parameters:
     - "sample-project"
 - name: accelerator
   displayName: Accelerator to use for training
+  type: string
   default: "gpu"
   values:
     - "cpu"
     - "gpu"
+- name: use_dedicated_compute
+  displayName: Use dedicated compute for environment building (use in case of memory issues)
+  type: boolean
+  default: false
 
 pool:
   vmImage: ubuntu-latest
@@ -50,5 +55,6 @@ stages:
             python ./src/build_aml_environment.py \
               --runtime_env ${{parameters.runtime_env}} \
               --environment_name ${{parameters.environment_name}} \
-              --accelerator ${{parameters.accelerator}}
+              --accelerator ${{parameters.accelerator}} \
+              ${{ if eq(parameters.use_dedicated_compute, true) }}--use_dedicated_compute{{ endif }}
           displayName: Build Azure ML environment

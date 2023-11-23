@@ -18,15 +18,19 @@ _logger = get_logger(__name__)
 
 
 def _build_sample_project_environment(
-    ml_client: MLClient, runtime_env: Literal["dev", "prod"], accelerator: Literal["cpu", "gpu"]
+    ml_client: MLClient,
+    runtime_env: Literal["dev", "prod"],
+    accelerator: Literal["cpu", "gpu"],
+    use_dedicated_compute: bool,
 ) -> Environment:
     """
-    Build or update a specific Azure ML Environment.
+    Build or update a specific Azure ML Environment. Use dedicated compute in case memory problems.
 
     Args:
         ml_client (MLClient): The MLClient object.
         runtime_env (Literal["dev", "prod"]): The runtime environment. Can be either "dev" or "prod".
         accelerator (Literal["cpu", "gpu"]): The accelerator to use. Can be either "cpu" or "gpu".
+        use_dedicated_compute (bool): Whether to use a temporary dedicated compute target for building environment.
 
     Returns:
         Environment: The built or updated Azure ML Environment.
@@ -44,6 +48,7 @@ def _build_sample_project_environment(
         name=env_name,
         enable_gpu=enable_gpu,
         conda_dependencies_file_path=conda_dependencies_file_path,
+        use_dedicated_compute=use_dedicated_compute,
     )
 
 
@@ -51,6 +56,7 @@ class EnvironmentBuildingConfig(BaseModel):
     runtime_env: Literal["dev", "prod"]
     environment_name: str
     accelerator: Literal["cpu", "gpu"]
+    use_dedicated_compute: bool
 
     def __str__(self) -> str:
         return json.dumps(self.dict(), indent=4)
@@ -61,6 +67,7 @@ def parse_args() -> EnvironmentBuildingConfig:
     parser.add_argument("--runtime_env", type=str)
     parser.add_argument("--environment_name", type=str)
     parser.add_argument("--accelerator", type=str)
+    parser.add_argument("--use_dedicated_compute", action="store_true")
 
     args = parser.parse_args()
 
@@ -86,7 +93,10 @@ def main() -> None:
 
     if config.environment_name == "sample-project":
         _build_sample_project_environment(
-            ml_client=ml_client, runtime_env=config.runtime_env, accelerator=config.accelerator
+            ml_client=ml_client,
+            runtime_env=config.runtime_env,
+            accelerator=config.accelerator,
+            use_dedicated_compute=config.use_dedicated_compute,
         )
     else:
         raise NotImplementedError(f"Unknown environment specified ({config.runtime_env}).")
