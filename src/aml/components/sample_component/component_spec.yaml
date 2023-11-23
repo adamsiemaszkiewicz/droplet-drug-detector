@@ -178,3 +178,4 @@ command: >-
   --fast_dev_run ${{inputs.fast_dev_run}}
   --overfit_batches ${{inputs.overfit_batches}}
   --device ${{inputs.device}}
+  --on_azure
