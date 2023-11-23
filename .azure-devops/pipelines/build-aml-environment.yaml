@@ -49,6 +49,6 @@ stages:
             PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
             python ./src/build_aml_environment.py \
               --runtime_env ${{parameters.runtime_env}} \
-              --environment_name ${{parameters.environment_name}}
+              --environment_name ${{parameters.environment_name}} \
               --accelerator ${{parameters.accelerator}}
           displayName: Build Azure ML environment
