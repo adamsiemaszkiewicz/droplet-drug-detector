@@ -173,7 +173,7 @@ parameters:
       - "f1_score"
       - "jaccard_index"
     default: "accuracy"
-  - name: metric_name_2_kwargs
+  - name: metric_name_1_kwargs
     displayName: Metric name 2 kwargs
     type: string
   - name: metric_name_2
@@ -329,7 +329,7 @@ parameters:
       - "random_rotation"
       - "random_resized_crop"
     default: "none"
-  - name: augmentation_name_2_kwargs
+  - name: augmentation_name_4_kwargs
     displayName: Augmentation name 4 kwargs
     type: string
   - name: augmentation_name_5
