@@ -413,11 +413,11 @@ parameters:
     displayName: Compute cluster to use
     type: string
     values:
-      - azureml:GPU-T4-cluster
-      - azureml:GPU-V100-cluster
-      - azureml:CPU-DSeries-cluster
-      - azureml:CPU-D14Series-cluster
-    default: azureml:CPU-DSeries-cluster
+      - GPU-T4-cluster
+      - GPU-V100-cluster
+      - CPU-DSeries-cluster
+      - CPU-D14Series-cluster
+    default: CPU-DSeries-cluster
 
 
 
@@ -538,8 +538,8 @@ stages:
                 inputs.fast_dev_run="${{parameters.fast_dev_run}}" \
                 inputs.overfit_batches="${{parameters.overfit_batches}}" \
                 inputs.device=$device \
-                settings.default_datastore="${{parameters.datastore}}" \
-                settings.default_compute="${{parameters.compute}}" \
+                settings.default_datastore="azureml:${{parameters.datastore}}" \
+                settings.default_compute="azureml:${{parameters.compute}}" \
 
                 --query name -o tsv \
                 --verbose \
