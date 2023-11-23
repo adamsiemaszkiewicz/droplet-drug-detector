@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      PROJECT_NAME: sample_project  # Define the project name
+      PROJECT_NAME: sample-project  # Define the project name
       PYTHON_VERSION: '3.10'        # Define the python version variable
 
     steps:
