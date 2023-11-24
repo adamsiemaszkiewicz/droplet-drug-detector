@@ -1,65 +1,96 @@
 # -*- coding: utf-8 -*-
+import json
 from pathlib import Path
-from typing import List, Union
+from typing import Any, Optional, Union
 
-from pydantic import Field, validator
+import yaml
+from pydantic import BaseModel
+from pydantic.json import pydantic_encoder
 
+from src.common.consts.directories import ROOT_DIR
 from src.common.utils.logger import get_logger
-from src.common.utils.validators import FieldValidators
-from src.configs.base import (
-    BaseCallbacksConfig,
-    BaseDataConfig,
-    BaseMachineLearningConfig,
-    BaseModelConfig,
-    BaseTrainerConfig,
-)
+from src.machine_learning.augmentations.config import AugmentationsConfig
+from src.machine_learning.callbacks.config import CallbacksConfig
+from src.machine_learning.classification.loss_functions import ClassificationLossFunctionConfig
+from src.machine_learning.classification.metrics import ClassificationMetricsConfig
+from src.machine_learning.classification.models import ClassificationModelConfig
+from src.machine_learning.data import ClassificationDataConfig
+from src.machine_learning.loggers.config import LoggersConfig
+from src.machine_learning.optimizer.config import OptimizerConfig
+from src.machine_learning.preprocessing.config import PreprocessingConfig
+from src.machine_learning.scheduler.config import SchedulerConfig
+from src.machine_learning.trainer.config import TrainerConfig
 
 _logger = get_logger(__name__)
 
 
-class SampleDataConfig(BaseDataConfig):
-    # Attributes
-    parameter_1: str = Field()
-    parameter_2: int = Field()
-    parameter_3: float = Field()
-    parameter_4: Path = Field()
-    parameter_5: Union[str, List[str]] = Field()
-    parameter_6: Union[str, List[int]] = Field()
-    parameter_7: Union[str, List[float]] = Field()
-    parameter_8: bool = Field()
+class ClassificationConfig(BaseModel):
+    data: ClassificationDataConfig
+    preprocessing: Optional[PreprocessingConfig] = None
+    model: ClassificationModelConfig
+    loss_function: ClassificationLossFunctionConfig
+    optimizer: OptimizerConfig
+    scheduler: Optional[SchedulerConfig] = None
+    metrics: ClassificationMetricsConfig
+    augmentations: Optional[AugmentationsConfig] = None
+    callbacks: Optional[CallbacksConfig] = None
+    loggers: Optional[LoggersConfig] = None
+    trainer: TrainerConfig
 
-    # Validators
-    _parameter_2a = validator("parameter_2", allow_reuse=True)(FieldValidators.convert_str_to_int)
-    _parameter_2b = validator("parameter_2", allow_reuse=True)(FieldValidators.check_if_positive)
-    _parameter_3a = validator("parameter_3", allow_reuse=True)(FieldValidators.convert_str_to_float)
-    _parameter_3b = validator("parameter_3", allow_reuse=True)(FieldValidators.check_if_positive)
-    _parameter_4 = validator("parameter_4", allow_reuse=True)(FieldValidators.convert_str_to_path)
-    _parameter_5 = validator("parameter_5", allow_reuse=True)(
-        lambda v: FieldValidators.convert_comma_separated_str_to_list(v, str)
-    )
-    _parameter_6 = validator("parameter_6", allow_reuse=True)(
-        lambda v: FieldValidators.convert_comma_separated_str_to_list(v, int)
-    )
-    _parameter_7 = validator("parameter_7", allow_reuse=True)(
-        lambda v: FieldValidators.convert_comma_separated_str_to_list(v, float)
-    )
-    _parameter_8 = validator("parameter_8", allow_reuse=True)(BaseMachineLearningConfig.convert_str_to_bool)
+    class Config:
+        json_encoders = {
+            Path: lambda v: v.as_posix(),
+        }
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the BaseMachineLearningConfig instance in JSON format.
 
-class SampleModelConfig(BaseModelConfig):
-    pass
+        Returns:
+            str: A JSON formatted string representation of the BaseMachineLearningConfig instance.
+        """
+        return json.dumps(self.dict(), indent=4, default=pydantic_encoder)
 
+    def log_self(self) -> None:
+        """
+        Log the string representation of the BaseMachineLearningConfig instance.
+        """
+        _logger.info(self.__str__())
 
-class SampleTrainerConfig(BaseTrainerConfig):
-    pass
+    @classmethod
+    def from_yaml(cls, path: Union[str, Path]) -> "ClassificationConfig":
+        """
+        Create a ClassificationMachineLearningConfig instance from a YAML file.
 
+        Args:
+            path (Union[str, Path]): The path to the YAML file.
 
-class SampleCallbacksConfig(BaseCallbacksConfig):
-    pass
+        Returns:
+            ClassificationConfig: A ClassificationMachineLearningConfig instance.
+        """
+        with open(path) as f:
+            args = yaml.safe_load(f)
 
+        cls._process_yaml_values(data=args)
+        return cls(**args)
 
-class SampleConfig(BaseMachineLearningConfig):
-    data: SampleDataConfig
-    model: SampleModelConfig
-    trainer: SampleTrainerConfig
-    callbacks: SampleCallbacksConfig
+    @staticmethod
+    def _process_yaml_values(data: Any) -> None:
+        """
+        Recursively process values in the YAML structure.
+
+        Args:
+            data (Any): The current level of the YAML structure.
+        """
+        path_prefix = "path://"  # Prefix to indicate that the value is a path
+        if isinstance(data, dict):
+            for key, value in data.items():
+                if isinstance(value, str) and value.startswith(path_prefix):
+                    relative_path = value.split(path_prefix, 1)[1]  # Remove leading slashes
+                    absolute_path = (ROOT_DIR / relative_path).as_posix()
+                    data[key] = absolute_path
+                else:
+                    ClassificationConfig._process_yaml_values(data=value)
+        elif isinstance(data, list):
+            for item in data:
+                ClassificationConfig._process_yaml_values(item)
