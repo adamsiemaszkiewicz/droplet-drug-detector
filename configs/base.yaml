@@ -1,5 +1,6 @@
 data:
   dataset_dir: "path://data/dataset"  # relative to root directory (with `path://` prefix)
+  artifacts_dir: "path://data/artifacts"  # relative to root directory (with `path://` prefix)
   batch_size: 16
 
 preprocessing:
