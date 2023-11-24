@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from lightning import seed_everything
 
+from src.aml.components.sample_component.config import ClassificationConfig
 from src.common.consts.directories import CONFIGS_DIR
 from src.common.utils.logger import get_logger
-from src.configs.classification import ClassificationConfig
 from src.machine_learning.callbacks.factory import create_callbacks
 from src.machine_learning.data import ClassificationDataModule
 from src.machine_learning.lightning_module.classification.module import ClassificationLightningModule
