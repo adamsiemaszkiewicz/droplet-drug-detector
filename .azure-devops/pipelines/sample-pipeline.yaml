@@ -79,6 +79,20 @@ parameters:
     displayName: Preprocessing transform 4 kwargs
     type: string
     default: "{}"
+  - name: preprocessing_transform_5
+    displayName: Preprocessing transform 5
+    type: string
+    default: "none"
+    values:
+      - "none"
+      - "center_crop"
+      - "normalize"
+      - "pad"
+      - "resize"
+  - name: preprocessing_transform_5_kwargs
+    displayName: Preprocessing transform 5 kwargs
+    type: string
+    default: "{}"
 
   #########
   # MODEL #
@@ -475,9 +489,9 @@ stages:
 
               # Determine whether the compute target is CPU or GPU based and set device accordingly
               if [[ "${{parameters.compute}}" == azureml:GPU* ]]; then
-                device="gpu"
+                accelerator="gpu"
               else
-                device="cpu"
+                accelerator="cpu"
               fi
 
               # Create and run the pipeline
@@ -537,7 +551,7 @@ stages:
                 inputs.accumulate_grad_batches="${{parameters.accumulate_grad_batches}}" \
                 inputs.fast_dev_run="${{parameters.fast_dev_run}}" \
                 inputs.overfit_batches="${{parameters.overfit_batches}}" \
-                inputs.device=$device \
+                inputs.accelerator=accelerator \
                 settings.default_datastore="azureml:${{parameters.datastore}}" \
                 settings.default_compute="azureml:${{parameters.compute}}" \
                 --query name -o tsv \
