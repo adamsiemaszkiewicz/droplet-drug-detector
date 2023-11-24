@@ -27,6 +27,10 @@ inputs:
     type: string
   preprocessing_transform_4_kwargs:
     type: string
+  preprocessing_transform_5:
+    type: string
+  preprocessing_transform_5_kwargs:
+    type: string
   model_name:
     type: string
   pretrained:
@@ -105,7 +109,7 @@ inputs:
     type: boolean
   overfit_batches:
     type: string
-  device:
+  accelerator:
     type: string
 
 
@@ -129,6 +133,8 @@ jobs:
       preprocessing_transform_3_kwargs: ${{parent.inputs.preprocessing_transform_3_kwargs}}
       preprocessing_transform_4: ${{parent.inputs.preprocessing_transform_4}}
       preprocessing_transform_4_kwargs: ${{parent.inputs.preprocessing_transform_4_kwargs}}
+      preprocessing_transform_5: ${{parent.inputs.preprocessing_transform_5}}
+      preprocessing_transform_5_kwargs: ${{parent.inputs.preprocessing_transform_5_kwargs}}
       model_name: ${{parent.inputs.model_name}}
       pretrained: ${{parent.inputs.pretrained}}
       num_classes: ${{parent.inputs.num_classes}}
@@ -168,14 +174,14 @@ jobs:
       accumulate_grad_batches: ${{parent.inputs.accumulate_grad_batches}}
       fast_dev_run: ${{parent.inputs.fast_dev_run}}
       overfit_batches: ${{parent.inputs.overfit_batches}}
-      device: ${{parent.inputs.device}}
+      accelerator: ${{parent.inputs.accelerator}}
 
-      input_dir:
+      dataset_dir:
         type: uri_folder
         mode: ro_mount
-        path: azureml://subscriptions/<<AZ__SUBSCRIPTION_ID>>/resourcegroups/<<AZ__RESOURCE_GROUP>>/workspaces/<<AML_SETTINGS__WORKSPACE_NAME>>/datastores/<<AML_SETTINGS__STAGE_3_4_DATASTORE_NAME>>/paths/
+        path: azureml://subscriptions/<<AZ__SUBSCRIPTION_ID>>/resourcegroups/<<AZ__RESOURCE_GROUP>>/workspaces/<<AML_SETTINGS__WORKSPACE_NAME>>/datastores/<<AML_SETTINGS__STAGE_3_4_DATASTORE_NAME>>/paths/dataset
 
     outputs:
-      output_dir:
+      artifacts_dir:
         mode: rw_mount
-        path: azureml://subscriptions/<<AZ__SUBSCRIPTION_ID>>/resourcegroups/<<AZ__RESOURCE_GROUP>>/workspaces/<<AML_SETTINGS__WORKSPACE_NAME>>/datastores/<<AML_SETTINGS__STAGE_3_4_DATASTORE_NAME>>/paths/
+        path: azureml://subscriptions/<<AZ__SUBSCRIPTION_ID>>/resourcegroups/<<AZ__RESOURCE_GROUP>>/workspaces/<<AML_SETTINGS__WORKSPACE_NAME>>/datastores/<<AML_SETTINGS__STAGE_3_4_DATASTORE_NAME>>/paths/artifacts
