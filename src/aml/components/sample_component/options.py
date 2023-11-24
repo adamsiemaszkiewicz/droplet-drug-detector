@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from argparse import ArgumentParser
+from pathlib import Path
 from typing import Any, Dict
 
 import yaml
 
 from src.aml.components.sample_component.config import ClassificationConfig
-from src.common.consts.directories import CONFIGS_DIR
+from src.common.consts.directories import CONFIGS_DIR, ROOT_DIR
 from src.common.consts.extensions import YAML
 from src.common.utils.dtype_converters import str_to_bool, str_to_dict, str_to_float, str_to_int
 from src.machine_learning.augmentations.config import AugmentationsConfig
@@ -26,6 +27,13 @@ def load_defaults() -> Dict[str, Any]:
     """
     with open(CONFIGS_DIR / f"default{YAML}", "r") as file:
         return yaml.safe_load(file)
+
+
+def rel_paths_to_abs_path(path: str) -> Path:
+    """
+    Converts a relative path to an absolute path relative to the root directory.
+    """
+    return ROOT_DIR / path
 
 
 def create_arg_parser() -> ArgumentParser:
@@ -56,7 +64,7 @@ def create_arg_parser() -> ArgumentParser:
     trainer_defaults: Dict[str, Any] = defaults.get("trainer", None)
 
     # Directories
-    parser.add_argument("--dataset_dir", type=str, default=data_defaults["dataset_dir"])
+    parser.add_argument("--dataset_dir", type=str, default=rel_paths_to_abs_path(data_defaults["dataset_dir"]))
     parser.add_argument("--artifacts_dir", type=str, default=data_defaults["artifacts_dir"])
 
     # Data
