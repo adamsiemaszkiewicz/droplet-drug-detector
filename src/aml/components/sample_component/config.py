@@ -40,6 +40,8 @@ class ClassificationConfig(BaseModel):
     loggers: Optional[LoggersConfig] = None
     trainer: TrainerConfig
 
+    seed: int
+
     class Config:
         json_encoders = {
             Path: lambda v: v.as_posix(),
