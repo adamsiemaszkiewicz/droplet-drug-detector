@@ -28,7 +28,7 @@ class TrainerConfig(BaseTrainerConfig):
     """
 
     max_epochs: int
-    precision: Optional[Literal["16", "32", "64"]] = None
+    precision: Optional[Literal[16, 32, 64]] = None
     accumulate_grad_batches: Optional[int] = None
     accelerator: Optional[str] = None
     num_devices: Optional[int] = None
