@@ -1,0 +1,70 @@
+data:
+  dataset_dir: "path://data/dataset"  # relative to root directory (with `path://` prefix)
+  artifacts_dir: "path://data/artifacts"  # relative to root directory (with `path://` prefix)
+  val_split: 0.1
+  test_split: 0.1
+  batch_size: 16
+
+preprocessing:
+  name_list:
+    - resize
+  extra_arguments_list:
+    - size: 256
+
+model:
+  name: resnet18
+  pretrained: true
+  num_classes: 6
+  in_channels: 3
+
+loss_function:
+  name: cross_entropy_loss
+  extra_arguments: {}
+
+optimizer:
+  name: adam
+  learning_rate: 0.0003
+  weight_decay: 0
+  extra_arguments: {}
+
+metrics:
+  name_list:
+    - accuracy
+    - f1_score
+  task: multiclass
+  num_classes: 6
+  extra_arguments_list:
+      - {}
+      - {}
+
+callbacks:
+  early_stopping:
+    monitor: val_loss
+    mode: min
+    patience: 10
+    min_delta: 0.001
+    verbose: true
+  model_checkpoint:
+    monitor: val_loss
+    mode: min
+    save_top_k: 5
+    dirpath: "path://data/checkpoints"  # relative to root directory (with `path:` prefix)
+    filename: "{epoch}-{val_loss:.2f}"
+    verbose: true
+  learning_rate_monitor:
+    log_momentum: true
+    log_weight_decay: true
+
+loggers:
+  name_list:
+    - csv
+  save_dir: "path://data/logs"  # relative to root directory (with `path:` prefix)
+
+
+trainer:
+  max_epochs: 50
+  accelerator: gpu
+  precision: 16
+  accumulate_grad_batches: 1
+  fast_dev_run: false
+  overfit_batches: 0.0
