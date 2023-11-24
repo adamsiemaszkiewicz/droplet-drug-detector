@@ -1,3 +1,5 @@
+seed: 42
+
 data:
   dataset_dir: "path://data/dataset"  # relative to root directory (with `path://` prefix)
   artifacts_dir: "path://data/artifacts"  # relative to root directory (with `path://` prefix)
@@ -60,11 +62,10 @@ loggers:
     - csv
   save_dir: "path://data/logs"  # relative to root directory (with `path:` prefix)
 
-
 trainer:
   max_epochs: 50
   accelerator: gpu
   precision: 16
   accumulate_grad_batches: 1
-  fast_dev_run: false
-  overfit_batches: 0.0
+  fast_dev_run: false  # set to true for debugging
+  overfit_batches: 0.0  # 0.0 means no overfitting
