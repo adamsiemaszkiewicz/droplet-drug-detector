@@ -28,6 +28,8 @@ inputs:
     type: string
   preprocessing_transform_4_kwargs:
     type: string
+  preprocessing_transform_5:
+    type: string
   model_name:
     type: string
   pretrained:
@@ -106,14 +108,14 @@ inputs:
     type: boolean
   overfit_batches:
     type: string
-  device:
+  accelerator:
     type: string
 
-  input_dir:
+  dataset_dir:
     type: uri_folder
 
 outputs:
-  output_dir:
+  artifacts_dir:
     type: uri_folder
 
 
@@ -125,8 +127,8 @@ code: ../../..
 command: >-
   PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
   python ./src/aml/components/sample_component/entrypoint.py
-  --input_dir ${{inputs.input_dir}}
-  --output_dir ${{outputs.output_dir}}
+  --dataset_dir ${{inputs.dataset_dir}}
+  --artifacts_dir ${{outputs.output_dir}}
   --val_split ${{inputs.val_split}}
   --test_split ${{inputs.test_split}}
   --batch_size ${{inputs.batch_size}}
@@ -138,6 +140,8 @@ command: >-
   --preprocessing_transform_3_kwargs ${{inputs.preprocessing_transform_3_kwargs}}
   --preprocessing_transform_4 ${{inputs.preprocessing_transform_4}}
   --preprocessing_transform_4_kwargs ${{inputs.preprocessing_transform_4_kwargs}}
+  --preprocessing_transform_5 ${{inputs.preprocessing_transform_5}}
+  --preprocessing_transform_5_kwargs ${{inputs.preprocessing_transform_5_kwargs}}
   --model_name ${{inputs.model_name}}
   --pretrained ${{inputs.pretrained}}
   --num_classes ${{inputs.num_classes}}
@@ -177,5 +181,5 @@ command: >-
   --accumulate_grad_batches ${{inputs.accumulate_grad_batches}}
   --fast_dev_run ${{inputs.fast_dev_run}}
   --overfit_batches ${{inputs.overfit_batches}}
-  --device ${{inputs.device}}
+  --accelerator ${{inputs.accelerator}}
   --on_azure
