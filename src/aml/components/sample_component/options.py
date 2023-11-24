@@ -189,6 +189,7 @@ def create_arg_parser() -> ArgumentParser:
     parser.add_argument("--overfit_batches", type=str, default=trainer_defaults["overfit_batches"])
 
     # Other
+    parser.add_argument("--seed", type=str, default=defaults["seed"])
     parser.add_argument("--on_azure", action="store_true")
 
     return parser
@@ -301,6 +302,7 @@ def get_config() -> ClassificationConfig:
         metrics=metrics_config,
         augmentations=augmentations_config,
         trainer=trainer_config,
+        seed=str_to_int(args.seed),
     )
     config.log_self()
     config.to_yaml()
