@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 import json
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import yaml
 from pydantic import BaseModel
 from pydantic.json import pydantic_encoder
 
-from src.common.consts.directories import ROOT_DIR
+from src.common.consts.directories import CONFIGS_LOG_DIR, ROOT_DIR
+from src.common.consts.extensions import YAML
+from src.common.utils.dtype_converters import path_to_str
 from src.common.utils.logger import get_logger
 from src.machine_learning.augmentations.config import AugmentationsConfig
 from src.machine_learning.callbacks.config import CallbacksConfig
@@ -57,13 +60,37 @@ class ClassificationConfig(BaseModel):
         """
         _logger.info(self.__str__())
 
+    def to_yaml(self, path: Optional[Path] = None) -> None:
+        """
+        Save the ClassificationConfig instance to a YAML file.
+
+        Args:
+            path (Path): The path where the YAML file will be saved.
+        """
+        if path:
+            _logger.info(f"Saving configuration to: {path.as_posix()}")
+
+        else:
+            timestamp = datetime.now().isoformat()
+            path = CONFIGS_LOG_DIR / f"{timestamp}{YAML}"
+            _logger.info(f"No save path specified. Saving configuration to a default path: {path.as_posix()}")
+
+        config_dict = self.dict(by_alias=True)
+        self._convert_paths_to_strings(config_dict)
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "w") as f:
+            yaml.dump(config_dict, f)
+
+        _logger.info("Successfully exported configuration.")
+
     @classmethod
-    def from_yaml(cls, path: Union[str, Path]) -> "ClassificationConfig":
+    def from_yaml(cls, path: Path) -> "ClassificationConfig":
         """
         Create a ClassificationMachineLearningConfig instance from a YAML file.
 
         Args:
-            path (Union[str, Path]): The path to the YAML file.
+            path (Path): The path to the YAML file.
 
         Returns:
             ClassificationConfig: A ClassificationMachineLearningConfig instance.
@@ -73,6 +100,21 @@ class ClassificationConfig(BaseModel):
 
         cls._process_yaml_values(data=args)
         return cls(**args)
+
+    @staticmethod
+    def _convert_paths_to_strings(data: Any) -> None:
+        if isinstance(data, dict):
+            for key, value in data.items():
+                if isinstance(value, Path):
+                    data[key] = path_to_str(value)
+                else:
+                    ClassificationConfig._convert_paths_to_strings(value)
+        elif isinstance(data, list):
+            for i, item in enumerate(data):
+                if isinstance(item, Path):
+                    data[i] = path_to_str(item)
+                else:
+                    ClassificationConfig._convert_paths_to_strings(item)
 
     @staticmethod
     def _process_yaml_values(data: Any) -> None:
