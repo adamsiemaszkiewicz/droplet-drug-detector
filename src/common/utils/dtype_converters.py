@@ -2,26 +2,7 @@
 
 import ast
 from pathlib import Path
-from typing import Dict
-
-
-def str_to_path(path_string: str) -> Path:
-    """
-    Converts a string to a pathlib.Path object.
-
-    Args:
-        path_string (str): The string representation of the path.
-
-    Returns:
-        Path: A pathlib.Path object representing the given path.
-
-    Raises:
-        ValueError: If the string is not a valid path.
-    """
-    try:
-        return Path(path_string)
-    except ValueError:
-        raise ValueError("Invalid path string")
+from typing import Dict, List
 
 
 def str_to_dict(dict_string: str) -> Dict:
@@ -37,13 +18,15 @@ def str_to_dict(dict_string: str) -> Dict:
     Raises:
         ValueError: If the string is not a valid dictionary representation.
     """
+    if isinstance(dict_string, Dict):
+        return dict_string
     try:
         return ast.literal_eval(dict_string)
     except (ValueError, SyntaxError):
         raise ValueError("Invalid dictionary string")
 
 
-def str_to_list(list_string: str) -> list:
+def str_to_list(list_string: str) -> List:
     """
     Converts a string representation of a list into a list object.
 
@@ -54,11 +37,13 @@ def str_to_list(list_string: str) -> list:
         list_string (str): The string representation of the list.
 
     Returns:
-        list: A list object parsed from the string.
+        List: A list object parsed from the string.
 
     Raises:
         ValueError: If the string is not a valid list representation.
     """
+    if isinstance(list_string, List):
+        return list_string
     try:
         return ast.literal_eval(list_string)
     except (ValueError, SyntaxError):
@@ -79,6 +64,9 @@ def str_to_bool(bool_string: str) -> bool:
     Raises:
         ValueError: If the string is not a recognizable boolean representation.
     """
+    if isinstance(bool_string, bool):
+        return bool_string
+
     true_values = {"true", "yes", "1"}
     false_values = {"false", "no", "0"}
 
@@ -104,6 +92,8 @@ def str_to_int(int_string: str) -> int:
     Raises:
         ValueError: If the string is not a valid integer.
     """
+    if isinstance(int_string, int):
+        return int_string
     try:
         return int(int_string)
     except ValueError:
@@ -123,7 +113,22 @@ def str_to_float(float_string: str) -> float:
     Raises:
         ValueError: If the string is not a valid float.
     """
+    if isinstance(float_string, float):
+        return float_string
     try:
         return float(float_string)
     except ValueError:
         raise ValueError("Invalid float string")
+
+
+def path_to_str(path: Path) -> str:
+    """
+    Converts a Path object to its string representation.
+
+    Args:
+        path (Path): The Path object to convert.
+
+    Returns:
+        str: The string representation of the Path object.
+    """
+    return path.as_posix() if path else ""
