@@ -30,6 +30,8 @@ inputs:
     type: string
   preprocessing_transform_5:
     type: string
+  preprocessing_transform_5_kwargs:
+    type: string
   model_name:
     type: string
   pretrained:
