@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - pytorch-lightning==2.1.1
+  - pytorch-lightning==2.1.2
   - python=3.10
   - pip
   - pip:
@@ -27,3 +27,4 @@ dependencies:
       - pytest==7.4.3
       - structlog==23.2.0
       - timm==0.9.10
+      -
