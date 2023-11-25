@@ -10,11 +10,11 @@ parameters:
   - name: val_split
     displayName: Validation subset size (0.0-1.0)
     type: string
-    default: "0.1"
+    default: "0.15"
   - name: test_split
     displayName: Testing subset size (0.0-1.0)
     type: string
-    default: "0.1"
+    default: "0.15"
   - name: batch_size
     displayName: Batch size
     type: string
@@ -26,7 +26,7 @@ parameters:
   - name: preprocessing_transform_1
     displayName: Preprocessing transform 1
     type: string
-    default: "none"
+    default: "resize"
     values:
       - "none"
       - "center_crop"
@@ -36,7 +36,7 @@ parameters:
   - name: preprocessing_transform_1_kwargs
     displayName: Preprocessing transform 1 kwargs
     type: string
-    default: "{}"
+    default: "{'size': 256}"
   - name: preprocessing_transform_2
     displayName: Preprocessing transform 2
     type: string
@@ -100,6 +100,7 @@ parameters:
   - name: model_name
     displayName: Model architecture name (available values https://huggingface.co/timm)
     type: string
+    default: "resnet50"
   - name: pretrained
     displayName: Use pretrained weights
     type: boolean
@@ -208,7 +209,7 @@ parameters:
       - "recall"
       - "f1_score"
       - "jaccard_index"
-    default: "none"
+    default: "precision"
   - name: metric_name_2_kwargs
     displayName: Metric name 2 kwargs
     type: string
@@ -223,7 +224,7 @@ parameters:
       - "recall"
       - "f1_score"
       - "jaccard_index"
-    default: "none"
+    default: "recall"
   - name: metric_name_3_kwargs
     displayName: Metric name 3 kwargs
     type: string
@@ -238,7 +239,7 @@ parameters:
       - "recall"
       - "f1_score"
       - "jaccard_index"
-    default: "none"
+    default: "f1_score"
   - name: metric_name_4_kwargs
     displayName: Metric name 4 kwargs
     type: string
@@ -253,7 +254,7 @@ parameters:
       - "recall"
       - "f1_score"
       - "jaccard_index"
-    default: "none"
+    default: "jaccard_index"
   - name: metric_name_5_kwargs
     displayName: Metric name 5 kwargs
     type: string
@@ -394,11 +395,11 @@ parameters:
   - name: max_epochs
     displayName: Maximum number of epochs
     type: string
-    default: "100"
+    default: "50"
   - name: patience
     displayName: Number of epochs with no improvement after which training will be stopped
     type: string
-    default: "20"
+    default: "5"
   - name: precision
     displayName: Training precision
     type: string
@@ -406,11 +407,11 @@ parameters:
       - "16"
       - "32"
       - "64"
-    default: "16"
+    default: "32"
   - name: accumulate_grad_batches
     displayName: Accumulate gradients over n batches
     type: string
-    default: "none"
+    default: "1"
   - name: fast_dev_run
     displayName: Run a full train, val and test loop using a single batch
     type: boolean
@@ -428,7 +429,7 @@ parameters:
     displayName: Datastore to use
     type: string
   - name: compute
-    displayName: Compute cluster to use
+    displayName: Compute cluster to use  # replace with your compute cluster names
     type: string
     values:
       - GPU-T4-cluster
@@ -440,7 +441,7 @@ parameters:
 
 
 variables:
-- group: h4e-dev
+- group: library-group-name  # replace with your library group name
 
 pool:
   vmImage: ubuntu-latest
