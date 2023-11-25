@@ -1,9 +1,9 @@
 $schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
 type: command
 
-name: sample_component_name
+name: sample_component_name  # Use this for the component description
 version: 1
-display_name: Sample component display name
+display_name: Sample component display name  # Use this for the component slug
 
 inputs:
   val_split:
