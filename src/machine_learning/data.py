@@ -5,6 +5,7 @@ from typing import Callable, List, Optional, Tuple
 import torch
 from lightning import LightningDataModule
 from PIL import Image
+from pydantic import BaseModel
 from torch import Tensor
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision.transforms import ToTensor
@@ -12,13 +13,12 @@ from torchvision.transforms import ToTensor
 from src.common.consts.directories import DATA_DIR
 from src.common.utils.logger import get_logger
 from src.common.utils.os import get_cpu_worker_count
-from src.configs.base import BaseDataConfig
 from src.machine_learning.preprocessing.factory import DataPreprocessor
 
 _logger = get_logger(__name__)
 
 
-class ClassificationDataConfig(BaseDataConfig):
+class ClassificationDataConfig(BaseModel):
     dataset_dir: Path = DATA_DIR / "dataset"
     val_split: float = 0.1
     test_split: float = 0.1
