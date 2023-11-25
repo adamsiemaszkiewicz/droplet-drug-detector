@@ -7,11 +7,15 @@ Overview of the project.
 
 - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
-- [Usage](#usage)
+- [Repository Structure](#repository-structure)
     - [Azure DevOps](#azure-devops)
-    - [Jupyter Notebooks](#jupyter-notebooks)
     - [Artifacts](#artifacts)
+    - [Configs](#configs)
     - [Data](#data)
+    - [Docker](#docker)
+    - [Environments](#environments)
+    - [Notebooks](#notebooks)
+    - [Source Code](#source-code)
     - [Testing](#testing)
 - [Development](#development)
     - [Source Code Structure](#source-code-structure)
@@ -74,35 +78,30 @@ Follow these steps to set up your local environment:
 
 [Back to the top](#project-title)
 
-## Usage
+## Repository Structure
 
 ### Azure DevOps
 
-- `.azure-devops/pipelines`: This folder holds the YAML pipeline definitions for building and deploying using Azure DevOps services.
-  - `build-aml-environment.yaml` sets up Azure Machine Learning environment needed for running Azure ML tasks
-  - `sample-pipeline.yaml` runs a sample Azure Machine Learning task
-
-- `.azure-devops/templates`: Reusable YAML templates with encapsulated functionalities to streamline pipeline creation. The templates include:
-  - `install-azure-cli.yaml` for installing the Azure CLI.
-  - `configure-aml-extension.yaml` for setting up Azure ML extensions.
-  - `connect-to-aml-workspace.yaml` for connecting to an Azure ML workspace within the pipeline.
-  - `create-conda-env.yaml` for constructing Conda environments needed for the pipeline's operations.
-  - `substitute-env-vars.yaml` for injecting environment variables dynamically into the pipeline process.
+The `.azure-devops` directory contains configurations specific to Azure DevOps features and services to support the project's development workflow.
 
 [Back to the top](#project-title)
 
-### Jupyter Notebooks
+### Github
 
-The `notebooks` directory contains Jupyter notebooks that are integral to the project.
-
-[Back to the top](#project-title)
+The `.github` directory contains configurations specific to GitHub features and services to support the project's development workflow.
 
 ### Artifacts
 
-All experiment related artifacts such as configuration files, model checkpoints, logs, etc. are saved here.
+All experiment related artifacts such as configuration files, model checkpoints, logs, etc. are saved in `artifacts` directory.
 
 [Back to the top](#project-title)
 
+
+### Configs
+
+The `configs` directory contains configuration YAML files for different machine learning tasks.
+
+[Back to the top](#project-title)
 
 
 ### Data
@@ -112,6 +111,30 @@ Store all project related data inside `data` folder.
 [Back to the top](#project-title)
 
 
+### Docker
+
+All Docker-related files necessary for building Docker images and managing Docker containers for the project are located in `docker` directory.
+
+[Back to the top](#project-title)
+
+
+### Environments
+
+The `environments` directory stores YAML files that define the different Conda environments needed for the project.
+
+[Back to the top](#project-title)
+
+
+### Notebooks
+
+Jupyter notebooks integral to the project as located in `notebooks` directory..
+
+[Back to the top](#project-title)
+
+
+### Source Code
+
+The `src` directory contains all source code for the project.
 
 ### Testing
 
@@ -134,6 +157,22 @@ pytest
 [Back to the top](#project-title)
 
 ## Development
+
+### Azure DevOps Code Structure
+
+A detailed explanation of the layout and purpose of the `.azure-devops` directory contents.
+
+- `.azure-devops/pipelines`: This folder holds the YAML pipeline definitions for building and deploying using Azure DevOps services.
+  - `build-aml-environment.yaml` sets up Azure Machine Learning environment needed for running Azure ML tasks
+  - `sample-pipeline.yaml` runs a sample Azure Machine Learning task
+
+- `.azure-devops/templates`: Reusable YAML templates with encapsulated functionalities to streamline pipeline creation. The templates include:
+  - `install-azure-cli.yaml` for installing the Azure CLI.
+  - `configure-aml-extension.yaml` for setting up Azure ML extensions.
+  - `connect-to-aml-workspace.yaml` for connecting to an Azure ML workspace within the pipeline.
+  - `create-conda-env.yaml` for constructing Conda environments needed for the pipeline's operations.
+  - `substitute-env-vars.yaml` for injecting environment variables dynamically into the pipeline process.
+
 
 ### Source Code Structure
 
