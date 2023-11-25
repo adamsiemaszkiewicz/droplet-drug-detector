@@ -139,7 +139,7 @@ command: >-
   PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
   python ./src/aml/components/sample_component/entrypoint.py
   --dataset_dir "${{inputs.dataset_dir}}"
-  --artifacts_dir "${{outputs.output_dir}}"
+  --artifacts_dir "${{outputs.artifacts_dir}}"
   --val_split "${{inputs.val_split}}"
   --test_split "${{inputs.test_split}}"
   --batch_size "${{inputs.batch_size}}"
