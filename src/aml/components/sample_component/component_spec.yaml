@@ -33,7 +33,7 @@ inputs:
   model_name:
     type: string
   pretrained:
-    type: boolean
+    type: string
   num_classes:
     type: string
   in_channels:
@@ -105,7 +105,7 @@ inputs:
   accumulate_grad_batches:
     type: string
   fast_dev_run:
-    type: boolean
+    type: string
   overfit_batches:
     type: string
   accelerator:
