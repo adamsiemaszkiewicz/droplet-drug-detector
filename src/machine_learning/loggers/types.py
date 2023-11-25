@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import Dict, Type
 
-from lightning.pytorch.loggers import CSVLogger, Logger, MLFlowLogger, TensorBoardLogger
+from lightning.pytorch.loggers import CSVLogger, Logger, MLFlowLogger, TensorBoardLogger, WandbLogger
 
 from src.common.utils.logger import get_logger
 
@@ -11,4 +11,5 @@ AVAILABLE_LOGGERS: Dict[str, Type[Logger]] = {
     "csv": CSVLogger,
     "mlflow": MLFlowLogger,
     "tensorboard": TensorBoardLogger,
+    "wandb": WandbLogger,
 }
