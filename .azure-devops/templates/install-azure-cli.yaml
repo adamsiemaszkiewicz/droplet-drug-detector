@@ -1,0 +1,13 @@
+steps:
+  - task: AzureCLI@2
+    displayName: Install Azure CLI
+    inputs:
+      azureSubscription: $(ADO__MLWS_SRVC_CONN_NAME)
+      scriptType: bash
+      scriptLocation: inlineScript
+      workingDirectory: code/
+      inlineScript: |
+        set -e # fail on error
+        python -m pip install --upgrade pip # Upgrade pip
+        pip install azure-cli==2.53.1 # Install specific Azure CLI version
+        az version

@@ -1,0 +1,574 @@
+trigger: none
+
+pr: none
+
+parameters:
+
+  ###########
+  # DATASET #
+  ###########
+  - name: val_split
+    displayName: Validation subset size (0.0-1.0)
+    type: string
+    default: "0.15"
+  - name: test_split
+    displayName: Testing subset size (0.0-1.0)
+    type: string
+    default: "0.15"
+  - name: batch_size
+    displayName: Batch size
+    type: string
+    default: "16"
+
+  ######################
+  # DATA PREPROCESSING #
+  ######################
+  - name: preprocessing_transform_1
+    displayName: Preprocessing transform 1
+    type: string
+    default: "resize"
+    values:
+      - "none"
+      - "center_crop"
+      - "normalize"
+      - "pad"
+      - "resize"
+  - name: preprocessing_transform_1_kwargs
+    displayName: Preprocessing transform 1 kwargs
+    type: string
+    default: "{'size': 256}"
+  - name: preprocessing_transform_2
+    displayName: Preprocessing transform 2
+    type: string
+    default: "none"
+    values:
+      - "none"
+      - "center_crop"
+      - "normalize"
+      - "pad"
+      - "resize"
+  - name: preprocessing_transform_2_kwargs
+    displayName: Preprocessing transform 2 kwargs
+    type: string
+    default: "{}"
+  - name: preprocessing_transform_3
+    displayName: Preprocessing transform 3
+    type: string
+    default: "none"
+    values:
+      - "none"
+      - "center_crop"
+      - "normalize"
+      - "pad"
+      - "resize"
+  - name: preprocessing_transform_3_kwargs
+    displayName: Preprocessing transform 3 kwargs
+    type: string
+    default: "{}"
+  - name: preprocessing_transform_4
+    displayName: Preprocessing transform 4
+    type: string
+    default: "none"
+    values:
+      - "none"
+      - "center_crop"
+      - "normalize"
+      - "pad"
+      - "resize"
+  - name: preprocessing_transform_4_kwargs
+    displayName: Preprocessing transform 4 kwargs
+    type: string
+    default: "{}"
+  - name: preprocessing_transform_5
+    displayName: Preprocessing transform 5
+    type: string
+    default: "none"
+    values:
+      - "none"
+      - "center_crop"
+      - "normalize"
+      - "pad"
+      - "resize"
+  - name: preprocessing_transform_5_kwargs
+    displayName: Preprocessing transform 5 kwargs
+    type: string
+    default: "{}"
+
+  #########
+  # MODEL #
+  #########
+  - name: model_name
+    displayName: Model architecture name (available values https://huggingface.co/timm)
+    type: string
+    default: "resnet50"
+  - name: pretrained
+    displayName: Use pretrained weights
+    type: boolean
+    default: false
+  - name: num_classes
+    displayName: Number of classes
+    type: string
+  - name: in_channels
+    displayName: Number of input channels
+    type: string
+
+  #################
+  # LOSS FUNCTION #
+  #################
+  - name: loss_function_name
+    displayName: Loss function name
+    type: string
+    values:
+      - "asymmetric_loss_multi_label"
+      - "asymmetric_loss_single_label"
+      - "binary_cross_entropy"
+      - "cross_entropy_loss"
+      - "jsd_cross_entropy"
+      - "label_smoothing_cross_entropy"
+      - "soft_target_cross_entropy"
+    default: "cross_entropy_loss"
+  - name: loss_function_kwargs
+    displayName: Loss function kwargs
+    type: string
+    default: "{}"
+
+  #############
+  # OPTIMIZER #
+  #############
+  - name: optimizer_name
+    displayName: Optimizer name
+    type: string
+    values:
+      - "adam"
+      - "sgd"
+    default: "adam"
+  - name: learning_rate
+    displayName: Learning rate
+    type: string
+    default: "0.0003"
+  - name: weight_decay
+    displayName: Weight decay
+    type: string
+    default: "0.0"
+  - name: optimizer_kwargs
+    displayName: Optimizer kwargs
+    type: string
+    default: "{}"
+
+  #############
+  # SCHEDULER #
+  #############
+  - name: scheduler_name
+    displayName: Scheduler name
+    type: string
+    values:
+      - "none"
+      - "cosine_annealing"
+      - "exponential"
+      - "one_cycle"
+      - "step_lr"
+    default: "none"
+  - name: scheduler_kwargs
+    displayName: Scheduler kwargs
+    type: string
+    default: "{}"
+
+  ###########
+  # METRICS #
+  ###########
+  - name: task_type
+    displayName: Task type
+    type: string
+    values:
+      - "binary"
+      - "multiclass"
+      - "multilabel"
+    default: "multiclass"
+  - name: metric_name_1
+    displayName: Metric name 1
+    type: string
+    values:
+      - "none"
+      - "accuracy"
+      - "precision"
+      - "recall"
+      - "f1_score"
+      - "jaccard_index"
+    default: "accuracy"
+  - name: metric_name_1_kwargs
+    displayName: Metric name 2 kwargs
+    type: string
+    default: "{}"
+  - name: metric_name_2
+    displayName: Metric name 2
+    type: string
+    values:
+      - "none"
+      - "accuracy"
+      - "precision"
+      - "recall"
+      - "f1_score"
+      - "jaccard_index"
+    default: "precision"
+  - name: metric_name_2_kwargs
+    displayName: Metric name 2 kwargs
+    type: string
+    default: "{}"
+  - name: metric_name_3
+    displayName: Metric name 3
+    type: string
+    values:
+      - "none"
+      - "accuracy"
+      - "precision"
+      - "recall"
+      - "f1_score"
+      - "jaccard_index"
+    default: "recall"
+  - name: metric_name_3_kwargs
+    displayName: Metric name 3 kwargs
+    type: string
+    default: "{}"
+  - name: metric_name_4
+    displayName: Metric name 4
+    type: string
+    values:
+      - "none"
+      - "accuracy"
+      - "precision"
+      - "recall"
+      - "f1_score"
+      - "jaccard_index"
+    default: "f1_score"
+  - name: metric_name_4_kwargs
+    displayName: Metric name 4 kwargs
+    type: string
+    default: "{}"
+  - name: metric_name_5
+    displayName: Metric name 5
+    type: string
+    values:
+      - "none"
+      - "accuracy"
+      - "precision"
+      - "recall"
+      - "f1_score"
+      - "jaccard_index"
+    default: "jaccard_index"
+  - name: metric_name_5_kwargs
+    displayName: Metric name 5 kwargs
+    type: string
+    default: "{}"
+
+  #################
+  # AUGMENTATIONS #
+  #################
+  - name: augmentation_name_1
+    displayName: Augmentation name 1
+    type: string
+    values:
+    - "none"
+    - "color_jitter"
+    - "random_brightness"
+    - "random_contrast"
+    - "random_gamma"
+    - "random_gaussian_noise"
+    - "random_saturation"
+    - "random_affine"
+    - "random_crop"
+    - "random_elastic_transform"
+    - "random_erasing"
+    - "random_horizontal_flip"
+    - "random_vertical_flip"
+    - "random_perspective"
+    - "random_rotation"
+    - "random_resized_crop"
+    default: "none"
+  - name: augmentation_name_1_kwargs
+    displayName: Augmentation name 1 kwargs
+    type: string
+    default: "{}"
+  - name: augmentation_name_2
+    displayName: Augmentation name 2
+    type: string
+    values:
+      - "none"
+      - "color_jitter"
+      - "random_brightness"
+      - "random_contrast"
+      - "random_gamma"
+      - "random_gaussian_noise"
+      - "random_saturation"
+      - "random_affine"
+      - "random_crop"
+      - "random_elastic_transform"
+      - "random_erasing"
+      - "random_horizontal_flip"
+      - "random_vertical_flip"
+      - "random_perspective"
+      - "random_rotation"
+      - "random_resized_crop"
+    default: "none"
+  - name: augmentation_name_2_kwargs
+    displayName: Augmentation name 2 kwargs
+    type: string
+    default: "{}"
+  - name: augmentation_name_3
+    displayName: Augmentation name 3
+    type: string
+    values:
+      - "none"
+      - "color_jitter"
+      - "random_brightness"
+      - "random_contrast"
+      - "random_gamma"
+      - "random_gaussian_noise"
+      - "random_saturation"
+      - "random_affine"
+      - "random_crop"
+      - "random_elastic_transform"
+      - "random_erasing"
+      - "random_horizontal_flip"
+      - "random_vertical_flip"
+      - "random_perspective"
+      - "random_rotation"
+      - "random_resized_crop"
+    default: "none"
+  - name: augmentation_name_3_kwargs
+    displayName: Augmentation name 3 kwargs
+    type: string
+    default: "{}"
+  - name: augmentation_name_4
+    displayName: Augmentation name 4
+    type: string
+    values:
+      - "none"
+      - "color_jitter"
+      - "random_brightness"
+      - "random_contrast"
+      - "random_gamma"
+      - "random_gaussian_noise"
+      - "random_saturation"
+      - "random_affine"
+      - "random_crop"
+      - "random_elastic_transform"
+      - "random_erasing"
+      - "random_horizontal_flip"
+      - "random_vertical_flip"
+      - "random_perspective"
+      - "random_rotation"
+      - "random_resized_crop"
+    default: "none"
+  - name: augmentation_name_4_kwargs
+    displayName: Augmentation name 4 kwargs
+    type: string
+    default: "{}"
+  - name: augmentation_name_5
+    displayName: Augmentation name 5
+    type: string
+    values:
+      - "none"
+      - "color_jitter"
+      - "random_brightness"
+      - "random_contrast"
+      - "random_gamma"
+      - "random_gaussian_noise"
+      - "random_saturation"
+      - "random_affine"
+      - "random_crop"
+      - "random_elastic_transform"
+      - "random_erasing"
+      - "random_horizontal_flip"
+      - "random_vertical_flip"
+      - "random_perspective"
+      - "random_rotation"
+      - "random_resized_crop"
+    default: "none"
+  - name: augmentation_name_5_kwargs
+    displayName: Augmentation name 5 kwargs
+    type: string
+    default: "{}"
+
+  ###########
+  # TRAINER #
+  ###########
+  - name: max_epochs
+    displayName: Maximum number of epochs
+    type: string
+    default: "50"
+  - name: patience
+    displayName: Number of epochs with no improvement after which training will be stopped
+    type: string
+    default: "5"
+  - name: precision
+    displayName: Training precision
+    type: string
+    values:
+      - "16"
+      - "32"
+      - "64"
+    default: "32"
+  - name: accumulate_grad_batches
+    displayName: Accumulate gradients over n batches
+    type: string
+    default: "1"
+  - name: fast_dev_run
+    displayName: Run a full train, val and test loop using a single batch
+    type: boolean
+    default: false
+  - name: overfit_batches
+    displayName: Overfit on a fraction of training data
+    type: string
+    default: "0.0"
+  - name: seed
+    displayName: Random state seed
+    type: string
+    default: "42"
+
+  - name: datastore
+    displayName: Datastore to use
+    type: string
+  - name: compute
+    displayName: Compute cluster to use  # replace with your compute cluster names
+    type: string
+    values:
+      - GPU-T4-cluster
+      - GPU-V100-cluster
+      - CPU-DSeries-cluster
+      - CPU-D14Series-cluster
+    default: CPU-DSeries-cluster
+
+
+
+variables:
+- group: replace-with-your-azure-devops-library-group-name
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage:
+    displayName: Execute sample Azure DevOps pipeline
+
+    jobs:
+    - job: execute_pipeline
+      displayName: Execute sample Azure DevOps pipeline
+
+      steps:
+        - checkout: self
+          path: s/
+
+        - template: ../templates/install-azure-cli.yaml
+
+        - template: ../templates/configure-aml-extension.yaml
+
+        - template: ../templates/connect-to-aml-workspace.yaml
+
+        - task: qetza.replacetokens.replacetokens-task.replacetokens@3
+          inputs:
+            targetFiles: "src/aml/pipelines/sample_pipeline/pipeline_spec.yaml"
+            encoding: "auto"
+            writeBOM: true
+            actionOnMissing: "warn"
+            keepToken: false
+            tokenPrefix: "<<"
+            tokenSuffix: ">>"
+            useLegacyPattern: false
+            enableTelemetry: true
+          displayName: Substitute placeholders in pipeline_spec.yaml with environment variables
+
+        - task: AzureCLI@2
+          displayName: Run AML pipeline
+          continueOnError: true
+          inputs:
+            azureSubscription: $(ADO__RES_MNGR_SRVC_CONN_NAME) # needs to have access at the RG level
+            scriptType: bash
+            workingDirectory: $(System.DefaultWorkingDirectory)
+            scriptLocation: inlineScript
+            inlineScript: |
+              # Set custom experiment & job names
+              timestamp=$(date +%Y-%m-%d-%H:%M:%S)
+              build_id=$(Build.BuildId)
+              job_id="${build_id}_${timestamp}"
+              experiment_name="custom_experiment_name"
+
+              # Determine whether the compute target is CPU or GPU based and set device accordingly
+              if [[ "${{parameters.compute}}" == azureml:GPU* ]]; then
+                accelerator="gpu"
+              else
+                accelerator="cpu"
+              fi
+
+              # Create and run the pipeline
+              # Remember to add quotes around the string parameters to avoid YAML parsing errors
+              run_id=$( \
+                az ml job create -f src/aml/pipelines/sample_pipeline/pipeline_spec.yaml \
+                --set \
+                experiment_name=$experiment_name \
+                display_name=$job_id \
+                inputs.val_split="${{parameters.val_split}}" \
+                inputs.test_split="${{parameters.test_split}}" \
+                inputs.batch_size="${{parameters.batch_size}}" \
+                inputs.preprocessing_transform_1="${{parameters.preprocessing_transform_1}}" \
+                inputs.preprocessing_transform_1_kwargs="${{parameters.preprocessing_transform_1_kwargs}}" \
+                inputs.preprocessing_transform_2="${{parameters.preprocessing_transform_2}}" \
+                inputs.preprocessing_transform_2_kwargs="${{parameters.preprocessing_transform_2_kwargs}}" \
+                inputs.preprocessing_transform_3="${{parameters.preprocessing_transform_3}}" \
+                inputs.preprocessing_transform_3_kwargs="${{parameters.preprocessing_transform_3_kwargs}}" \
+                inputs.preprocessing_transform_4="${{parameters.preprocessing_transform_4}}" \
+                inputs.preprocessing_transform_4_kwargs="${{parameters.preprocessing_transform_4_kwargs}}" \
+                inputs.preprocessing_transform_5="${{parameters.preprocessing_transform_5}}" \
+                inputs.preprocessing_transform_5_kwargs="${{parameters.preprocessing_transform_5_kwargs}}" \
+                inputs.model_name="${{parameters.model_name}}" \
+                inputs.pretrained="${{parameters.pretrained}}" \
+                inputs.num_classes="${{parameters.num_classes}}" \
+                inputs.in_channels="${{parameters.in_channels}}" \
+                inputs.loss_function_name="${{parameters.loss_function_name}}" \
+                inputs.loss_function_kwargs="${{parameters.loss_function_kwargs}}" \
+                inputs.optimizer_name="${{parameters.optimizer_name}}" \
+                inputs.learning_rate="${{parameters.learning_rate}}" \
+                inputs.weight_decay="${{parameters.weight_decay}}" \
+                inputs.optimizer_kwargs="${{parameters.optimizer_kwargs}}" \
+                inputs.scheduler_name="${{parameters.scheduler_name}}" \
+                inputs.scheduler_kwargs="${{parameters.scheduler_kwargs}}" \
+                inputs.task_type="${{parameters.task_type}}" \
+                inputs.metric_name_1="${{parameters.metric_name_1}}" \
+                inputs.metric_name_1_kwargs="${{parameters.metric_name_1_kwargs}}" \
+                inputs.metric_name_2="${{parameters.metric_name_2}}" \
+                inputs.metric_name_2_kwargs="${{parameters.metric_name_2_kwargs}}" \
+                inputs.metric_name_3="${{parameters.metric_name_3}}" \
+                inputs.metric_name_3_kwargs="${{parameters.metric_name_3_kwargs}}" \
+                inputs.metric_name_4="${{parameters.metric_name_4}}" \
+                inputs.metric_name_4_kwargs="${{parameters.metric_name_4_kwargs}}" \
+                inputs.metric_name_5="${{parameters.metric_name_5}}" \
+                inputs.metric_name_5_kwargs="${{parameters.metric_name_5_kwargs}}" \
+                inputs.augmentation_name_1="${{parameters.augmentation_name_1}}" \
+                inputs.augmentation_name_1_kwargs="${{parameters.augmentation_name_1_kwargs}}" \
+                inputs.augmentation_name_2="${{parameters.augmentation_name_2}}" \
+                inputs.augmentation_name_2_kwargs="${{parameters.augmentation_name_2_kwargs}}" \
+                inputs.augmentation_name_3="${{parameters.augmentation_name_3}}" \
+                inputs.augmentation_name_3_kwargs="${{parameters.augmentation_name_3_kwargs}}" \
+                inputs.augmentation_name_4="${{parameters.augmentation_name_4}}" \
+                inputs.augmentation_name_4_kwargs="${{parameters.augmentation_name_4_kwargs}}" \
+                inputs.augmentation_name_5="${{parameters.augmentation_name_5}}" \
+                inputs.augmentation_name_5_kwargs="${{parameters.augmentation_name_5_kwargs}}" \
+                inputs.max_epochs="${{parameters.max_epochs}}" \
+                inputs.accelerator=accelerator \
+                inputs.precision="${{parameters.precision}}" \
+                inputs.accumulate_grad_batches="${{parameters.accumulate_grad_batches}}" \
+                inputs.fast_dev_run="${{parameters.fast_dev_run}}" \
+                inputs.overfit_batches="${{parameters.overfit_batches}}" \
+                inputs.seed="${{parameters.seed}}" \
+                settings.default_datastore="azureml:${{parameters.datastore}}" \
+                settings.default_compute="azureml:${{parameters.compute}}" \
+                --query name -o tsv \
+                --verbose \
+              )
+
+              if [[ -z "$run_id" ]]
+              then
+                echo "Job creation failed"
+                exit 3
+              fi
+
+              az ml job show -n $run_id --web

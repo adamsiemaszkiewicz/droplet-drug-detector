@@ -1,0 +1,14 @@
+parameters:
+- name: env_file_path
+  type: string
+- name: env_name
+  type: string
+
+steps:
+  - bash: echo "##vso[task.prependpath]$CONDA/bin"
+    displayName: Add conda to PATH environment variable
+
+  - bash: |
+      cd $(Build.SourcesDirectory)
+      mamba env create -f ${{parameters.env_file_path}} -n ${{parameters.env_name}}
+    displayName: Create environment (using Mamba)

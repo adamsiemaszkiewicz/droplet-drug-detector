@@ -1,0 +1,68 @@
+seed: 42
+
+data:
+  dataset_dir: "data/dataset"  # relative to root directory
+  artifacts_dir: "artifacts"  # relative to root directory
+  val_split: 0.15
+  test_split: 0.15
+  batch_size: 16
+
+preprocessing:
+  name_list:
+    - resize
+  extra_arguments_list:
+    - size: 256
+
+model:
+  name: resnet50
+  pretrained: true
+  num_classes: 6
+  in_channels: 3
+
+loss_function:
+  name: cross_entropy_loss
+  extra_arguments: {}
+
+optimizer:
+  name: adam
+  learning_rate: 0.0003
+  weight_decay: 0
+  extra_arguments: {}
+
+metrics:
+  name_list:
+    - accuracy
+    - f1_score
+    - precision
+    - recall
+    - jaccard_index
+  task: multiclass
+  num_classes: 6
+  extra_arguments_list:
+      - {}
+      - {}
+
+callbacks:
+  early_stopping:
+    monitor: val_loss
+    mode: min
+    patience: 5
+    min_delta: 0.001
+    verbose: true
+  model_checkpoint:
+    monitor: val_loss
+    mode: min
+    save_top_k: 5
+    filename: "{epoch}-{val_loss:.4f}"
+    verbose: true
+  learning_rate_monitor:
+    log_momentum: true
+    log_weight_decay: true
+
+trainer:
+  max_epochs: 50
+  accelerator: gpu
+  precision: 32
+  accumulate_grad_batches: 1
+  fast_dev_run: false  # set to true for debugging
+  overfit_batches: 0.0  # 0.0 means no overfitting

@@ -1,0 +1,57 @@
+trigger: none
+pr: none
+
+parameters:
+- name: runtime_env
+  displayName: Runtime environment
+  type: string
+  default: "dev"
+  values:
+  - dev
+  - prod
+- name: environment_name
+  displayName: Environment name
+  type: string
+  default: "sample-project"
+  values:
+    - "sample-project"
+- name: device
+  displayName: Device to use
+  type: string
+  default: "gpu"
+  values:
+    - "cpu"
+    - "gpu"
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage:
+    displayName: Build ${{parameters.runtime_env}}
+
+    variables:
+    - group: library-group-name-${{parameters.runtime_env}}  #  replace with your library group name
+
+    jobs:
+    - job: build_aml_environment
+      container: condaforge/mambaforge:latest
+      displayName: Build "${{parameters.runtime_env}}-${{parameters.environment_name}}-env" Azure ML environment
+      steps:
+        - template: ../templates/create-conda-env.yaml
+          parameters:
+            env_file_path: $(Build.SourcesDirectory)/environments/infrastructure.yaml
+            env_name: infrastructure-env
+
+        - template: ../templates/substitute-env-vars.yaml
+
+        - script: |
+            source activate infrastructure-env
+            PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
+
+            python ./src/aml/build_aml_environment.py \
+              --runtime_env ${{parameters.runtime_env}} \
+              --environment_name ${{parameters.environment_name}} \
+              --device ${{parameters.device}}
+
+          displayName: Build Azure ML environment
