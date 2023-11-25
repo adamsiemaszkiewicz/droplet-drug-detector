@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 from typing import Any, Dict, List, Optional
 
-from pydantic import validator
+from pydantic import BaseModel, validator
 
 from src.common.utils.logger import get_logger
-from src.configs.base import BasePreprocessingConfig
 from src.machine_learning.preprocessing.types import AVAILABLE_TRANSFORMATIONS, REQUIRED_ARGUMENTS
 
 _logger = get_logger(__name__)
 
 
-class PreprocessingConfig(BasePreprocessingConfig):
+class PreprocessingConfig(BaseModel):
     """
     Configuration for creating a sequence of preprocessing transformations.
     """
