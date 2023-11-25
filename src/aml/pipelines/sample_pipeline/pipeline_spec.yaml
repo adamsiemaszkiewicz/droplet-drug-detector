@@ -127,7 +127,7 @@ settings:
   default_compute: azureml:sample_compute
 
 jobs:
-  train_deposit_parameters_dl_model:
+  sample_component_name:
     type: command
     component: file:../../components/sample_component/component_spec.yaml
     inputs:
