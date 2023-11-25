@@ -419,6 +419,10 @@ parameters:
     displayName: Overfit on a fraction of training data
     type: string
     default: "0.0"
+  - name: seed
+    displayName: Random state seed
+    type: string
+    default: "42"
 
   - name: datastore
     displayName: Datastore to use
@@ -548,12 +552,12 @@ stages:
                 inputs.augmentation_name_5="${{parameters.augmentation_name_5}}" \
                 inputs.augmentation_name_5_kwargs="${{parameters.augmentation_name_5_kwargs}}" \
                 inputs.max_epochs="${{parameters.max_epochs}}" \
-                inputs.patience="${{parameters.patience}}" \
+                inputs.accelerator=accelerator \
                 inputs.precision="${{parameters.precision}}" \
                 inputs.accumulate_grad_batches="${{parameters.accumulate_grad_batches}}" \
                 inputs.fast_dev_run="${{parameters.fast_dev_run}}" \
                 inputs.overfit_batches="${{parameters.overfit_batches}}" \
-                inputs.accelerator=accelerator \
+                inputs.seed="${{parameters.seed}}" \
                 settings.default_datastore="azureml:${{parameters.datastore}}" \
                 settings.default_compute="azureml:${{parameters.compute}}" \
                 --query name -o tsv \

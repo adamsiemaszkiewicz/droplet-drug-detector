@@ -11,6 +11,7 @@ inputs:
     type: string
   batch_size:
     type: string
+
   preprocessing_transform_1:
     type: string
   preprocessing_transform_1_kwargs:
@@ -31,6 +32,7 @@ inputs:
     type: string
   preprocessing_transform_5_kwargs:
     type: string
+
   model_name:
     type: string
   pretrained:
@@ -39,10 +41,12 @@ inputs:
     type: string
   in_channels:
     type: string
+
   loss_function_name:
     type: string
   loss_function_kwargs:
     type: string
+
   optimizer_name:
     type: string
   learning_rate:
@@ -51,10 +55,12 @@ inputs:
     type: string
   optimizer_kwargs:
     type: string
+
   scheduler_name:
     type: string
   scheduler_kwargs:
     type: string
+
   task_type:
     type: string
   metric_name_1:
@@ -77,6 +83,7 @@ inputs:
     type: string
   metric_name_5_kwargs:
     type: string
+
   augmentation_name_1:
     type: string
   augmentation_name_1_kwargs:
@@ -97,9 +104,10 @@ inputs:
     type: string
   augmentation_name_5_kwargs:
     type: string
+
   max_epochs:
     type: string
-  patience:
+  accelerator:
     type: string
   precision:
     type: string
@@ -109,7 +117,8 @@ inputs:
     type: string
   overfit_batches:
     type: string
-  accelerator:
+
+  seed:
     type: string
 
 
@@ -125,6 +134,7 @@ jobs:
       val_split: ${{parent.inputs.val_split}}
       test_split: ${{parent.inputs.test_split}}
       batch_size: ${{parent.inputs.batch_size}}
+
       preprocessing_transform_1: ${{parent.inputs.preprocessing_transform_1}}
       preprocessing_transform_1_kwargs: ${{parent.inputs.preprocessing_transform_1_kwargs}}
       preprocessing_transform_2: ${{parent.inputs.preprocessing_transform_2}}
@@ -135,18 +145,23 @@ jobs:
       preprocessing_transform_4_kwargs: ${{parent.inputs.preprocessing_transform_4_kwargs}}
       preprocessing_transform_5: ${{parent.inputs.preprocessing_transform_5}}
       preprocessing_transform_5_kwargs: ${{parent.inputs.preprocessing_transform_5_kwargs}}
+
       model_name: ${{parent.inputs.model_name}}
       pretrained: ${{parent.inputs.pretrained}}
       num_classes: ${{parent.inputs.num_classes}}
       in_channels: ${{parent.inputs.in_channels}}
+
       loss_function_name: ${{parent.inputs.loss_function_name}}
       loss_function_kwargs: ${{parent.inputs.loss_function_kwargs}}
+
       optimizer_name: ${{parent.inputs.optimizer_name}}
       learning_rate: ${{parent.inputs.learning_rate}}
       weight_decay: ${{parent.inputs.weight_decay}}
       optimizer_kwargs: ${{parent.inputs.optimizer_kwargs}}
+
       scheduler_name: ${{parent.inputs.scheduler_name}}
       scheduler_kwargs: ${{parent.inputs.scheduler_kwargs}}
+
       task_type: ${{parent.inputs.task_type}}
       metric_name_1: ${{parent.inputs.metric_name_1}}
       metric_name_1_kwargs: ${{parent.inputs.metric_name_1_kwargs}}
@@ -158,6 +173,7 @@ jobs:
       metric_name_4_kwargs: ${{parent.inputs.metric_name_4_kwargs}}
       metric_name_5: ${{parent.inputs.metric_name_5}}
       metric_name_5_kwargs: ${{parent.inputs.metric_name_5_kwargs}}
+
       augmentation_name_1: ${{parent.inputs.augmentation_name_1}}
       augmentation_name_1_kwargs: ${{parent.inputs.augmentation_name_1_kwargs}}
       augmentation_name_2: ${{parent.inputs.augmentation_name_2}}
@@ -168,13 +184,15 @@ jobs:
       augmentation_name_4_kwargs: ${{parent.inputs.augmentation_name_4_kwargs}}
       augmentation_name_5: ${{parent.inputs.augmentation_name_5}}
       augmentation_name_5_kwargs: ${{parent.inputs.augmentation_name_5_kwargs}}
+
       max_epochs: ${{parent.inputs.max_epochs}}
-      patience: ${{parent.inputs.patience}}
       precision: ${{parent.inputs.precision}}
+      accelerator: ${{parent.inputs.accelerator}}
       accumulate_grad_batches: ${{parent.inputs.accumulate_grad_batches}}
       fast_dev_run: ${{parent.inputs.fast_dev_run}}
       overfit_batches: ${{parent.inputs.overfit_batches}}
-      accelerator: ${{parent.inputs.accelerator}}
+
+      seed: ${{parent.inputs.seed}}
 
       dataset_dir:
         type: uri_folder
