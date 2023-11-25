@@ -161,3 +161,7 @@ cython_debug/
 
 # Project specific
 lightning_logs/
+/data/*
+!/data/
+/artifacts/*
+!/artifacts/
