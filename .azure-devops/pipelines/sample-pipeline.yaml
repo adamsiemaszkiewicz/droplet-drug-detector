@@ -512,6 +512,8 @@ stages:
                 inputs.preprocessing_transform_3_kwargs="${{parameters.preprocessing_transform_3_kwargs}}" \
                 inputs.preprocessing_transform_4="${{parameters.preprocessing_transform_4}}" \
                 inputs.preprocessing_transform_4_kwargs="${{parameters.preprocessing_transform_4_kwargs}}" \
+                inputs.preprocessing_transform_5="${{parameters.preprocessing_transform_5}}" \
+                inputs.preprocessing_transform_5_kwargs="${{parameters.preprocessing_transform_5_kwargs}}" \
                 inputs.model_name="${{parameters.model_name}}" \
                 inputs.pretrained="${{parameters.pretrained}}" \
                 inputs.num_classes="${{parameters.num_classes}}" \
