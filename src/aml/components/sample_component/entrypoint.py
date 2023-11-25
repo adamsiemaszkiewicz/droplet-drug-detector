@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from lightning import seed_everything
+from lightning.pytorch.loggers import WandbLogger
 
 from src.aml.components.sample_component.config import ClassificationConfig
 from src.aml.components.sample_component.options import get_config
@@ -34,6 +35,12 @@ def main() -> None:
 
     callbacks = create_callbacks(config=config.callbacks) if config.callbacks else None
     loggers = create_loggers(config=config.loggers) if config.loggers else None
+
+    if loggers is not None:
+        for logger in loggers:
+            if isinstance(logger, WandbLogger):
+                logger.experiment.config.update(config.dict())
+                break
 
     trainer = create_trainer(config=config.trainer, callbacks=callbacks, loggers=loggers)
     trainer.fit(model=model, datamodule=dm)
