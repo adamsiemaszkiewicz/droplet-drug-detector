@@ -8,6 +8,7 @@ from typing import Any, Dict
 import yaml
 
 from src.aml.components.sample_component.config import ClassificationConfig
+from src.aml.components.sample_component.data import ClassificationDataConfig
 from src.common.consts.directories import CONFIGS_DIR, ROOT_DIR
 from src.common.consts.extensions import YAML
 from src.common.consts.project import PROJECT_NAME
@@ -17,7 +18,6 @@ from src.machine_learning.callbacks.config import CallbacksConfig
 from src.machine_learning.classification.loss_functions.config import ClassificationLossFunctionConfig
 from src.machine_learning.classification.metrics.config import ClassificationMetricsConfig
 from src.machine_learning.classification.models.config import ClassificationModelConfig
-from src.machine_learning.data import ClassificationDataConfig
 from src.machine_learning.loggers.config import LoggersConfig
 from src.machine_learning.optimizer.config import OptimizerConfig
 from src.machine_learning.preprocessing.config import PreprocessingConfig
