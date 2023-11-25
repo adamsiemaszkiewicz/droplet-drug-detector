@@ -31,7 +31,7 @@ stages:
     displayName: Build ${{parameters.runtime_env}}
 
     variables:
-    - group: h4e-${{parameters.runtime_env}}
+    - group: library-group-name-${{parameters.runtime_env}}  #  replace with your library group name
 
     jobs:
     - job: build_aml_environment
