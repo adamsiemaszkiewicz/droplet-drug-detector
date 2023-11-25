@@ -5,7 +5,6 @@ from typing import Literal, Optional, Union
 from pydantic import BaseModel, validator
 
 from src.common.utils.logger import get_logger
-from src.configs.base import BaseCallbacksConfig
 
 _logger = get_logger(__name__)
 
@@ -53,7 +52,7 @@ class LearningRateMonitorConfig(BaseModel):
     log_weight_decay: bool = True
 
 
-class CallbacksConfig(BaseCallbacksConfig):
+class CallbacksConfig(BaseModel):
     """
     Configuration for creating a list of callbacks based on their names and configurations.
     """

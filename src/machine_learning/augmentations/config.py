@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 from typing import Any, Dict, List, Optional
 
-from pydantic import validator
+from pydantic import BaseModel, validator
 
 from src.common.utils.logger import get_logger
-from src.configs.base import BaseAugmentationsConfig
 from src.machine_learning.augmentations.types import AVAILABLE_AUGMENTATIONS, REQUIRED_ARGUMENTS
 
 _logger = get_logger(__name__)
 
 
-class AugmentationsConfig(BaseAugmentationsConfig):
+class AugmentationsConfig(BaseModel):
     """
     Configuration for creating a sequence of augmentations.
     """

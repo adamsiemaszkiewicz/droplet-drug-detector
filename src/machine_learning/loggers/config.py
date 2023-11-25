@@ -2,16 +2,15 @@
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import validator
+from pydantic import BaseModel, validator
 
 from src.common.utils.logger import get_logger
-from src.configs.base import BaseLoggersConfig
 from src.machine_learning.loggers.types import AVAILABLE_LOGGERS
 
 _logger = get_logger(__name__)
 
 
-class LoggersConfig(BaseLoggersConfig):
+class LoggersConfig(BaseModel):
     """
     Configuration for creating a list of loggers.
     """
