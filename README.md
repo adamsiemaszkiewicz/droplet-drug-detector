@@ -10,6 +10,7 @@ Overview of the project.
 - [Usage](#usage)
     - [Azure DevOps](#azure-devops)
     - [Jupyter Notebooks](#jupyter-notebooks)
+    - [Artifacts](#artifacts)
     - [Data](#data)
     - [Testing](#testing)
 - [Development](#development)
@@ -48,8 +49,8 @@ Follow these steps to set up your local environment:
 3. **Create and activate a Conda environment**: Use the provided environment YAML files to create and activate your Conda environment:
 
     ```bash
-    mamba env create -f environments/[environment-name].yaml  # Replace with the appropriate YAML for your setup
-    conda activate [environment-name]             # Replace with your environment name
+    mamba env create -f environments/[environment-name].yaml
+    conda activate [environment-name]
     ```
 
 5. **Set up pre-commit hooks** to enforce a variety of standards and validations during each commit:
@@ -77,16 +78,16 @@ Follow these steps to set up your local environment:
 
 ### Azure DevOps
 
-- `devops/pipelines`: This folder holds the YAML pipeline definitions for building and deploying using Azure DevOps services.
-  - `build_aml_environment.yaml` file sets up the environment needed for Azure ML tasks,
-  - `sample_pipeline.yaml` provides a starting point for creating a custom pipeline.
+- `.azure-devops/pipelines`: This folder holds the YAML pipeline definitions for building and deploying using Azure DevOps services.
+  - `build-aml-environment.yaml` sets up Azure Machine Learning environment needed for running Azure ML tasks
+  - `sample-pipeline.yaml` runs a sample Azure Machine Learning task
 
-- `devops/templates`: Reusable YAML templates with encapsulated functionalities to streamline pipeline creation. The templates include:
-  - `install_azure_cli.yaml` for installing the Azure CLI.
-  - `configure_aml_extension.yaml` for setting up Azure ML extensions.
-  - `connect_to_aml_workspace.yaml` for connecting to an Azure ML workspace within the pipeline.
-  - `create_conda_env.yaml` for constructing Conda environments needed for the pipeline's operations.
-  - `substitute_env_vars.yaml` for injecting environment variables dynamically into the pipeline process.
+- `.azure-devops/templates`: Reusable YAML templates with encapsulated functionalities to streamline pipeline creation. The templates include:
+  - `install-azure-cli.yaml` for installing the Azure CLI.
+  - `configure-aml-extension.yaml` for setting up Azure ML extensions.
+  - `connect-to-aml-workspace.yaml` for connecting to an Azure ML workspace within the pipeline.
+  - `create-conda-env.yaml` for constructing Conda environments needed for the pipeline's operations.
+  - `substitute-env-vars.yaml` for injecting environment variables dynamically into the pipeline process.
 
 [Back to the top](#project-title)
 
@@ -95,6 +96,14 @@ Follow these steps to set up your local environment:
 The `notebooks` directory contains Jupyter notebooks that are integral to the project.
 
 [Back to the top](#project-title)
+
+### Artifacts
+
+All experiment related artifacts such as configuration files, model checkpoints, logs, etc. are saved here.
+
+[Back to the top](#project-title)
+
+
 
 ### Data
 
@@ -130,22 +139,29 @@ pytest
 
 A detailed explanation of the layout and purpose of the `src` directory contents.
 
-- `common`: Shared utilities and constants used across the project.
-    - `azure`: Modules for interacting with Azure services, including blob storage, environments and ML client configurations.
-    - `utils`: General utility functions and classes, such as settings management, logging, and validators.
-    - `consts`: Definitions of constants used throughout the codebase, like Azure-specific constants, directory paths, and extensions.
-    - `configs`: Base configuration settings for the project.
-
-- `sample_project`: Core modules specific to the project's primary aim.
-    - `aml`: Azure Machine Learning components and pipelines.
-    - `data`: Data-related logic.
-    - `features`: Feature engineering and transformation logic.
-    - `models`: Machine learning model logic.
+- `aml`: Azure Machine Learning utilities, components and pipelines.
     - `components`: Contains code for individual Azure Machine Learning components.
         - `sample_component`: An example component, complete with its specification YAML, entrypoints script, options, configuration and custom functions.
     - `pipelines`: Contains code for Azure Machine Learning pipelines.
         - `sample_pipeline`: An example pipeline specification YAML
-
+- `common`: Shared utilities and constants used across the project.
+    - `consts`: Definitions of constants used throughout the codebase, like Azure-specific constants, directory paths, and extensions.
+    - `settings`: Infrasturcture settings storing things such as Azure ML, Azure Blob Storage, cluster & database credentials.
+    - `utils`: General utility functions and classes, such as settings management, logging, converters and validators.
+- `configs`: Configuration classes for machine learning tasks.
+- `machine_learning`: Contains code for machine learning tasks divided into different categories and providing types, configuration and creation..
+    - `augmentations`: Data augmentation
+    - `callbacks`: Pytorch Lightning training callbacks
+    - `classification`: Classification-specific modules
+      - `loss_functions`: Loss functions
+      - `metrics`: Evaluation metrics
+      - `models`: Model architectures
+      - `module.py`: Pytorch Lightning module
+    - `loggers`: Pytorch Lightning loggers
+    - `optimizer`: Optimizer
+    - `preprocessing`: Data preprocessing transformations
+    - `scheduler`: Learning rate scheduler
+    - `trainer`: Pytorch Lightning trainer
 - `build_aml_environment.py`: A script to set up the Azure Machine Learning environment.
 
 [Back to the top](#project-title)
