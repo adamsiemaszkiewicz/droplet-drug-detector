@@ -165,9 +165,6 @@ def create_arg_parser() -> ArgumentParser:
         "--callbacks_model_checkpoint_save_top_k", type=str, default=callbacks_model_checkpoint_defaults["save_top_k"]
     )
     parser.add_argument(
-        "--callbacks_model_checkpoint_dirpath", type=str, default=callbacks_model_checkpoint_defaults["dirpath"]
-    )
-    parser.add_argument(
         "--callbacks_model_checkpoint_filename", type=str, default=callbacks_model_checkpoint_defaults["filename"]
     )
     parser.add_argument(
@@ -290,7 +287,7 @@ def get_config() -> ClassificationConfig:
                 "monitor": args.callbacks_model_checkpoint_monitor,
                 "mode": args.callbacks_model_checkpoint_mode,
                 "save_top_k": str_to_int(args.callbacks_model_checkpoint_save_top_k),
-                "dirpath": args.callbacks_model_checkpoint_dirpath,
+                "dirpath": artifacts_dir / "checkpoints",
                 "filename": args.callbacks_model_checkpoint_filename,
                 "verbose": str_to_bool(args.callbacks_model_checkpoint_verbose),
             },
