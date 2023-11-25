@@ -144,6 +144,11 @@ A detailed explanation of the layout and purpose of the `src` directory contents
         - `sample_component`: An example component, complete with its specification YAML, entrypoints script, options, configuration and custom functions.
     - `pipelines`: Contains code for Azure Machine Learning pipelines.
         - `sample_pipeline`: An example pipeline specification YAML
+    - `blob_storage.py`: Azure Blob Storage service allowing to upload and download files and folders.
+    - `build_aml_environment.py`: A script to set up the Azure Machine Learning environment.
+    - `client.py`: Azure Machine Learning client allowing to interact with AML objects.
+    - `environment.py`: Azure Machine Learning environment allowing to create and manage AML environments.
+
 - `common`: Shared utilities and constants used across the project.
     - `consts`: Definitions of constants used throughout the codebase, like Azure-specific constants, directory paths, and extensions.
     - `settings`: Infrasturcture settings storing things such as Azure ML, Azure Blob Storage, cluster & database credentials.
@@ -162,7 +167,6 @@ A detailed explanation of the layout and purpose of the `src` directory contents
     - `preprocessing`: Data preprocessing transformations
     - `scheduler`: Learning rate scheduler
     - `trainer`: Pytorch Lightning trainer
-- `build_aml_environment.py`: A script to set up the Azure Machine Learning environment.
 
 [Back to the top](#project-title)
 
