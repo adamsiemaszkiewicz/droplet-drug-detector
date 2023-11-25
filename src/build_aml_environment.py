@@ -7,8 +7,8 @@ from azure.ai.ml.entities import Environment
 from pydantic import BaseModel
 from typing_extensions import Literal
 
-from src.common.aml.client import get_ml_client
-from src.common.aml.environment import build_environment
+from src.aml.client import get_ml_client
+from src.aml.environment import build_environment
 from src.common.consts.directories import ENVIRONMENTS_DIR
 from src.common.consts.extensions import YAML
 from src.common.settings.base import Settings
