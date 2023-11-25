@@ -49,7 +49,7 @@ stages:
             source activate infrastructure-env
             PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
 
-            python ./src/build_aml_environment.py \
+            python ./src/aml/build_aml_environment.py \
               --runtime_env ${{parameters.runtime_env}} \
               --environment_name ${{parameters.environment_name}} \
               --device ${{parameters.device}}
