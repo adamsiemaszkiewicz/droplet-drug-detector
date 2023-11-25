@@ -1,8 +1,8 @@
 $schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
 type: pipeline
 
-experiment_name: sample_experiment_name
-display_name: sample_job_display_name
+experiment_name: sample_experiment_name  # this is replaced by the pipeline job name using Azure DevOps pipeline
+display_name: sample_job_display_name  # this is replaced by the pipeline job name using Azure DevOps pipeline
 
 inputs:
   val_split:
@@ -123,8 +123,8 @@ inputs:
 
 
 settings:
-  default_datastore: azureml:sample_datastore
-  default_compute: azureml:sample_compute
+  default_datastore: azureml:sample_datastore  # this is replaced by the pipeline job name using Azure DevOps pipeline
+  default_compute: azureml:sample_compute  # this is replaced by the pipeline job name using Azure DevOps pipeline
 
 jobs:
   sample_component_name:
