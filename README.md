@@ -2,6 +2,13 @@
 
 Overview of the project.
 
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Python Version](https://img.shields.io/badge/Python-3.10-brightgreen.svg)](https://www.python.org/downloads/release/python-310/)
+[![Last Commit](https://img.shields.io/github/last-commit/adamsiemaszkiewicz/template-ml-azure)](https://github.com/adamsiemaszkiewicz/template-ml-azure/commits/master)
+[![Code Climate](https://img.shields.io/codeclimate/maintainability/adamsiemaszkiewicz/template-ml-azure)](https://codeclimate.com/github/adamsiemaszkiewicz/template-ml-azure)
+[![Code Coverage](https://img.shields.io/codecov/c/github/adamsiemaszkiewicz/template-ml-azure)](https://codecov.io/gh/adamsiemaszkiewicz/template-ml-azure)
+
+
 ## Table of Contents
 - [Project Title](#project-title)
 
