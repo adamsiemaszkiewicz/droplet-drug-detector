@@ -1,19 +1,13 @@
 # -*- coding: utf-8 -*-
-from typing import List
-
-import timm
-from pydantic import validator
-from torch.nn import Module
+from pydantic import BaseModel, validator
 
 from src.common.utils.logger import get_logger
-from src.configs.base import BaseModelConfig
+from src.machine_learning.classification.models.types import AVAILABLE_MODELS
 
 _logger = get_logger(__name__)
 
-AVAILABLE_MODELS: List[str] = timm.list_models()
 
-
-class ClassificationModelConfig(BaseModelConfig):
+class ClassificationModelConfig(BaseModel):
     """
     Configuration for creating a classification model.
 
@@ -48,28 +42,3 @@ class ClassificationModelConfig(BaseModelConfig):
         if not isinstance(v, int) or v <= 0:
             raise ValueError(f"The value {v} must be a positive integer.")
         return v
-
-
-def create_model(config: ClassificationModelConfig) -> Module:
-    """
-    Create a classification model based on the configuration.
-    List of available architectures: https://huggingface.co/timm
-
-    Args:
-        config (ClassificationModelConfig): Configuration object containing model parameters.
-
-    Returns:
-        Module: A PyTorch model.
-    """
-    _logger.info(f"Creating model with the following configuration: {config.dict()}")
-
-    model = timm.create_model(
-        model_name=config.name,
-        pretrained=config.pretrained,
-        num_classes=config.num_classes,
-        in_chans=config.in_channels,
-    )
-
-    _logger.info("Model successfully created.")
-
-    return model
