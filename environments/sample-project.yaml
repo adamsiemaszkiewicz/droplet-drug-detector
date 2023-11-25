@@ -27,4 +27,3 @@ dependencies:
       - pytest==7.4.3
       - structlog==23.2.0
       - timm==0.9.10
-      -
