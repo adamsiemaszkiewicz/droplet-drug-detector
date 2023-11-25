@@ -441,7 +441,7 @@ parameters:
 
 
 variables:
-- group: library-group-name  # replace with your library group name
+- group: replace-with-your-azure-devops-library-group-name
 
 pool:
   vmImage: ubuntu-latest
