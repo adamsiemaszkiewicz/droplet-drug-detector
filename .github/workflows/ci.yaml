@@ -10,36 +10,29 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      PROJECT_NAME: sample-project  # Define the project name
-      PYTHON_VERSION: '3.10'        # Define the python version variable
-
     steps:
       - uses: actions/checkout@v2
-
-      - name: Set environment name
-        run: echo "ENV_NAME=${{ env.PROJECT_NAME }}-env" >> $GITHUB_ENV
 
       - name: Set up Conda environment
         uses: conda-incubator/setup-miniconda@v2
         with:
-          activate-environment: ${{ env.ENV_NAME }}
-          environment-file: environments/${{env.PROJECT_NAME}}.yaml
+          activate-environment: infrastructure-env
+          environment-file: environments/infrastructure.yaml
           python-version: '3.10'
           auto-activate-base: false
 
       - name: Check code with Black
         run: |
-          conda run --name ${{ env.ENV_NAME }} --no-capture-output black --check --line-length 120 src tests
+          conda run --name infrastructure-env --no-capture-output black --check --line-length 120 src tests
 
       - name: Lint code with Flake8
         run: |
-          conda run --name ${{ env.ENV_NAME }} --no-capture-output flake8 src tests --max-line-length=120 --extend-ignore=D100,D101,D102,D103,D104,D105,D106,D107,E203,W503 --exclude=.git,__pycache__,build,dist,venv,.venv,.mypy_cache,.tox
+          conda run --name infrastructure-env --no-capture-output flake8 src tests --max-line-length=120 --extend-ignore=D100,D101,D102,D103,D104,D105,D106,D107,E203,W503 --exclude=.git,__pycache__,build,dist,venv,.venv,.mypy_cache,.tox
 
       - name: Sort imports with isort
         run: |
-          conda run --name ${{ env.ENV_NAME }} --no-capture-output isort src tests --check-only --profile black
+          conda run --name infrastructure-env --no-capture-output isort src tests --check-only --profile black
 
       - name: Run tests with pytest
         run: |
-          conda run --name ${{ env.ENV_NAME }} --no-capture-output pytest
+          conda run --name infrastructure-env --no-capture-output pytest
