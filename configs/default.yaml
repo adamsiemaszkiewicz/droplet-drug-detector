@@ -3,8 +3,8 @@ seed: 42
 data:
   dataset_dir: "data/dataset"  # relative to root directory
   artifacts_dir: "artifacts"  # relative to root directory
-  val_split: 0.1
-  test_split: 0.1
+  val_split: 0.15
+  test_split: 0.15
   batch_size: 16
 
 preprocessing:
@@ -14,7 +14,7 @@ preprocessing:
     - size: 256
 
 model:
-  name: resnet18
+  name: resnet50
   pretrained: true
   num_classes: 6
   in_channels: 3

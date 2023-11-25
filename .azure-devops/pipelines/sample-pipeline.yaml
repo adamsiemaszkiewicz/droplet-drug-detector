@@ -18,7 +18,7 @@ parameters:
   - name: batch_size
     displayName: Batch size
     type: string
-    default: "32"
+    default: "16"
 
   ######################
   # DATA PREPROCESSING #
