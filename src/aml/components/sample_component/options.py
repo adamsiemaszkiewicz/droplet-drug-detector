@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any, Dict
@@ -9,12 +10,15 @@ import yaml
 from src.aml.components.sample_component.config import ClassificationConfig
 from src.common.consts.directories import CONFIGS_DIR, ROOT_DIR
 from src.common.consts.extensions import YAML
+from src.common.consts.project import PROJECT_NAME
 from src.common.utils.dtype_converters import str_to_bool, str_to_dict, str_to_float, str_to_int
 from src.machine_learning.augmentations.config import AugmentationsConfig
+from src.machine_learning.callbacks.config import CallbacksConfig
 from src.machine_learning.classification.loss_functions.config import ClassificationLossFunctionConfig
 from src.machine_learning.classification.metrics.config import ClassificationMetricsConfig
 from src.machine_learning.classification.models.config import ClassificationModelConfig
 from src.machine_learning.data import ClassificationDataConfig
+from src.machine_learning.loggers.config import LoggersConfig
 from src.machine_learning.optimizer.config import OptimizerConfig
 from src.machine_learning.preprocessing.config import PreprocessingConfig
 from src.machine_learning.scheduler.config import SchedulerConfig
@@ -60,12 +64,11 @@ def create_arg_parser() -> ArgumentParser:
     callbacks_early_stopping_defaults: Dict[str, Any] = callbacks_defaults.get("early_stopping", None)
     callbacks_model_checkpoint_defaults: Dict[str, Any] = callbacks_defaults.get("model_checkpoint", None)
     callbacks_learning_rate_monitor_defaults: Dict[str, Any] = callbacks_defaults.get("learning_rate_monitor", None)
-    loggers_defaults: Dict[str, Any] = defaults.get("loggers", None)
     trainer_defaults: Dict[str, Any] = defaults.get("trainer", None)
 
     # Directories
     parser.add_argument("--dataset_dir", type=str, default=rel_paths_to_abs_path(data_defaults["dataset_dir"]))
-    parser.add_argument("--artifacts_dir", type=str, default=data_defaults["artifacts_dir"])
+    parser.add_argument("--artifacts_dir", type=str, default=rel_paths_to_abs_path(data_defaults["artifacts_dir"]))
 
     # Data
     parser.add_argument("--val_split", type=str, default=data_defaults["val_split"])
@@ -182,12 +185,6 @@ def create_arg_parser() -> ArgumentParser:
         default=callbacks_learning_rate_monitor_defaults["log_weight_decay"],
     )
 
-    # Loggers
-    for i in range(5):
-        logger_default = loggers_defaults["name_list"][i] if i < len(loggers_defaults["name_list"]) else None
-        parser.add_argument(f"--logger_name_{i + 1}", type=str, default=logger_default)
-    parser.add_argument("--loggers_save_dir", type=str, default=loggers_defaults["save_dir"])
-
     # Trainer
     parser.add_argument("--max_epochs", type=str, default=trainer_defaults["max_epochs"])
     parser.add_argument("--accelerator", type=str, default=trainer_defaults["accelerator"])
@@ -214,6 +211,9 @@ def get_config() -> ClassificationConfig:
     """
     parser = create_arg_parser()
     args = parser.parse_args()
+
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    artifacts_dir = Path(args.artifacts_dir) / timestamp
 
     config_dict: Dict[str, Dict[str, Any]] = {
         "data": {
@@ -278,6 +278,27 @@ def get_config() -> ClassificationConfig:
                 if getattr(args, f"augmentation_name_{i+1}") is not None
             ],
         },
+        "callbacks": {
+            "early_stopping": {
+                "monitor": args.callbacks_early_stopping_monitor,
+                "mode": args.callbacks_early_stopping_mode,
+                "patience": str_to_int(args.callbacks_early_stopping_patience),
+                "min_delta": str_to_float(args.callbacks_early_stopping_min_delta),
+                "verbose": str_to_bool(args.callbacks_early_stopping_verbose),
+            },
+            "model_checkpoint": {
+                "monitor": args.callbacks_model_checkpoint_monitor,
+                "mode": args.callbacks_model_checkpoint_mode,
+                "save_top_k": str_to_int(args.callbacks_model_checkpoint_save_top_k),
+                "dirpath": args.callbacks_model_checkpoint_dirpath,
+                "filename": args.callbacks_model_checkpoint_filename,
+                "verbose": str_to_bool(args.callbacks_model_checkpoint_verbose),
+            },
+            "learning_rate_monitor": {
+                "log_momentum": str_to_bool(args.callbacks_learning_rate_monitor_log_momentum),
+                "log_weight_decay": str_to_bool(args.callbacks_learning_rate_monitor_log_weight_decay),
+            },
+        },
         "trainer": {
             "max_epochs": str_to_int(args.max_epochs),
             "precision": args.precision,
@@ -287,6 +308,22 @@ def get_config() -> ClassificationConfig:
             "overfit_batches": str_to_int(args.overfit_batches),
         },
     }
+
+    if args.on_azure:
+        loggers_config_dict = {
+            "name_list": ["csv", "mlflow"],
+            "save_dir": artifacts_dir / "logs",
+            "extra_arguments_list": [{}, {}],
+        }
+    else:
+        loggers_config_dict = {
+            "name_list": ["csv", "wandb"],
+            "save_dir": artifacts_dir / "logs",
+            "extra_arguments_list": [
+                {},
+                {"name": timestamp, "project": PROJECT_NAME},
+            ],
+        }
 
     data_config = ClassificationDataConfig(**config_dict["data"])
     preprocessing_config = PreprocessingConfig(**config_dict["preprocessing"])
@@ -298,6 +335,8 @@ def get_config() -> ClassificationConfig:
     )
     metrics_config = ClassificationMetricsConfig(**config_dict["metrics"])
     augmentations_config = AugmentationsConfig(**config_dict["augmentations"])
+    callbacks_config = CallbacksConfig(**config_dict["callbacks"])
+    loggers_config = LoggersConfig(**loggers_config_dict)
     trainer_config = TrainerConfig(**config_dict["trainer"])
 
     config = ClassificationConfig(
@@ -309,10 +348,12 @@ def get_config() -> ClassificationConfig:
         scheduler=scheduler_config,
         metrics=metrics_config,
         augmentations=augmentations_config,
+        callbacks=callbacks_config,
+        loggers=loggers_config,
         trainer=trainer_config,
         seed=str_to_int(args.seed),
     )
     config.log_self()
-    config.to_yaml()
+    config.to_yaml(artifacts_dir / f"config{YAML}")
 
     return config
