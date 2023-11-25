@@ -2,15 +2,14 @@
 from pathlib import Path
 from typing import Literal, Optional, Union
 
-from pydantic import validator
+from pydantic import BaseModel, validator
 
 from src.common.utils.logger import get_logger
-from src.configs.base import BaseTrainerConfig
 
 _logger = get_logger(__name__)
 
 
-class TrainerConfig(BaseTrainerConfig):
+class TrainerConfig(BaseModel):
     """
     Configuration for creating a PyTorch Lightning trainer.
 
@@ -24,7 +23,7 @@ class TrainerConfig(BaseTrainerConfig):
         fast_dev_run (bool): Test if training code run without errors (for debugging purposes only)
         overfit_batches (Union[float, int]): Amount of data to use for overfitting
                                              0.0-1.0 as percentage or integer number of batches
-                                             Defaults to 0.0 which uses no overfitting)
+                                             Defaults to 0.0 which uses no overfitting
     """
 
     max_epochs: int
