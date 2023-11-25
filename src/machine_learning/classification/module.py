@@ -9,9 +9,12 @@ from torch.optim.lr_scheduler import LRScheduler
 from src.common.consts.machine_learning import STAGE_TESTING, STAGE_TRAINING, STAGE_VALIDATION
 from src.machine_learning.augmentations.config import AugmentationsConfig
 from src.machine_learning.augmentations.factory import create_augmentations
-from src.machine_learning.classification.loss_functions import ClassificationLossFunctionConfig, create_loss_function
-from src.machine_learning.classification.metrics import ClassificationMetricsConfig, create_metrics
-from src.machine_learning.classification.models import ClassificationModelConfig, create_model
+from src.machine_learning.classification.loss_functions.config import ClassificationLossFunctionConfig
+from src.machine_learning.classification.loss_functions.factory import create_loss_function
+from src.machine_learning.classification.metrics.config import ClassificationMetricsConfig
+from src.machine_learning.classification.metrics.factory import create_metrics
+from src.machine_learning.classification.models.config import ClassificationModelConfig
+from src.machine_learning.classification.models.factory import create_model
 from src.machine_learning.optimizer.config import OptimizerConfig
 from src.machine_learning.optimizer.factory import create_optimizer
 from src.machine_learning.scheduler.config import SchedulerConfig
