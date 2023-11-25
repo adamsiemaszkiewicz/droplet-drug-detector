@@ -1,124 +1,35 @@
 # -*- coding: utf-8 -*-
 import json
+from datetime import datetime
 from pathlib import Path
-from typing import Any, List, Optional, Type, Union
+from typing import Any, Optional
 
 import yaml
 from pydantic import BaseModel
 from pydantic.json import pydantic_encoder
 
-from src.common.consts.directories import ROOT_DIR
+from src.common.consts.directories import ARTIFACTS_DIR, ROOT_DIR
+from src.common.consts.extensions import YAML
+from src.common.utils.dtype_converters import path_to_str
 from src.common.utils.logger import get_logger
 
 _logger = get_logger(__name__)
 
 
-class BaseDataConfig(BaseModel):
-    """
-    Base data configuration class from which all data config classes should inherit.
-    """
+class MachineLearningConfig(BaseModel):
+    data: BaseModel
+    preprocessing: Optional[BaseModel] = None
+    model: BaseModel
+    loss_function: BaseModel
+    optimizer: BaseModel
+    scheduler: Optional[BaseModel] = None
+    metrics: BaseModel
+    augmentations: Optional[BaseModel] = None
+    callbacks: Optional[BaseModel] = None
+    loggers: Optional[BaseModel] = None
+    trainer: BaseModel
 
-    pass
-
-
-class BasePreprocessingConfig(BaseModel):
-    """
-    Base preprocessing configuration class from which all preprocessing config classes should inherit.
-    """
-
-    pass
-
-
-class BaseModelConfig(BaseModel):
-    """
-    Base model configuration class from which all model config classes should inherit.
-    """
-
-    pass
-
-
-class BaseLossFunctionConfig(BaseModel):
-    """
-    Base loss function configuration class from which all loss function config classes should inherit.
-    """
-
-    pass
-
-
-class BaseOptimizerConfig(BaseModel):
-    """
-    Base optimizer configuration class from which all optimizer config classes should inherit.
-    """
-
-    pass
-
-
-class BaseSchedulerConfig(BaseModel):
-    """
-    Base scheduler configuration class from which all scheduler config classes should inherit.
-    """
-
-    pass
-
-
-class BaseMetricsScheduler(BaseModel):
-    """
-    Base metrics scheduler configuration class from which all metrics scheduler config classes should inherit.
-    """
-
-    pass
-
-
-class BaseAugmentationsConfig(BaseModel):
-    """
-    Base augmentations configuration class from which all augmentations config classes should inherit.
-    """
-
-    pass
-
-
-class BaseCallbacksConfig(BaseModel):
-    """
-    Base callbacks configuration class from which all callbacks config classes should inherit.
-    """
-
-    pass
-
-
-class BaseLoggersConfig(BaseModel):
-    """
-    Base loggers configuration class from which all loggers config classes should inherit.
-    """
-
-    pass
-
-
-class BaseTrainerConfig(BaseModel):
-    """
-    Base trainer configuration class from which all trainer config classes should inherit.
-    """
-
-    pass
-
-
-class BaseMachineLearningConfig(BaseModel):
-    """
-    Base configuration class that aggregates all individual sections of the configuration.
-    It includes data, preprocessing, model, loss function, optimizer, scheduler, metric, augmentations,
-    callbacks, loggers & trainer configurations.
-    """
-
-    data: BaseDataConfig
-    preprocessing: Optional[BasePreprocessingConfig] = None
-    model: BaseModelConfig
-    loss_function: BaseLossFunctionConfig
-    optimizer: BaseOptimizerConfig = BaseOptimizerConfig()
-    scheduler: Optional[BaseSchedulerConfig] = None
-    metrics: BaseMetricsScheduler
-    augmentations: Optional[BaseAugmentationsConfig] = None
-    callbacks: Optional[BaseCallbacksConfig] = None
-    loggers: Optional[BaseLoggersConfig] = None
-    trainer: BaseTrainerConfig
+    seed: int
 
     class Config:
         json_encoders = {
@@ -127,175 +38,115 @@ class BaseMachineLearningConfig(BaseModel):
 
     def __str__(self) -> str:
         """
-        Return a string representation of the BaseMachineLearningConfig instance in JSON format.
+        Return a string representation of the configuration in JSON format.
 
         Returns:
-            str: A JSON formatted string representation of the BaseMachineLearningConfig instance.
+            str: A JSON formatted string representation of the configuration.
         """
         return json.dumps(self.dict(), indent=4, default=pydantic_encoder)
 
     def log_self(self) -> None:
         """
-        Log the string representation of the BaseMachineLearningConfig instance.
+        Log the string representation of the configuration.
         """
         _logger.info(self.__str__())
 
-    @classmethod
-    def from_yaml(cls, path: Union[str, Path]) -> "BaseMachineLearningConfig":
+    def to_yaml(self, path: Optional[Path] = None) -> None:
         """
-        Create a BaseMachineLearningConfig instance from a YAML file.
+        Save the configuration to a YAML file.
 
         Args:
-            path (Union[str, Path]): The path to the YAML file.
+            path (Path): The path where the YAML file will be saved.
+        """
+        if path:
+            _logger.info(f"Saving configuration to: {path.as_posix()}")
+
+        else:
+            timestamp = datetime.now().isoformat()
+            path = ARTIFACTS_DIR / timestamp / f"config{YAML}"
+            _logger.info(f"No save path specified. Saving configuration to a default path: {path.as_posix()}")
+
+        config_dict = self.dict(by_alias=True)
+        self._remove_root_dir_from_paths(config_dict)
+        self._convert_paths_to_strings(config_dict)
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "w") as f:
+            yaml.dump(config_dict, f)
+
+        _logger.info("Successfully exported configuration.")
+
+    @classmethod
+    def from_yaml(cls, path: Path) -> "MachineLearningConfig":
+        """
+        Create a configuration instance from a YAML file.
+
+        Args:
+            path (Path): The path to the YAML file.
 
         Returns:
-            BaseMachineLearningConfig: A BaseMachineLearningConfig instance.
+            ClassificationConfig: A configuration instance.
         """
         with open(path) as f:
             args = yaml.safe_load(f)
 
-        cls._process_yaml_values(data=args)
+        cls._add_root_dir_to_paths(data=args)
         return cls(**args)
 
     @staticmethod
-    def _process_yaml_values(data: Any) -> None:
+    def _convert_paths_to_strings(data: Any) -> None:
         """
-        Recursively process values in the YAML structure.
+        Recursively converts Path objects to strings in a data structure.
 
         Args:
-            data (Any): The current level of the YAML structure.
+            data (Any): The data structure containing Path objects.
         """
-        path_prefix = "path://"  # Prefix to indicate that the value is a path
         if isinstance(data, dict):
             for key, value in data.items():
-                if isinstance(value, str) and value.startswith(path_prefix):
-                    relative_path = value.split(path_prefix, 1)[1]  # Remove leading slashes
-                    absolute_path = (ROOT_DIR / relative_path).as_posix()
+                if isinstance(value, Path):
+                    data[key] = path_to_str(value)
+                else:
+                    MachineLearningConfig._convert_paths_to_strings(value)
+        elif isinstance(data, list):
+            for i, item in enumerate(data):
+                if isinstance(item, Path):
+                    data[i] = path_to_str(item)
+                else:
+                    MachineLearningConfig._convert_paths_to_strings(item)
+
+    @staticmethod
+    def _add_root_dir_to_paths(data: Any) -> None:
+        """
+        Adds ROOT_DIR to paths in a given data structure to make them absolute.
+
+        Args:
+            data (Any): The data structure with paths to modify.
+        """
+        if isinstance(data, dict):
+            for key, value in data.items():
+                if isinstance(value, str):
+                    absolute_path = (ROOT_DIR / value).as_posix()
                     data[key] = absolute_path
                 else:
-                    BaseMachineLearningConfig._process_yaml_values(data=value)
+                    MachineLearningConfig._add_root_dir_to_paths(data=value)
         elif isinstance(data, list):
             for item in data:
-                BaseMachineLearningConfig._process_yaml_values(item)
+                MachineLearningConfig._add_root_dir_to_paths(item)
 
     @staticmethod
-    def convert_str_to_int(value: str) -> int:
+    def _remove_root_dir_from_paths(data: Any) -> None:
         """
-        Convert a string to an integer.
+        Converts absolute paths in the configuration to relative paths.
 
         Args:
-            value (str): The string to convert.
-
-        Returns:
-            int: The converted integer.
+            data (Any): The data structure containing paths to modify.
         """
-        try:
-            return int(value)
-        except ValueError as e:
-            raise ValueError(f"Error converting '{value}' to int: {e}")
-
-    @staticmethod
-    def convert_str_to_float(value: str) -> float:
-        """
-        Convert a string to a float.
-
-        Args:
-            value (str): The string to convert.
-
-        Returns:
-            float: The converted float.
-        """
-        try:
-            return float(value)
-        except ValueError as e:
-            raise ValueError(f"Error converting '{value}' to float: {e}")
-
-    @staticmethod
-    def convert_str_to_path(v: Union[str, Path]) -> Path:
-        """
-        Convert a string to a positive integer, raising an error if conversion is not possible or the value is negative.
-        """
-        if isinstance(v, str):
-            return Path(v)
-        return v
-
-    @staticmethod
-    def convert_str_to_bool(v: Union[bool, str], field: str) -> bool:
-        """
-        Convert a string to a boolean, raising an error if conversion is not possible.
-        """
-        if isinstance(v, bool):
-            return v
-        v = v.lower()
-        if v in ("true", "1", "t", "y", "yes"):
-            return True
-        elif v in ("false", "0", "f", "n", "no"):
-            return False
-        else:
-            raise ValueError(f"{field} must be a boolean value")
-
-    @staticmethod
-    def check_if_positive(value: Any) -> Any:
-        """
-        Check if the provided value is positive.
-
-        Args:
-            value (Any): The value to check for positivity.
-
-        Returns:
-            Any: The original value if positive.
-
-        Raises:
-            ValueError: If the value is not a positive number.
-        """
-        if isinstance(value, (int, float)) and value <= 0:
-            raise ValueError("The value must be a positive number.")
-        return value
-
-    @staticmethod
-    def convert_str_to_positive_int(v: Union[int, str], field: str) -> int:
-        """
-        Convert a string to a positive float, raising an error if conversion is not possible or the value is negative.
-        """
-        if not isinstance(v, int):
-            try:
-                v = int(v)
-            except ValueError:
-                raise ValueError(f"{field} must be convertible to a positive integer")
-        if v < 0:
-            raise ValueError(f"{field} must be a positive integer")
-        return v
-
-    @staticmethod
-    def convert_str_to_positive_float(v: Union[float, str], field: str) -> float:
-        """
-        Convert a string to a boolean, raising an error if conversion is not possible.
-        """
-        if not isinstance(v, float):
-            try:
-                v = float(v)
-            except ValueError:
-                raise ValueError(f"{field} must be convertible to a positive float")
-        if v < 0:
-            raise ValueError(f"{field} must be a positive float")
-        return v
-
-    @staticmethod
-    def convert_comma_separated_str_to_list(v: str, convert_to_type: Type) -> List:
-        """
-        Convert a comma-separated string to a list of a specified type.
-
-        Args:
-            v (str): The input string to convert.
-            convert_to_type: The type to convert the list items to. Defaults to str.
-
-        Returns:
-            List: A list of the specified type with the converted values.
-
-        Raises:
-            ValueError: If conversion of any list item fails.
-        """
-        try:
-            return [convert_to_type(item.strip()) for item in v.split(",") if item.strip()]
-        except ValueError as e:
-            raise ValueError(f"Error converting values to {convert_to_type.__name__}: {e}")
+        if isinstance(data, dict):
+            for key, value in data.items():
+                if isinstance(value, str) and value.startswith(ROOT_DIR.as_posix()):
+                    data[key] = value.replace(ROOT_DIR.as_posix(), "")
+                else:
+                    MachineLearningConfig._remove_root_dir_from_paths(value)
+        elif isinstance(data, list):
+            for item in data:
+                MachineLearningConfig._remove_root_dir_from_paths(item)
