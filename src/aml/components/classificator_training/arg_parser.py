@@ -7,11 +7,11 @@ from typing import Any, Dict
 
 import yaml
 
-from src.aml.components.sample_component.config import ClassificationConfig
-from src.aml.components.sample_component.data import ClassificationDataConfig
+from src.aml.components.classificator_training.config import ClassificationConfig
+from src.aml.components.classificator_training.data import ClassificationDataConfig
 from src.common.consts.directories import CONFIGS_DIR, ROOT_DIR
 from src.common.consts.extensions import YAML
-from src.common.consts.project import PROJECT_NAME
+from src.common.consts.project import PROJECT_NAME_CLASSIFICATOR
 from src.common.utils.dtype_converters import str_to_bool, str_to_dict, str_to_float, str_to_int
 from src.machine_learning.augmentations.config import AugmentationsConfig
 from src.machine_learning.callbacks.config import CallbacksConfig
@@ -210,7 +210,7 @@ def get_config() -> ClassificationConfig:
     args = parser.parse_args()
 
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    artifacts_dir = Path(args.artifacts_dir) / timestamp
+    artifacts_dir = Path(args.artifacts_dir) / PROJECT_NAME_CLASSIFICATOR / timestamp
 
     config_dict: Dict[str, Dict[str, Any]] = {
         "data": {
@@ -318,7 +318,7 @@ def get_config() -> ClassificationConfig:
             "save_dir": artifacts_dir / "logs",
             "extra_arguments_list": [
                 {},
-                {"name": timestamp, "project": PROJECT_NAME},
+                {"name": timestamp, "project": PROJECT_NAME_CLASSIFICATOR},
             ],
         }
 

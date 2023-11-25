@@ -1,9 +1,9 @@
 $schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
 type: command
 
-name: sample_component_name  # Use this for the component description
+name: droplet_drug_classificator_training  # Use this for the component description
 version: 1
-display_name: Sample component display name  # Use this for the component slug
+display_name: Droplet drug classificator training  # Use this for the component slug
 
 inputs:
   val_split:
@@ -130,14 +130,14 @@ outputs:
     type: uri_folder
 
 
-environment: azureml:dev-sample-project-env@latest
+environment: azureml:dev-droplet-drug-detector-env@latest
 is_deterministic: false
 
 
 code: ../../../..
 command: >-
   PYTHONPATH=$PYTHONPATH:. ; export PYTHONPATH ;
-  python ./src/aml/components/sample_component/entrypoint.py
+  python ./src/aml/components/droplet_drug_classificator_training/entrypoint.py
   --dataset_dir "${{inputs.dataset_dir}}"
   --artifacts_dir "${{outputs.artifacts_dir}}"
   --val_split "${{inputs.val_split}}"

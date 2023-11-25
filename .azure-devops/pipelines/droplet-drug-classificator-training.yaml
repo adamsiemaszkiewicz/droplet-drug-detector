@@ -466,7 +466,7 @@ stages:
 
         - task: qetza.replacetokens.replacetokens-task.replacetokens@3
           inputs:
-            targetFiles: "src/aml/pipelines/sample_pipeline/pipeline_spec.yaml"
+            targetFiles: "src/aml/pipelines/droplet_drug_detector/pipeline_spec.yaml"
             encoding: "auto"
             writeBOM: true
             actionOnMissing: "warn"
@@ -490,7 +490,7 @@ stages:
               timestamp=$(date +%Y-%m-%d-%H:%M:%S)
               build_id=$(Build.BuildId)
               job_id="${build_id}_${timestamp}"
-              experiment_name="custom_experiment_name"
+              experiment_name="droplet_drug_detector"
 
               # Determine whether the compute target is CPU or GPU based and set device accordingly
               if [[ "${{parameters.compute}}" == azureml:GPU* ]]; then
@@ -502,7 +502,7 @@ stages:
               # Create and run the pipeline
               # Remember to add quotes around the string parameters to avoid YAML parsing errors
               run_id=$( \
-                az ml job create -f src/aml/pipelines/sample_pipeline/pipeline_spec.yaml \
+                az ml job create -f src/aml/pipelines/droplet_drug_detector/pipeline_spec.yaml \
                 --set \
                 experiment_name=$experiment_name \
                 display_name=$job_id \

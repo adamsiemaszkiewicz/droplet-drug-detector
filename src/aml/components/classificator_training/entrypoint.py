@@ -2,9 +2,9 @@
 from lightning import seed_everything
 from lightning.pytorch.loggers import WandbLogger
 
-from src.aml.components.sample_component.arg_parser import get_config
-from src.aml.components.sample_component.config import ClassificationConfig
-from src.aml.components.sample_component.data import ClassificationDataModule
+from src.aml.components.classificator_training.arg_parser import get_config
+from src.aml.components.classificator_training.config import ClassificationConfig
+from src.aml.components.classificator_training.data import ClassificationDataModule
 from src.common.utils.logger import get_logger
 from src.machine_learning.callbacks.factory import create_callbacks
 from src.machine_learning.classification.module import ClassificationLightningModule

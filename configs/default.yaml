@@ -5,7 +5,7 @@ data:
   artifacts_dir: "artifacts"  # relative to root directory
   val_split: 0.15
   test_split: 0.15
-  batch_size: 16
+  batch_size: 8
 
 preprocessing:
   name_list:

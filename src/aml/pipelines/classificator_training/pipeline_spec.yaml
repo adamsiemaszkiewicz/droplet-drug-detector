@@ -129,7 +129,7 @@ settings:
 jobs:
   sample_component_name:
     type: command
-    component: file:../../components/sample_component/component_spec.yaml
+    component: file:../../components/droplet_drug_classificator_training/component_spec.yaml
     inputs:
       val_split: ${{parent.inputs.val_split}}
       test_split: ${{parent.inputs.test_split}}

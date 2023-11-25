@@ -1,4 +1,4 @@
-name: sample-project-env
+name: droplet-drug-detector-env
 channels:
   - conda-forge
   - defaults

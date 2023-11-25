@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import Optional
 
-from src.aml.components.sample_component.data import ClassificationDataConfig
+from src.aml.components.classificator_training.data import ClassificationDataConfig
 from src.common.utils.logger import get_logger
 from src.configs.base import MachineLearningConfig
 from src.machine_learning.augmentations.config import AugmentationsConfig
