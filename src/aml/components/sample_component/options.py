@@ -11,9 +11,9 @@ from src.common.consts.directories import CONFIGS_DIR, ROOT_DIR
 from src.common.consts.extensions import YAML
 from src.common.utils.dtype_converters import str_to_bool, str_to_dict, str_to_float, str_to_int
 from src.machine_learning.augmentations.config import AugmentationsConfig
-from src.machine_learning.classification.loss_functions import ClassificationLossFunctionConfig
-from src.machine_learning.classification.metrics import ClassificationMetricsConfig
-from src.machine_learning.classification.models import ClassificationModelConfig
+from src.machine_learning.classification.loss_functions.config import ClassificationLossFunctionConfig
+from src.machine_learning.classification.metrics.config import ClassificationMetricsConfig
+from src.machine_learning.classification.models.config import ClassificationModelConfig
 from src.machine_learning.data import ClassificationDataConfig
 from src.machine_learning.optimizer.config import OptimizerConfig
 from src.machine_learning.preprocessing.config import PreprocessingConfig
