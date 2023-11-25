@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import json
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
@@ -8,8 +7,7 @@ import yaml
 from pydantic import BaseModel
 from pydantic.json import pydantic_encoder
 
-from src.common.consts.directories import ARTIFACTS_DIR, ROOT_DIR
-from src.common.consts.extensions import YAML
+from src.common.consts.directories import ROOT_DIR
 from src.common.utils.dtype_converters import path_to_str
 from src.common.utils.logger import get_logger
 
@@ -51,20 +49,14 @@ class MachineLearningConfig(BaseModel):
         """
         _logger.info(self.__str__())
 
-    def to_yaml(self, path: Optional[Path] = None) -> None:
+    def to_yaml(self, path: Path) -> None:
         """
         Save the configuration to a YAML file.
 
         Args:
             path (Path): The path where the YAML file will be saved.
         """
-        if path:
-            _logger.info(f"Saving configuration to: {path.as_posix()}")
-
-        else:
-            timestamp = datetime.now().isoformat()
-            path = ARTIFACTS_DIR / timestamp / f"config{YAML}"
-            _logger.info(f"No save path specified. Saving configuration to a default path: {path.as_posix()}")
+        _logger.info(f"Saving configuration to: {path.as_posix()}")
 
         config_dict = self.dict(by_alias=True)
         self._remove_root_dir_from_paths(config_dict)
