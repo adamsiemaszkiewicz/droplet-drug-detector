@@ -65,7 +65,7 @@ loggers:
 trainer:
   max_epochs: 50
   accelerator: gpu
-  precision: 16
+  precision: 32
   accumulate_grad_batches: 1
   fast_dev_run: false  # set to true for debugging
   overfit_batches: 0.0  # 0.0 means no overfitting
