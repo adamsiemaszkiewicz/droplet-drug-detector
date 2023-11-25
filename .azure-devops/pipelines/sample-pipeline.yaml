@@ -486,7 +486,7 @@ stages:
             workingDirectory: $(System.DefaultWorkingDirectory)
             scriptLocation: inlineScript
             inlineScript: |
-              # Set custom experiment ID
+              # Set custom experiment & job names
               timestamp=$(date +%Y-%m-%d-%H:%M:%S)
               build_id=$(Build.BuildId)
               job_id="${build_id}_${timestamp}"
