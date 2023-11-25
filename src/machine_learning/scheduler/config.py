@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 from typing import Any, Dict
 
-from pydantic import validator
+from pydantic import BaseModel, validator
 
 from src.common.utils.logger import get_logger
-from src.configs.base import BaseSchedulerConfig
 from src.machine_learning.scheduler.types import AVAILABLE_SCHEDULERS, REQUIRED_ARGUMENTS
 
 _logger = get_logger(__name__)
 
 
-class SchedulerConfig(BaseSchedulerConfig):
+class SchedulerConfig(BaseModel):
     """
     Configuration for creating a learning rate scheduler.
 
