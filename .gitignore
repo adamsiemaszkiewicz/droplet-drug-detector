@@ -160,6 +160,4 @@ cython_debug/
 .idea/
 
 # Project specific
-/data/
 lightning_logs/
-/configs/log/
