@@ -4,7 +4,7 @@ from lightning.pytorch.loggers import WandbLogger
 
 from src.aml.components.classificator_training.arg_parser import get_config
 from src.aml.components.classificator_training.config import ClassificationConfig
-from src.aml.components.classificator_training.data import ClassificationDataModule
+from src.aml.components.classificator_training.data import ClassificationDataModule, DropletDrugClassificationDataset
 from src.common.utils.logger import get_logger
 from src.machine_learning.callbacks.factory import create_callbacks
 from src.machine_learning.classification.module import ClassificationLightningModule
@@ -25,6 +25,7 @@ def main() -> None:
     dm = ClassificationDataModule(config=config.data, preprocessor=preprocessor)
 
     model = ClassificationLightningModule(
+        classes=DropletDrugClassificationDataset.CLASSES,
         model_config=config.model,
         loss_function_config=config.loss_function,
         optimizer_config=config.optimizer,
@@ -53,6 +54,7 @@ def main() -> None:
     _logger.info(f"Loading best model for testing purposes from: {best_model_path}")
     best_model = ClassificationLightningModule.load_from_checkpoint(
         checkpoint_path=best_model_path,
+        classes=DropletDrugClassificationDataset.CLASSES,
         model_config=config.model,
         loss_function_config=config.loss_function,
         optimizer_config=config.optimizer,
