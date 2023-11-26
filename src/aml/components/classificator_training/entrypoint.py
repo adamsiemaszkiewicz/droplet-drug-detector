@@ -45,6 +45,23 @@ def main() -> None:
     trainer = create_trainer(config=config.trainer, callbacks=callbacks, loggers=loggers)
     trainer.fit(model=model, datamodule=dm)
 
+    best_model_path = trainer.checkpoint_callback.best_model_path
+
+    if not best_model_path:
+        raise FileNotFoundError("No best model checkpoint found.")
+
+    _logger.info(f"Loading best model for testing purposes from: {best_model_path}")
+    best_model = ClassificationLightningModule.load_from_checkpoint(
+        checkpoint_path=best_model_path,
+        model_config=config.model,
+        loss_function_config=config.loss_function,
+        optimizer_config=config.optimizer,
+        metrics_config=config.metrics,
+        augmentations_config=config.augmentations,
+        scheduler_config=config.scheduler,
+    )
+    trainer.test(model=best_model, datamodule=dm)
+
 
 if __name__ == "__main__":
     main()
