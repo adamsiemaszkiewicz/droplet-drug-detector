@@ -13,6 +13,7 @@ from src.common.consts.directories import ROOT_DIR
 from src.common.consts.extensions import YAML
 from src.common.consts.project import (
     DEFAULT_CONFIG_FILE_CLASSIFICATOR,
+    LEARNING_CURVES_FOLDER_NAME,
     LOGS_FOLDER_NAME,
     MODEL_CHECKPOINTS_FOLDER_NAME,
     PROJECT_NAME_CLASSIFICATOR,
@@ -69,6 +70,7 @@ def create_arg_parser() -> ArgumentParser:
     callbacks_early_stopping_defaults: Dict[str, Any] = callbacks_defaults.get("early_stopping", None)
     callbacks_model_checkpoint_defaults: Dict[str, Any] = callbacks_defaults.get("model_checkpoint", None)
     callbacks_learning_rate_monitor_defaults: Dict[str, Any] = callbacks_defaults.get("learning_rate_monitor", None)
+    callbacks_learning_curve_logger_defaults: Dict[str, Any] = callbacks_defaults.get("learning_curve_logger", None)
     trainer_defaults: Dict[str, Any] = defaults.get("trainer", None)
 
     # Directories
@@ -187,11 +189,23 @@ def create_arg_parser() -> ArgumentParser:
         default=callbacks_learning_rate_monitor_defaults["log_weight_decay"],
     )
 
+    parser.add_argument(
+        "--callbacks_learning_curve_logger_log_loss",
+        type=str,
+        default=callbacks_learning_curve_logger_defaults["log_loss"],
+    )
+    parser.add_argument(
+        "--callbacks_learning_curve_logger_log_metrics",
+        type=str,
+        default=callbacks_learning_curve_logger_defaults["log_metrics"],
+    )
+
     # Trainer
     parser.add_argument("--max_epochs", type=str, default=trainer_defaults["max_epochs"])
     parser.add_argument("--accelerator", type=str, default=trainer_defaults["accelerator"])
     parser.add_argument("--precision", type=str, default=trainer_defaults["precision"])
     parser.add_argument("--accumulate_grad_batches", type=str, default=trainer_defaults["accumulate_grad_batches"])
+    parser.add_argument("--log_every_n_steps", type=str, default=trainer_defaults["log_every_n_steps"])
     parser.add_argument("--fast_dev_run", type=str, default=trainer_defaults["fast_dev_run"])
     parser.add_argument("--overfit_batches", type=str, default=trainer_defaults["overfit_batches"])
 
@@ -300,6 +314,11 @@ def get_config() -> ClassificationConfig:
                 "log_momentum": str_to_bool(args.callbacks_learning_rate_monitor_log_momentum),
                 "log_weight_decay": str_to_bool(args.callbacks_learning_rate_monitor_log_weight_decay),
             },
+            "learning_curve_logger": {
+                "output_dir": artifacts_dir / LEARNING_CURVES_FOLDER_NAME,
+                "log_loss": str_to_bool(args.callbacks_learning_curve_logger_log_loss),
+                "log_metrics": str_to_bool(args.callbacks_learning_curve_logger_log_metrics),
+            },
         },
         "trainer": {
             "max_epochs": str_to_int(args.max_epochs),
@@ -307,7 +326,8 @@ def get_config() -> ClassificationConfig:
             "accumulate_grad_batches": str_to_int(args.accumulate_grad_batches),
             "accelerator": args.accelerator,
             "fast_dev_run": str_to_bool(args.fast_dev_run),
-            "overfit_batches": str_to_int(args.overfit_batches),
+            "log_every_n_steps": str_to_int(args.log_every_n_steps),
+            "overfit_batches": str_to_float(args.overfit_batches),
         },
     }
 
