@@ -14,6 +14,9 @@ from src.common.utils.logger import get_logger
 _logger = get_logger(__name__)
 
 
+stage_colors = {STAGE_TRAINING: "blue", STAGE_VALIDATION: "green", STAGE_TESTING: "red"}
+
+
 class LearningCurveCallback(Callback):
     """
     PyTorch Lightning callback that saves the learning curve plot for training,
@@ -136,10 +139,13 @@ class LearningCurveCallback(Callback):
         for stage, values in metric_values.items():
             if values:
                 if len(values) == 1:
-                    plt.plot(total_epochs, values[0], "o", label=stage)
+                    marker = "o" if stage == STAGE_TRAINING else "s" if stage == STAGE_VALIDATION else "d"
+                    color = stage_colors.get(stage, "gray")
+                    plt.plot(total_epochs, values[0], marker, label=stage, color=color)
                     self._annotate_single_value(values=values, x_coord=total_epochs)
                 else:
-                    plt.plot(values, label=stage)
+                    color = stage_colors.get(stage, "gray")
+                    plt.plot(values, label=stage, color=color)
                     self._annotate_min_value(values=values)
                     self._annotate_max_value(values=values)
 
@@ -168,7 +174,7 @@ class LearningCurveCallback(Callback):
         plt.subplots_adjust(bottom=0.15, left=0.15)
         plt.tight_layout()
 
-        output_path = self.output_dir / "learning_curve" / f"learning_curve_{name}{PNG}"
+        output_path = self.output_dir / f"learning_curve_{name}{PNG}"
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         if output_path.exists():
