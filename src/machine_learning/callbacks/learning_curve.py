@@ -298,18 +298,12 @@ class LearningCurveCallback(Callback):
             metric_name (str): Name of the metric.
             trainer (Trainer): The PyTorch Lightning Trainer object.
         """
-        if not plot_path.exists():
-            _logger.info(f"{metric_name} curve saved to {plot_path}")
-            logger = trainer.loggers
+        for logger in trainer.loggers:
             if isinstance(logger, MLFlowLogger):
                 _logger.info(f"Logging {metric_name} learning curve to MLFlow.")
-                logger.experiment.log_artifact(
-                    run_id=logger.run_id, local_path=plot_path.as_posix(), artifact_path="learning_curve"
-                )
-            elif isinstance(logger, WandbLogger):
+                run = logger.experiment
+                run.log_artifact(run_id=logger.run_id, local_path=plot_path.as_posix(), artifact_path="learning_curve")
+            if isinstance(logger, WandbLogger):
                 _logger.info(f"Logging {metric_name} learning curve to Wandb.")
-                logger.experiment.log_image(images=[plot_path.as_posix()])
-            else:
-                _logger.info(f"Logger type for {metric_name} curve logging not supported.")
-        else:
-            _logger.info(f"{metric_name} curve already exists at {plot_path}. Skipping...")
+                run = logger.experiment
+                run.log_artifact(plot_path.as_posix())
