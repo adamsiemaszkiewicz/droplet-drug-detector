@@ -7,11 +7,16 @@ from typing import Any, Dict
 
 import yaml
 
-from src.aml.components.sample_component.config import ClassificationConfig
-from src.aml.components.sample_component.data import ClassificationDataConfig
-from src.common.consts.directories import CONFIGS_DIR, ROOT_DIR
+from src.aml.components.classificator_training.config import ClassificationConfig
+from src.aml.components.classificator_training.data import ClassificationDataConfig
+from src.common.consts.directories import ROOT_DIR
 from src.common.consts.extensions import YAML
-from src.common.consts.project import PROJECT_NAME
+from src.common.consts.project import (
+    DEFAULT_CONFIG_FILE_CLASSIFICATOR,
+    LOGS_FOLDER_NAME,
+    MODEL_CHECKPOINTS_FOLDER_NAME,
+    PROJECT_NAME_CLASSIFICATOR,
+)
 from src.common.utils.dtype_converters import str_to_bool, str_to_dict, str_to_float, str_to_int
 from src.machine_learning.augmentations.config import AugmentationsConfig
 from src.machine_learning.callbacks.config import CallbacksConfig
@@ -29,7 +34,7 @@ def load_defaults() -> Dict[str, Any]:
     """
     Loads the default configuration from the default.yaml file.
     """
-    with open(CONFIGS_DIR / f"default{YAML}", "r") as file:
+    with open(DEFAULT_CONFIG_FILE_CLASSIFICATOR, "r") as file:
         return yaml.safe_load(file)
 
 
@@ -287,7 +292,7 @@ def get_config() -> ClassificationConfig:
                 "monitor": args.callbacks_model_checkpoint_monitor,
                 "mode": args.callbacks_model_checkpoint_mode,
                 "save_top_k": str_to_int(args.callbacks_model_checkpoint_save_top_k),
-                "dirpath": artifacts_dir / "checkpoints",
+                "dirpath": artifacts_dir / MODEL_CHECKPOINTS_FOLDER_NAME,
                 "filename": args.callbacks_model_checkpoint_filename,
                 "verbose": str_to_bool(args.callbacks_model_checkpoint_verbose),
             },
@@ -309,16 +314,16 @@ def get_config() -> ClassificationConfig:
     if args.on_azure:
         loggers_config_dict = {
             "name_list": ["csv", "mlflow"],
-            "save_dir": artifacts_dir / "logs",
+            "save_dir": artifacts_dir / LOGS_FOLDER_NAME,
             "extra_arguments_list": [{}, {}],
         }
     else:
         loggers_config_dict = {
             "name_list": ["csv", "wandb"],
-            "save_dir": artifacts_dir / "logs",
+            "save_dir": artifacts_dir / LOGS_FOLDER_NAME,
             "extra_arguments_list": [
                 {},
-                {"name": timestamp, "project": PROJECT_NAME},
+                {"name": timestamp, "project": PROJECT_NAME_CLASSIFICATOR},
             ],
         }
 

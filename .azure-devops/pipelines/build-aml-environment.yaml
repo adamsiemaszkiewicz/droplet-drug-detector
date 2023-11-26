@@ -12,9 +12,9 @@ parameters:
 - name: environment_name
   displayName: Environment name
   type: string
-  default: "sample-project"
+  default: "droplet-drug-detector"
   values:
-    - "sample-project"
+    - "droplet-drug-detector"
 - name: device
   displayName: Device to use
   type: string
