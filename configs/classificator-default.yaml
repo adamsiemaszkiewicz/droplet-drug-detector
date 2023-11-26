@@ -2,7 +2,7 @@ seed: 42
 
 data:
   dataset_dir: "data/dataset"  # relative to root directory
-  artifacts_dir: "artifacts"  # relative to root directory
+  artifacts_dir: "artifacts/droplet-drug-classificator"  # relative to root directory
   val_split: 0.15
   test_split: 0.15
   batch_size: 8
