@@ -81,8 +81,6 @@ class DropletDrugClassificationDataset(Dataset):
                 for image_path in class_dir.glob("*.jpg"):
                     samples.append((image_path, class_idx))
 
-        _logger.info(f"Found a total of {len(samples)} samples.")
-
         return samples
 
     def __len__(self) -> int:
@@ -206,10 +204,15 @@ class ClassificationDataModule(LightningDataModule):
         self.val_dataset.samples = [full_dataset.samples[i] for i in val_subset.indices]
         self.test_dataset.samples = [full_dataset.samples[i] for i in test_subset.indices]
 
-        _logger.info(f"Overall dataset class balance: {self.class_balance}")
-        _logger.info(f"Training subset class balance: {self.train_class_balance}")
-        _logger.info(f"Validation subset class balance: {self.val_class_balance}")
-        _logger.info(f"Test subset class balance: {self.test_class_balance}")
+        _logger.info(f"Total dataset size: {len(full_dataset)}")
+        _logger.info(f"Training set size: {len(self.train_dataset)}")
+        _logger.info(f"Validation set size: {len(self.val_dataset)}")
+        _logger.info(f"Test set size: {len(self.test_dataset)}")
+
+        _logger.info(f"Overall class balance: {self.class_balance}")
+        _logger.info(f"Training set class balance: {self.train_class_balance}")
+        _logger.info(f"Validation set class balance: {self.val_class_balance}")
+        _logger.info(f"Test set class balance: {self.test_class_balance}")
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(dataset=self.train_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)
