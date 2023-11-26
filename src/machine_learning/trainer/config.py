@@ -2,7 +2,7 @@
 from pathlib import Path
 from typing import Literal, Optional, Union
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel
 
 from src.common.utils.logger import get_logger
 
@@ -32,16 +32,8 @@ class TrainerConfig(BaseModel):
     accelerator: Optional[str] = None
     num_devices: Optional[int] = None
     default_root_dir: Optional[Union[str, Path]] = None
+    log_every_n_steps: Optional[int] = None
 
     # Debugging
     fast_dev_run: bool = False
     overfit_batches: float = 0.0
-
-    @validator("max_epochs")
-    def validate_positive_integer(cls, v: int) -> int:
-        """
-        Validates if the provided value is a positive integer.
-        """
-        if not isinstance(v, int) or v <= 0:
-            raise ValueError(f"The value {v} must be a positive integer.")
-        return v
