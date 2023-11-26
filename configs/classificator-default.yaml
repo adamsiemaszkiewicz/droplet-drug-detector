@@ -58,11 +58,15 @@ callbacks:
   learning_rate_monitor:
     log_momentum: true
     log_weight_decay: true
+  learning_curve_logger:
+    log_loss: true
+    log_metrics: true
 
 trainer:
   max_epochs: 50
   accelerator: gpu
   precision: 32
-  accumulate_grad_batches: 1
+  log_every_n_steps: 10
+  accumulate_grad_batches: 1  # 1 for no accumulation
   fast_dev_run: false  # set to true for debugging
   overfit_batches: 0.0  # 0.0 means no overfitting
