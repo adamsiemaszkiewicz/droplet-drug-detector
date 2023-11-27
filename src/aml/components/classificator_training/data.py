@@ -215,7 +215,9 @@ class ClassificationDataModule(LightningDataModule):
         _logger.info(f"Test set class balance: {self.test_class_balance}")
 
     def train_dataloader(self) -> DataLoader:
-        return DataLoader(dataset=self.train_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)
+        return DataLoader(
+            dataset=self.train_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers, shuffle=True
+        )
 
     def val_dataloader(self) -> DataLoader:
         return DataLoader(dataset=self.val_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)
