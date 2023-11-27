@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,16 +15,19 @@ _logger = get_logger(__name__)
 
 
 class LearningCurvePlotter:
-    FIG_SIZE = (12, 10)
-    TITLE_SIZE = 14
-    FONT_SIZE = 10
-    SUBPLOT_ADJUST_BOTTOM = 0.15
-    SUBPLOT_ADJUST_LEFT = 0.15
-    STAGE_COLORS = {STAGE_TRAINING: "blue", STAGE_VALIDATION: "green", STAGE_TESTING: "red"}
-    PROPS_COLOR = "black"
-    ARROW_STYLE = "->"
-    SINGLE_VALUE_MARKER = "o"
-    LABEL_PAD = 10
+    FIG_SIZE: Tuple[int, int] = (12, 10)
+    TITLE_SIZE: int = 14
+    TITLE_PADDING: int = 16
+    FONT_SIZE: int = 10
+    SUBPLOT_ADJUST_BOTTOM: float = 0.15
+    SUBPLOT_ADJUST_LEFT: float = 0.15
+    STAGE_COLORS: Dict[str, str] = {STAGE_TRAINING: "blue", STAGE_VALIDATION: "green", STAGE_TESTING: "red"}
+    PROPS_COLOR: str = "black"
+    ARROW_STYLE: str = "->"
+    SINGLE_VALUE_MARKER: str = "o"
+    LABEL_PAD: int = 10
+    NUM_Y_TICKS: int = 10
+    FLOAT_PRECISION: str = ".2f"
 
     def __init__(self, output_dir: Path) -> None:
         self.output_dir = output_dir
@@ -41,7 +44,7 @@ class LearningCurvePlotter:
         min_value_idx = np.argmin(values) if x_coord is None else x_coord
         min_value = values[min_value_idx] if x_coord is None else values[0]
         plt.annotate(
-            f"Min: {min_value:.2f}",
+            text=f"Min: {min_value:{self.FLOAT_PRECISION}}",
             xy=(min_value_idx, min_value),
             xycoords="data",
             xytext=(0, -20),
@@ -64,7 +67,7 @@ class LearningCurvePlotter:
         max_value_idx = np.argmax(values) if x_coord is None else x_coord
         max_value = values[max_value_idx] if x_coord is None else values[0]
         plt.annotate(
-            f"Max: {max_value:.2f}",
+            f"Max: {max_value:{self.FLOAT_PRECISION}}",
             xy=(max_value_idx, max_value),
             xycoords="data",
             xytext=(0, 20),
@@ -87,7 +90,7 @@ class LearningCurvePlotter:
         value_idx = x_coord if x_coord is not None else 0
         value = values[0]
         plt.annotate(
-            f"Value: {value:.2f}",
+            f"Value: {value:{self.FLOAT_PRECISION}}",
             xy=(value_idx, value),
             xycoords="data",
             xytext=(0, 20),
@@ -132,11 +135,11 @@ class LearningCurvePlotter:
             plt.yscale("log")
             plt.ylabel(ylabel="Loss (logarithmic scale)", fontsize=self.FONT_SIZE, labelpad=self.LABEL_PAD)
 
-            y_ticks = np.geomspace(min_value, max_value, 10)
-            plt.yticks(y_ticks, [f"{tick:.3f}" for tick in y_ticks])
+            y_ticks = np.geomspace(min_value, max_value, num=self.NUM_Y_TICKS)
+            plt.yticks(y_ticks, [f"{tick:{self.FLOAT_PRECISION}}" for tick in y_ticks])
         else:
-            y_ticks = np.linspace(min_value, max_value, 10)
-            plt.yticks(y_ticks, [f"{tick:.3f}" for tick in y_ticks])
+            y_ticks = np.linspace(min_value, max_value, num=self.NUM_Y_TICKS)
+            plt.yticks(y_ticks, [f"{tick:{self.FLOAT_PRECISION}}" for tick in y_ticks])
             plt.ylabel(ylabel=name, fontsize=self.FONT_SIZE, labelpad=self.LABEL_PAD)
 
         plt.xlabel("Epoch number", fontsize=self.FONT_SIZE, labelpad=self.LABEL_PAD)
@@ -147,7 +150,7 @@ class LearningCurvePlotter:
 
         plt.grid(True)
 
-        plt.title(f"Learning Curve ({name})", fontsize=self.TITLE_SIZE, pad=16)
+        plt.title(f"Learning Curve ({name})", fontsize=self.TITLE_SIZE, pad=self.TITLE_PADDING)
 
         plt.subplots_adjust(bottom=0.15, left=0.15)
         plt.tight_layout()
