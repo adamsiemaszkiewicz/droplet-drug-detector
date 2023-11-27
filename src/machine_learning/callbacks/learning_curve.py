@@ -133,10 +133,10 @@ class LearningCurvePlotter:
             plt.ylabel(ylabel="Loss (logarithmic scale)", fontsize=self.FONT_SIZE, labelpad=self.LABEL_PAD)
 
             y_ticks = np.geomspace(min_value, max_value, 10)
-            plt.yticks(y_ticks, [f"{tick:.1f}" for tick in y_ticks])
+            plt.yticks(y_ticks, [f"{tick:.3f}" for tick in y_ticks])
         else:
             y_ticks = np.linspace(min_value, max_value, 10)
-            plt.yticks(y_ticks, [f"{tick:.1f}" for tick in y_ticks])
+            plt.yticks(y_ticks, [f"{tick:.3f}" for tick in y_ticks])
             plt.ylabel(ylabel=name, fontsize=self.FONT_SIZE, labelpad=self.LABEL_PAD)
 
         plt.xlabel("Epoch number", fontsize=self.FONT_SIZE, labelpad=self.LABEL_PAD)
@@ -235,6 +235,8 @@ class LearningCurveCallback(Callback):
         for key, value in trainer.callback_metrics.items():
             if key.startswith(stage) and not (key.endswith("_epoch") or key.endswith("_step")):
                 metric_name = key[len(stage) + 1 :]
+                if metric_name == "loss":
+                    continue
                 self.epoch_metrics[stage].setdefault(metric_name, []).append(value.item())
 
     def plot_learning_curves(self, trainer: Trainer) -> None:
