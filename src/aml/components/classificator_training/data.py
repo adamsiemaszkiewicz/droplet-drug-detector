@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+from collections import Counter
 from pathlib import Path
-from typing import Callable, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 import torch
 from lightning import LightningDataModule
@@ -55,6 +56,18 @@ class DropletDrugClassificationDataset(Dataset):
         self.transform = transform
         self.samples = self._load_samples()
 
+    @property
+    def class_balance(self) -> Dict[int, int]:
+        """
+        The class balance of the dataset.
+
+        Returns:
+            Dict[int, int]: A dictionary mapping each class index to its count in the dataset.
+        """
+        class_indices = [class_id for _, class_id in self.samples]
+        class_balance = Counter(class_indices)
+        return dict(sorted(class_balance.items()))
+
     def _load_samples(self) -> List[Tuple[Path, int]]:
         samples = []
         for class_idx, class_name in self.CLASSES.items():
@@ -67,8 +80,6 @@ class DropletDrugClassificationDataset(Dataset):
             for class_dir in class_dirs:
                 for image_path in class_dir.glob("*.jpg"):
                     samples.append((image_path, class_idx))
-
-        _logger.info(f"Found a total of {len(samples)} samples.")
 
         return samples
 
@@ -113,6 +124,60 @@ class ClassificationDataModule(LightningDataModule):
         self.val_dataset: Optional[DropletDrugClassificationDataset] = None
         self.test_dataset: Optional[DropletDrugClassificationDataset] = None
 
+    @property
+    def class_balance(self) -> Dict[int, int]:
+        """
+        Get the overall class balance across training, validation, and test datasets.
+
+        Returns:
+            Dict[int, int]: A dictionary representing the overall class balance.
+        """
+        overall_balance: Counter = Counter()
+        if self.train_dataset is not None:
+            overall_balance.update(self.train_dataset.class_balance)
+        if self.val_dataset is not None:
+            overall_balance.update(self.val_dataset.class_balance)
+        if self.test_dataset is not None:
+            overall_balance.update(self.test_dataset.class_balance)
+
+        return dict(overall_balance)
+
+    @property
+    def train_class_balance(self) -> Dict[int, int]:
+        """
+        Get the class balance of the training dataset.
+
+        Returns:
+            Dict[int, int]: A dictionary representing class balance.
+        """
+        if self.train_dataset is not None:
+            return self.train_dataset.class_balance
+        return {}
+
+    @property
+    def val_class_balance(self) -> Dict[int, int]:
+        """
+        Get the class balance of the validation dataset.
+
+        Returns:
+            Dict[int, int]: A dictionary representing class balance.
+        """
+        if self.val_dataset is not None:
+            return self.val_dataset.class_balance
+        return {}
+
+    @property
+    def test_class_balance(self) -> Dict[int, int]:
+        """
+        Get the class balance of the test dataset.
+
+        Returns:
+            Dict[int, int]: A dictionary representing class balance.
+        """
+        if self.test_dataset is not None:
+            return self.test_dataset.class_balance
+        return {}
+
     def setup(self, stage: Optional[str] = None) -> None:
         # Create a full dataset without transforms to split it first
         full_dataset = DropletDrugClassificationDataset(root_dir=self.dataset_dir)
@@ -139,8 +204,20 @@ class ClassificationDataModule(LightningDataModule):
         self.val_dataset.samples = [full_dataset.samples[i] for i in val_subset.indices]
         self.test_dataset.samples = [full_dataset.samples[i] for i in test_subset.indices]
 
+        _logger.info(f"Total dataset size: {len(full_dataset)}")
+        _logger.info(f"Training set size: {len(self.train_dataset)}")
+        _logger.info(f"Validation set size: {len(self.val_dataset)}")
+        _logger.info(f"Test set size: {len(self.test_dataset)}")
+
+        _logger.info(f"Overall class balance: {self.class_balance}")
+        _logger.info(f"Training set class balance: {self.train_class_balance}")
+        _logger.info(f"Validation set class balance: {self.val_class_balance}")
+        _logger.info(f"Test set class balance: {self.test_class_balance}")
+
     def train_dataloader(self) -> DataLoader:
-        return DataLoader(dataset=self.train_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)
+        return DataLoader(
+            dataset=self.train_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers, shuffle=True
+        )
 
     def val_dataloader(self) -> DataLoader:
         return DataLoader(dataset=self.val_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)

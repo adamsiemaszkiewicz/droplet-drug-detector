@@ -29,7 +29,8 @@ class ClassificationLightningModule(LightningModule):
     It defines the forward pass, training step, validation step, and test step, as well as
     the optimizer and learning rate scheduler setup.
 
-    Arguments:
+    Args:
+        classes (Dict[int, str]): A dictionary mapping class indices to class names.
         model_config (ClassificationModelConfig): The model configuration.
         loss_function_config (ClassificationLossFunctionConfig): The loss function configuration.
         optimizer_config (OptimizerConfig): The optimizer configuration.
@@ -37,7 +38,7 @@ class ClassificationLightningModule(LightningModule):
         augmentations_config (Optional[AugmentationsConfig]): The data augmentations configuration.
         scheduler_config (Optional[SchedulerConfig]): The scheduler configuration.
 
-    Attributes:
+    Attrs:
         model_config (ClassificationModelConfig): The model configuration.
         loss_function_config (ClassificationLossFunctionConfig): The loss function configuration.
         optimizer_config (OptimizerConfig): The optimizer configuration.
@@ -52,6 +53,7 @@ class ClassificationLightningModule(LightningModule):
 
     def __init__(
         self,
+        classes: Dict[int, str],
         model_config: ClassificationModelConfig,
         loss_function_config: ClassificationLossFunctionConfig,
         optimizer_config: OptimizerConfig,
@@ -60,6 +62,7 @@ class ClassificationLightningModule(LightningModule):
         scheduler_config: Optional[SchedulerConfig] = None,
     ):
         super().__init__()
+        self.classes = classes
         self.model_config = model_config
         self.loss_function_config = loss_function_config
         self.optimizer_config = optimizer_config
@@ -190,13 +193,29 @@ class ClassificationLightningModule(LightningModule):
 
     def log_metrics(self, logits: Tensor, targets: Tensor, stage: str) -> None:
         """
-        Log metrics to the logger.
+        Log metrics to the logger, including class-wise metrics.
 
         Args:
             logits (Tensor): The model outputs before activation.
             targets (Tensor): The true labels.
             stage (str): The current stage (e.g., training, validation, or testing).
         """
+        preds = logits.argmax(dim=1)
+
         for name, metric in self.metrics.items():
-            metric_value = metric(logits, targets)
-            self.log(f"{stage}_{name}", metric_value, on_step=True, on_epoch=True)
+            # Overall metric
+            metric_value = metric(preds, targets)
+            self.log(name=f"{stage}_{name}", value=metric_value, on_step=True, on_epoch=True)
+
+            # Class-wise metrics
+            for class_idx, class_name in self.classes.items():
+                class_targets = (targets == class_idx).int()
+                class_preds = (preds == class_idx).int()
+                class_metric_value = metric(class_preds, class_targets)
+
+                self.log(
+                    name=f"{stage}_{name}_class_{class_idx}_{class_name}",
+                    value=class_metric_value,
+                    on_step=True,
+                    on_epoch=True,
+                )

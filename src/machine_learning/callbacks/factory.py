@@ -5,6 +5,7 @@ from lightning.pytorch.callbacks import Callback, EarlyStopping, LearningRateMon
 
 from src.common.utils.logger import get_logger
 from src.machine_learning.callbacks.config import CallbacksConfig
+from src.machine_learning.callbacks.learning_curve import LearningCurveCallback
 
 _logger = get_logger(__name__)
 
@@ -52,6 +53,16 @@ def create_callbacks(config: CallbacksConfig) -> List[Callback]:
             LearningRateMonitor(
                 log_momentum=config.learning_rate_monitor.log_momentum,
                 log_weight_decay=config.learning_rate_monitor.log_weight_decay,
+            )
+        )
+
+    if config.learning_curve_logger:
+        _logger.info("Creating LearningCurveCallback callback instance.")
+        callbacks.append(
+            LearningCurveCallback(
+                output_dir=config.learning_curve_logger.output_dir,
+                log_loss=config.learning_curve_logger.log_loss,
+                log_metrics=config.learning_curve_logger.log_metrics,
             )
         )
 

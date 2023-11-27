@@ -52,6 +52,25 @@ class LearningRateMonitorConfig(BaseModel):
     log_weight_decay: bool = True
 
 
+class LearningCurveCallbackConfig(BaseModel):
+    """
+    Configuration settings for LearningCurveCallback callback.
+    """
+
+    output_dir: Path
+    log_loss: bool
+    log_metrics: bool
+
+    @validator("output_dir", pre=True)
+    def ensure_path_is_path(cls, v: Union[str, Path]) -> Path:
+        """
+        Ensures that paths are of type pathlib.Path.
+        """
+        if not isinstance(v, Path):
+            return Path(v)
+        return v
+
+
 class CallbacksConfig(BaseModel):
     """
     Configuration for creating a list of callbacks based on their names and configurations.
@@ -60,3 +79,4 @@ class CallbacksConfig(BaseModel):
     early_stopping: Optional[EarlyStoppingCallbackConfig] = None
     model_checkpoint: Optional[ModelCheckpointCallbackConfig] = None
     learning_rate_monitor: Optional[LearningRateMonitorConfig] = None
+    learning_curve_logger: Optional[LearningCurveCallbackConfig] = None
