@@ -17,11 +17,6 @@ _logger = get_logger(__name__)
 class DropletDrugClassificationDataset(Dataset):
     """
     A PyTorch Dataset class for loading images for dried droplet drug classification.
-
-    Attributes:
-        root_dir (Path): The dataset directory
-        transform (Optional[Callable]): Optional transform to be applied on a sample.
-        CLASSES (Dict[int, str]): Dictionary mapping class indices to class names.
     """
 
     CLASSES = {
@@ -33,22 +28,29 @@ class DropletDrugClassificationDataset(Dataset):
         5: "polyvinyl-alcohol",
     }
 
-    def __init__(self, root_dir: Path, transform: Optional[Callable] = None):
+    def __init__(self, image_paths: List[Path], labels: List[int], transform: Optional[Callable] = None):
         """
         Args:
-            root_dir (Path): Directory with all the images.
+            image_paths (List[Path]): List of paths to the images.
+            labels (List[int]): List of class indices for each image.
             transform (Optional[Callable]): Optional transform to be applied on a sample.
 
+        Attrs:
+            transform (Optional[Callable]): Optional transform to be applied on a sample.
+            image_paths (List[Path]): List of paths to the images.
+            labels (List[int]): List of class indices for each image.
+            CLASSES (Dict[int, str]): Dictionary mapping class indices to class names.
         """
-        self.root_dir = root_dir
         self.transform = transform
-        self.samples = self._load_samples()
+        self.image_paths = image_paths
+        self.labels = labels
 
     def __len__(self) -> int:
         """
         Returns the total number of samples in the dataset.
         """
-        return len(self.samples)
+        assert len(self.image_paths) == len(self.labels)
+        return len(self.image_paths)
 
     def __getitem__(self, idx: int) -> Tuple[Tensor, Tensor]:
         """
@@ -58,7 +60,8 @@ class DropletDrugClassificationDataset(Dataset):
         Returns:
             sample (Tuple[Tensor, Tensor]): The image and its label.
         """
-        image_path, class_id = self.samples[idx]
+        image_path = self.image_paths[idx]
+        class_id = self.labels[idx]
         image = Image.open(image_path).convert("RGB")
         image = ToTensor()(image)
 
@@ -77,21 +80,5 @@ class DropletDrugClassificationDataset(Dataset):
         Returns:
             Dict[int, int]: A dictionary mapping each class index to its count in the dataset.
         """
-        class_indices = [class_id for _, class_id in self.samples]
-        class_balance = Counter(class_indices)
+        class_balance = Counter(self.labels)
         return dict(sorted(class_balance.items()))
-
-    def _load_samples(self) -> List[Tuple[Path, int]]:
-        samples = []
-        for class_idx, class_name in self.CLASSES.items():
-            class_dirs = [
-                path
-                for path in self.root_dir.glob(f"{class_name}_*")
-                if path.is_dir() and path.stem.startswith(class_name)
-            ]
-
-            for class_dir in class_dirs:
-                for image_path in class_dir.glob("*.jpg"):
-                    samples.append((image_path, class_idx))
-
-        return samples
