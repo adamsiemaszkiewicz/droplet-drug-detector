@@ -5,6 +5,7 @@ from lightning.pytorch.callbacks import Callback, EarlyStopping, LearningRateMon
 
 from src.common.utils.logger import get_logger
 from src.machine_learning.callbacks.config import CallbacksConfig
+from src.machine_learning.callbacks.confusion_matrix import ConfusionMatrixCallback
 from src.machine_learning.callbacks.learning_curve import LearningCurveCallback
 
 _logger = get_logger(__name__)
@@ -63,6 +64,19 @@ def create_callbacks(config: CallbacksConfig) -> List[Callback]:
                 output_dir=config.learning_curve_logger.output_dir,
                 log_loss=config.learning_curve_logger.log_loss,
                 log_metrics=config.learning_curve_logger.log_metrics,
+            )
+        )
+
+    if config.confusion_matrix_logger:
+        _logger.info("Creating ConfusionMatrixCallback callback instance.")
+        callbacks.append(
+            ConfusionMatrixCallback(
+                output_dir=config.confusion_matrix_logger.output_dir,
+                class_dict=config.confusion_matrix_logger.class_dict,
+                task=config.confusion_matrix_logger.task_type,
+                save_train=config.confusion_matrix_logger.save_train,
+                save_val=config.confusion_matrix_logger.save_val,
+                save_test=config.confusion_matrix_logger.save_test,
             )
         )
 
