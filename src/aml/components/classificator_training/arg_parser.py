@@ -8,7 +8,7 @@ from typing import Any, Dict
 import yaml
 
 from src.aml.components.classificator_training.config import ClassificationConfig
-from src.aml.components.classificator_training.data import ClassificationDataConfig
+from src.aml.components.classificator_training.data.config import ClassificationDataConfig
 from src.common.consts.directories import ROOT_DIR
 from src.common.consts.extensions import YAML
 from src.common.consts.project import (

@@ -4,7 +4,8 @@ from lightning.pytorch.loggers import WandbLogger
 
 from src.aml.components.classificator_training.arg_parser import get_config
 from src.aml.components.classificator_training.config import ClassificationConfig
-from src.aml.components.classificator_training.data import ClassificationDataModule, DropletDrugClassificationDataset
+from src.aml.components.classificator_training.data.datamodule import ClassificationDataModule
+from src.aml.components.classificator_training.data.dataset import DropletDrugClassificationDataset
 from src.common.utils.logger import get_logger
 from src.machine_learning.callbacks.factory import create_callbacks
 from src.machine_learning.classification.module import ClassificationLightningModule
