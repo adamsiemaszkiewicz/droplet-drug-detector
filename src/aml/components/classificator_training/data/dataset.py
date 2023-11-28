@@ -44,6 +44,31 @@ class DropletDrugClassificationDataset(Dataset):
         self.transform = transform
         self.samples = self._load_samples()
 
+    def __len__(self) -> int:
+        """
+        Returns the total number of samples in the dataset.
+        """
+        return len(self.samples)
+
+    def __getitem__(self, idx: int) -> Tuple[Tensor, Tensor]:
+        """
+        Args:
+            idx (int): Index of the sample to return.
+
+        Returns:
+            sample (Tuple[Tensor, Tensor]): The image and its label.
+        """
+        image_path, class_id = self.samples[idx]
+        image = Image.open(image_path).convert("RGB")
+        image = ToTensor()(image)
+
+        if self.transform:
+            image = self.transform(image).squeeze(0)
+
+        label = torch.tensor(class_id, dtype=torch.long)
+
+        return image, label
+
     @property
     def class_balance(self) -> Dict[int, int]:
         """
@@ -70,28 +95,3 @@ class DropletDrugClassificationDataset(Dataset):
                     samples.append((image_path, class_idx))
 
         return samples
-
-    def __len__(self) -> int:
-        """
-        Returns the total number of samples in the dataset.
-        """
-        return len(self.samples)
-
-    def __getitem__(self, idx: int) -> Tuple[Tensor, Tensor]:
-        """
-        Args:
-            idx (int): Index of the sample to return.
-
-        Returns:
-            sample (Tuple[Tensor, Tensor]): The image and its label.
-        """
-        image_path, class_id = self.samples[idx]
-        image = Image.open(image_path).convert("RGB")
-        image = ToTensor()(image)
-
-        if self.transform:
-            image = self.transform(image).squeeze(0)
-
-        label = torch.tensor(class_id, dtype=torch.long)
-
-        return image, label
