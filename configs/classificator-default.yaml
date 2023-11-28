@@ -61,6 +61,19 @@ callbacks:
   learning_curve_logger:
     log_loss: true
     log_metrics: true
+  confusion_matrix_logger:
+    class_dict:
+        0: "gelatin-capsule"
+        1: "lactose"
+        2: "methyl-cellulose"
+        3: "naproxen"
+        4: "pearlitol"
+        5: "polyvinyl-alcohol"
+    task_type: multiclass
+    save_train: true
+    save_val: true
+    save_test: true
+    normalize: true
 
 trainer:
   max_epochs: 50
