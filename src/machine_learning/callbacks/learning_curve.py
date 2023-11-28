@@ -195,7 +195,7 @@ class LearningCurveCallback(Callback):
         self.log_loss = log_loss
         self.log_metrics = log_metrics
 
-        self.plotting_utility = LearningCurvePlotter(output_dir=output_dir)
+        self.plotter = LearningCurvePlotter(output_dir=output_dir)
 
         self.epoch_losses: Dict[str, List[float]] = {STAGE_TRAINING: [], STAGE_VALIDATION: [], STAGE_TESTING: []}
         self.epoch_metrics: Dict[str, Dict[str, List[float]]] = {
@@ -269,9 +269,7 @@ class LearningCurveCallback(Callback):
         }
 
         total_epochs = len(self.epoch_losses[STAGE_TRAINING])
-        plot_path = self.plotting_utility.plot_learning_curve(
-            name="loss", metric_values=loss_values, total_epochs=total_epochs
-        )
+        plot_path = self.plotter.plot_learning_curve(name="loss", metric_values=loss_values, total_epochs=total_epochs)
         self._log_curve(plot_path=plot_path, metric_name="loss", trainer=trainer)
 
     def _plot_and_log_metrics_curves(self, trainer: Trainer) -> None:
@@ -289,7 +287,7 @@ class LearningCurveCallback(Callback):
             }
 
             total_epochs = len(self.epoch_metrics[STAGE_TRAINING][metric_name])
-            plot_path = self.plotting_utility.plot_learning_curve(
+            plot_path = self.plotter.plot_learning_curve(
                 name=metric_name, metric_values=metric_values, total_epochs=total_epochs
             )
             self._log_curve(plot_path=plot_path, metric_name=metric_name, trainer=trainer)
