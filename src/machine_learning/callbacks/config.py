@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
-from typing import Literal, Optional, Union
+from typing import Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel, validator
 
@@ -71,6 +71,44 @@ class LearningCurveCallbackConfig(BaseModel):
         return v
 
 
+class ConfusionMatrixCallbackConfig(BaseModel):
+
+    """
+    Configuration settings for the ConfusionMatrixCallback.
+    """
+
+    output_dir: Path
+    class_dict: Dict[int, str]
+    task_type: Literal["binary", "multiclass", "multilabel"]
+    save_train: bool
+    save_val: bool
+    save_test: bool
+    normalize: Literal["true", "pred", "all", "none"]
+
+    @validator("output_dir", pre=True)
+    def ensure_path_is_path(cls, v: Union[str, Path]) -> Path:
+        """
+        Ensures that paths are of type pathlib.Path.
+        """
+        if not isinstance(v, Path):
+            return Path(v)
+        return v
+
+    @property
+    def class_names(self) -> List[str]:
+        """
+        Returns the class names from the class dictionary.
+        """
+        return list(self.class_dict.values())
+
+    @property
+    def num_classes(self) -> int:
+        """
+        Returns the number of classes.
+        """
+        return len(self.class_dict)
+
+
 class CallbacksConfig(BaseModel):
     """
     Configuration for creating a list of callbacks based on their names and configurations.
@@ -80,3 +118,4 @@ class CallbacksConfig(BaseModel):
     model_checkpoint: Optional[ModelCheckpointCallbackConfig] = None
     learning_rate_monitor: Optional[LearningRateMonitorConfig] = None
     learning_curve_logger: Optional[LearningCurveCallbackConfig] = None
+    confusion_matrix_logger: Optional[ConfusionMatrixCallbackConfig] = None
