@@ -6,15 +6,68 @@ from typing import Dict, List, Literal, Tuple
 import matplotlib.pyplot as plt
 import torch
 from lightning import Callback, LightningModule, Trainer
-from lightning.pytorch.loggers import Logger, MLFlowLogger
+from lightning.pytorch.loggers import MLFlowLogger, WandbLogger
 from seaborn import heatmap
 from torch import Tensor
 from torchmetrics import ConfusionMatrix
 
 from src.common.consts.machine_learning import STAGE_TESTING, STAGE_TRAINING, STAGE_VALIDATION
+from src.common.consts.project import CONFUSION_MATRIX_FOLDER_NAME
 from src.common.utils.logger import get_logger
 
 _logger = get_logger(__name__)
+
+
+class ConfusionMatrixPlotter:
+    FIG_SIZE: Tuple[int, int] = (12, 10)
+    FONT_SIZE: int = 10
+    TITLE_SIZE: int = 14
+    LABEL_PAD: int = 10
+    CMAP: str = "Blues"
+    FLOAT_PRECISION: str = ".2f"
+
+    def plot_confusion_matrix(
+        self, cm: Tensor, class_names: List[str], stage: str, epoch: int, output_path: Path
+    ) -> None:
+        """
+        Plots and saves a confusion matrix as a heatmap.
+
+        Args:
+            cm (Tensor): The confusion matrix to plot, provided as a Tensor.
+            class_names (List[str]): The names corresponding to the classes in the confusion matrix.
+            stage (str): The stage of model evaluation ('train', 'val', or 'test') for which the matrix is plotted.
+            epoch (int): The epoch number at which the confusion matrix is generated.
+            output_path (Path): The path to save the confusion matrix plot.
+        """
+        plt.figure(figsize=self.FIG_SIZE)
+
+        heatmap(
+            cm,
+            annot=True,
+            fmt=self.FLOAT_PRECISION,
+            xticklabels=class_names,
+            yticklabels=class_names,
+            cmap=self.CMAP,
+            annot_kws={"size": self.FONT_SIZE},
+            vmin=0,
+            vmax=1,
+        )
+
+        plt.ylabel("Ground truth", fontsize=self.FONT_SIZE, labelpad=self.LABEL_PAD)
+        plt.xlabel("Predictions", fontsize=self.FONT_SIZE, labelpad=self.LABEL_PAD)
+
+        plt.xticks(rotation=45)
+        plt.yticks(rotation=45)
+
+        plt.title(f"Confusion Matrix\nstage:{stage}, epoch:{epoch}", fontsize=ConfusionMatrixPlotter.TITLE_SIZE, pad=16)
+
+        plt.tight_layout()
+
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(output_path)
+        plt.close()
+
+        _logger.info(f"Confusion Matrix for {stage} saved to {output_path}")
 
 
 class ConfusionMatrixCallback(Callback):
@@ -53,60 +106,11 @@ class ConfusionMatrixCallback(Callback):
         self.save_val = save_val
         self.save_test = save_test
 
+        self.plotter = ConfusionMatrixPlotter()
+
         self.confusion_matrix_metric = ConfusionMatrix(
             num_classes=self.num_classes, task=self.task, normalize=self.normalize
         )
-
-    def plot_confusion_matrix(
-        self, output_path: Path, cm: Tensor, class_names: List[str], stage: str, epoch: int
-    ) -> Path:
-        """
-        Plots and saves a confusion matrix as a heatmap.
-
-        Args:
-            output_path (Path): The path to save the confusion matrix plot.
-            cm (Tensor): The confusion matrix to plot, provided as a Tensor.
-            class_names (List[str]): The names corresponding to the classes in the confusion matrix.
-            stage (str): The stage of model evaluation ('train', 'val', or 'test') for which the matrix is plotted.
-            epoch (int): The epoch number at which the confusion matrix is generated.
-
-        Returns:
-            Path: The path to the saved plot.
-        """
-        plt.figure(figsize=(12, 10))
-        fontsize = 10
-
-        heatmap(
-            cm,
-            annot=True,
-            fmt=".2f",
-            xticklabels=class_names,
-            yticklabels=class_names,
-            cmap="Blues",
-            annot_kws={"size": fontsize},
-            vmin=0,
-            vmax=1,
-        )
-
-        plt.ylabel("Ground truth", fontsize=fontsize, labelpad=10)
-        plt.xlabel("Predictions", fontsize=fontsize, labelpad=10)
-
-        plt.xticks(rotation=45)
-        plt.yticks(rotation=45)
-
-        plt.title(f"Confusion Matrix\nstage:{stage}, epoch:{epoch}", fontsize=14, pad=16)
-
-        plt.subplots_adjust(bottom=0.15, left=0.15)
-        plt.tight_layout()
-
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        plt.savefig(output_path)
-        plt.close()
-
-        _logger.info(f"Confusion Matrix for {stage} saved to {output_path}")
-
-        return output_path
 
     def process_epoch_end(self, trainer: Trainer, pl_module: LightningModule, loader_name: str, stage: str) -> None:
         """
@@ -123,24 +127,35 @@ class ConfusionMatrixCallback(Callback):
         cm = self.confusion_matrix_metric.compute().cpu().numpy()
         self.confusion_matrix_metric.reset()
 
-        output_path = self.output_dir / "confusion_matrix" / stage / f"confusion_matrix_{trainer.current_epoch}.png"
-
-        self.plot_confusion_matrix(
-            output_path=output_path, cm=cm, class_names=self.class_names, stage=stage, epoch=trainer.current_epoch
+        plot_path = (
+            self.output_dir / CONFUSION_MATRIX_FOLDER_NAME / stage / f"confusion_matrix_{trainer.current_epoch}.png"
         )
 
-        logger = trainer.logger
-        if not isinstance(logger, Logger):
-            raise ValueError("Provided logger is not a PyTorch Lightning Logger")
-        if isinstance(trainer.logger, MLFlowLogger):
-            _logger.info(f"Logging {stage} confusion matrix to MLFlow.")
-            logger.experiment.log_artifact(
-                run_id=logger.run_id,
-                local_path=output_path.as_posix(),
-                artifact_path=f"confusion_matrix/{stage}/{trainer.current_epoch}",
-            )
-        else:
-            _logger.info("MLFlow logger not found. Skipping logging of confusion matrix.")
+        self.plotter.plot_confusion_matrix(
+            output_path=plot_path, cm=cm, class_names=self.class_names, stage=stage, epoch=trainer.current_epoch
+        )
+        self._log_confusion_matrix(trainer=trainer, output_path=plot_path, stage=stage)
+
+    def _log_confusion_matrix(self, trainer: Trainer, output_path: Path, stage: str) -> None:
+        """
+        Logs the confusion matrix to the specified logger.
+
+        Args:
+            trainer (Trainer): The Trainer object from PyTorch Lightning.
+            output_path (Path): Path to the saved confusion matrix plot.
+            stage (str): The stage of training (e.g., 'train', 'val', 'test').
+        """
+        for logger in trainer.loggers:
+            if isinstance(logger, MLFlowLogger):
+                _logger.info(f"Logging {stage} confusion matrix to MLFlow.")
+                run = logger.experiment
+                run.log_artifact(
+                    run_id=logger.run_id, local_path=output_path.as_posix(), artifact_path="learning_curve"
+                )
+            if isinstance(logger, WandbLogger):
+                _logger.info(f"Logging {stage} confusion matrix to Wandb.")
+                run = logger.experiment
+                run.log_artifact(output_path.as_posix())
 
     def get_all_preds_and_targets(
         self, trainer: Trainer, pl_module: LightningModule, loader_name: str
@@ -172,6 +187,15 @@ class ConfusionMatrixCallback(Callback):
         return all_preds, all_targets
 
     def _compute_predictions(self, logits: Tensor) -> Tensor:
+        """
+        Computes predictions from the model's logits based on the specified task type.
+
+        Args:
+            logits (Tensor): The logits output by the model.
+
+        Returns:
+            Tensor: The computed predictions.
+        """
         if self.task in ["binary", "multiclass"]:
             return logits.argmax(dim=1)
         elif self.task == "multilabel":
