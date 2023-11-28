@@ -6,6 +6,7 @@ from src.aml.components.classificator_training.arg_parser import get_config
 from src.aml.components.classificator_training.config import ClassificationConfig
 from src.aml.components.classificator_training.data.datamodule import ClassificationDataModule
 from src.aml.components.classificator_training.data.dataset import DropletDrugClassificationDataset
+from src.aml.components.classificator_training.data.splitters import RandomSplitter
 from src.common.utils.logger import get_logger
 from src.machine_learning.callbacks.factory import create_callbacks
 from src.machine_learning.classification.module import ClassificationLightningModule
@@ -22,8 +23,9 @@ def main() -> None:
 
     seed_everything(seed=config.seed, workers=True)
 
+    dataset_splitter = RandomSplitter(val_split=config.data.val_split, test_split=config.data.test_split)
     preprocessor = create_preprocessor(config=config.preprocessing) if config.preprocessing else None
-    dm = ClassificationDataModule(config=config.data, preprocessor=preprocessor)
+    dm = ClassificationDataModule(config=config.data, splitter=dataset_splitter, preprocessor=preprocessor)
 
     model = ClassificationLightningModule(
         classes=DropletDrugClassificationDataset.CLASSES,
