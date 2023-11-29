@@ -75,7 +75,7 @@ callbacks:
     log_test: true
     normalize: true
   misclassification_logger:
-    log_train: true
+    log_train: false
     log_val: true
     log_test: true
 
