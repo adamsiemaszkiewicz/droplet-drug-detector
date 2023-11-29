@@ -57,11 +57,11 @@ class LearningCurveCallbackConfig(BaseModel):
     Configuration settings for LearningCurveCallback callback.
     """
 
-    output_dir: Path
+    save_dir: Path
     log_loss: bool
     log_metrics: bool
 
-    @validator("output_dir", pre=True)
+    @validator("save_dir", pre=True)
     def ensure_path_is_path(cls, v: Union[str, Path]) -> Path:
         """
         Ensures that paths are of type pathlib.Path.
@@ -77,15 +77,15 @@ class ConfusionMatrixCallbackConfig(BaseModel):
     Configuration settings for the ConfusionMatrixCallback.
     """
 
-    output_dir: Path
+    save_dir: Path
     class_dict: Dict[int, str]
     task_type: Literal["binary", "multiclass", "multilabel"]
-    save_train: bool
-    save_val: bool
-    save_test: bool
+    log_train: bool
+    log_val: bool
+    log_test: bool
     normalize: Literal["true", "pred", "all", "none"]
 
-    @validator("output_dir", pre=True)
+    @validator("save_dir", pre=True)
     def ensure_path_is_path(cls, v: Union[str, Path]) -> Path:
         """
         Ensures that paths are of type pathlib.Path.
@@ -109,6 +109,26 @@ class ConfusionMatrixCallbackConfig(BaseModel):
         return len(self.class_dict)
 
 
+class MisclassificationLoggerConfig(BaseModel):
+    """
+    Configuration settings for the MisclassificationLogger callback.
+    """
+
+    save_dir: Path
+    log_train: bool
+    log_val: bool
+    log_test: bool
+
+    @validator("save_dir", pre=True)
+    def ensure_path_is_path(cls, v: Union[str, Path]) -> Path:
+        """
+        Ensures that paths are of type pathlib.Path.
+        """
+        if not isinstance(v, Path):
+            return Path(v)
+        return v
+
+
 class CallbacksConfig(BaseModel):
     """
     Configuration for creating a list of callbacks based on their names and configurations.
@@ -119,3 +139,4 @@ class CallbacksConfig(BaseModel):
     learning_rate_monitor: Optional[LearningRateMonitorConfig] = None
     learning_curve_logger: Optional[LearningCurveCallbackConfig] = None
     confusion_matrix_logger: Optional[ConfusionMatrixCallbackConfig] = None
+    misclassification_logger: Optional[MisclassificationLoggerConfig] = None

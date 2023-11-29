@@ -7,6 +7,7 @@ from src.common.utils.logger import get_logger
 from src.machine_learning.callbacks.config import CallbacksConfig
 from src.machine_learning.callbacks.confusion_matrix import ConfusionMatrixCallback
 from src.machine_learning.callbacks.learning_curve import LearningCurveCallback
+from src.machine_learning.callbacks.misclassification import MisclassificationCallback
 
 _logger = get_logger(__name__)
 
@@ -61,7 +62,7 @@ def create_callbacks(config: CallbacksConfig) -> List[Callback]:
         _logger.info("Creating LearningCurveCallback callback instance.")
         callbacks.append(
             LearningCurveCallback(
-                output_dir=config.learning_curve_logger.output_dir,
+                save_dir=config.learning_curve_logger.save_dir,
                 log_loss=config.learning_curve_logger.log_loss,
                 log_metrics=config.learning_curve_logger.log_metrics,
             )
@@ -71,12 +72,23 @@ def create_callbacks(config: CallbacksConfig) -> List[Callback]:
         _logger.info("Creating ConfusionMatrixCallback callback instance.")
         callbacks.append(
             ConfusionMatrixCallback(
-                output_dir=config.confusion_matrix_logger.output_dir,
+                save_dir=config.confusion_matrix_logger.save_dir,
                 class_dict=config.confusion_matrix_logger.class_dict,
                 task=config.confusion_matrix_logger.task_type,
-                save_train=config.confusion_matrix_logger.save_train,
-                save_val=config.confusion_matrix_logger.save_val,
-                save_test=config.confusion_matrix_logger.save_test,
+                log_train=config.confusion_matrix_logger.log_train,
+                log_val=config.confusion_matrix_logger.log_val,
+                log_test=config.confusion_matrix_logger.log_test,
+            )
+        )
+
+    if config.misclassification_logger:
+        _logger.info("Creating MisclassificationCallback callback instance.")
+        callbacks.append(
+            MisclassificationCallback(
+                save_dir=config.misclassification_logger.save_dir,
+                log_train=config.misclassification_logger.log_train,
+                log_val=config.misclassification_logger.log_val,
+                log_test=config.misclassification_logger.log_test,
             )
         )
 

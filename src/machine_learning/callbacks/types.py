@@ -6,6 +6,7 @@ from lightning.pytorch.callbacks import Callback, EarlyStopping, LearningRateMon
 from src.common.utils.logger import get_logger
 from src.machine_learning.callbacks.confusion_matrix import ConfusionMatrixCallback
 from src.machine_learning.callbacks.learning_curve import LearningCurveCallback
+from src.machine_learning.callbacks.misclassification import MisclassificationCallback
 
 _logger = get_logger(__name__)
 
@@ -15,4 +16,5 @@ AVAILABLE_CALLBACKS: Dict[str, Type[Callback]] = {
     "learning_rate_monitor": LearningRateMonitor,
     "learning_curve_logger": LearningCurveCallback,
     "confusion_matrix_logger": ConfusionMatrixCallback,
+    "misclassification_logger": MisclassificationCallback,
 }

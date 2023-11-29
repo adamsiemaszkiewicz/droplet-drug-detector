@@ -29,8 +29,8 @@ class LearningCurvePlotter:
     NUM_Y_TICKS: int = 10
     FLOAT_PRECISION: str = ".2f"
 
-    def __init__(self, output_dir: Path) -> None:
-        self.output_dir = output_dir
+    def __init__(self, save_dir: Path) -> None:
+        self.save_dir = save_dir
 
     def annotate_min_value(self, values: List[float], x_coord: Optional[int] = None) -> None:
         """
@@ -155,7 +155,7 @@ class LearningCurvePlotter:
         plt.subplots_adjust(bottom=0.15, left=0.15)
         plt.tight_layout()
 
-        output_path = self.output_dir / f"learning_curve_{name}{PNG}"
+        output_path = self.save_dir / f"learning_curve_{name}{PNG}"
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         if output_path.exists():
@@ -176,7 +176,7 @@ class LearningCurveCallback(Callback):
     validation, and test losses, as well as other specified metrics at the end of each epoch.
 
     Args:
-        output_dir (Path): The directory to save output plots.
+        save_dir (Path): The directory to save output plots.
         log_loss (bool): Whether to log the loss learning curve.
         log_metrics (bool): Whether to log the metrics learning curve.
 
@@ -189,13 +189,13 @@ class LearningCurveCallback(Callback):
         epoch_metrics (Dict[str, Dict[str, List[float]]]): Recorded metrics for each training stage per epoch.
     """
 
-    def __init__(self, output_dir: Path, log_loss: bool, log_metrics: bool) -> None:
+    def __init__(self, save_dir: Path, log_loss: bool, log_metrics: bool) -> None:
         super().__init__()
-        self.output_dir = output_dir
+        self.save_dir = save_dir
         self.log_loss = log_loss
         self.log_metrics = log_metrics
 
-        self.plotter = LearningCurvePlotter(output_dir=output_dir)
+        self.plotter = LearningCurvePlotter(save_dir=save_dir)
 
         self.epoch_losses: Dict[str, List[float]] = {STAGE_TRAINING: [], STAGE_VALIDATION: [], STAGE_TESTING: []}
         self.epoch_metrics: Dict[str, Dict[str, List[float]]] = {
