@@ -11,7 +11,7 @@ preprocessing:
   name_list:
     - resize
   extra_arguments_list:
-    - size: 256
+    - size: [256, 256]
 
 model:
   name: resnet18
@@ -70,10 +70,14 @@ callbacks:
         4: "pearlitol"
         5: "polyvinyl-alcohol"
     task_type: multiclass
-    save_train: true
-    save_val: true
-    save_test: true
+    log_train: true
+    log_val: true
+    log_test: true
     normalize: true
+  misclassification_logger:
+    log_train: true
+    log_val: true
+    log_test: true
 
 trainer:
   max_epochs: 10
