@@ -33,12 +33,22 @@ class MisclassificationCallback(Callback):
         preds = outputs["preds"]
         misclassified_indices = torch.where(preds != labels)[0]
 
+        epoch = trainer.current_epoch
+
         for idx in misclassified_indices:
             img = images[idx]
             pred_label = pl_module.classes[preds[idx].item()]
             true_label = pl_module.classes[labels[idx].item()]
 
-            save_path = self.save_dir / stage / f"{true_label=}" / f"{pred_label=}" / f"{batch_idx=}" / f"{idx}{PNG}"
+            save_path = (
+                self.save_dir
+                / stage
+                / f"{epoch=}"
+                / f"{true_label=}"
+                / f"{pred_label=}"
+                / f"{batch_idx=}"
+                / f"{idx}{PNG}"
+            )
             save_path.parent.mkdir(parents=True, exist_ok=True)
 
             save_image(tensor=img, fp=save_path)
