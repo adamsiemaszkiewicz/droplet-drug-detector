@@ -12,6 +12,7 @@ from src.aml.components.classificator_training.data import ClassificationDataCon
 from src.common.consts.directories import ROOT_DIR
 from src.common.consts.extensions import YAML
 from src.common.consts.project import (
+    CONFUSION_MATRIX_FOLDER_NAME,
     DEFAULT_CONFIG_FILE_CLASSIFICATOR,
     LEARNING_CURVES_FOLDER_NAME,
     LOGS_FOLDER_NAME,
@@ -71,6 +72,7 @@ def create_arg_parser() -> ArgumentParser:
     callbacks_model_checkpoint_defaults: Dict[str, Any] = callbacks_defaults.get("model_checkpoint", None)
     callbacks_learning_rate_monitor_defaults: Dict[str, Any] = callbacks_defaults.get("learning_rate_monitor", None)
     callbacks_learning_curve_logger_defaults: Dict[str, Any] = callbacks_defaults.get("learning_curve_logger", None)
+    callbacks_confusion_matrix_logger_defaults: Dict[str, Any] = callbacks_defaults.get("confusion_matrix_logger", None)
     trainer_defaults: Dict[str, Any] = defaults.get("trainer", None)
 
     # Directories
@@ -200,6 +202,37 @@ def create_arg_parser() -> ArgumentParser:
         default=callbacks_learning_curve_logger_defaults["log_metrics"],
     )
 
+    parser.add_argument(
+        "--callbacks_confusion_matrix_logger_class_dict",
+        type=str,
+        default=str_to_dict(callbacks_confusion_matrix_logger_defaults["class_dict"]),
+    )
+    parser.add_argument(
+        "--callbacks_confusion_matrix_logger_task_type",
+        type=str,
+        default=callbacks_confusion_matrix_logger_defaults["task_type"],
+    )
+    parser.add_argument(
+        "--callbacks_confusion_matrix_logger_save_train",
+        type=str,
+        default=str_to_bool(callbacks_confusion_matrix_logger_defaults["save_train"]),
+    )
+    parser.add_argument(
+        "--callbacks_confusion_matrix_logger_save_val",
+        type=str,
+        default=str_to_bool(callbacks_confusion_matrix_logger_defaults["save_val"]),
+    )
+    parser.add_argument(
+        "--callbacks_confusion_matrix_logger_save_test",
+        type=str,
+        default=str_to_bool(callbacks_confusion_matrix_logger_defaults["save_test"]),
+    )
+    parser.add_argument(
+        "--callbacks_confusion_matrix_logger_normalize",
+        type=str,
+        default=str(callbacks_confusion_matrix_logger_defaults["normalize"]).lower(),
+    )
+
     # Trainer
     parser.add_argument("--max_epochs", type=str, default=trainer_defaults["max_epochs"])
     parser.add_argument("--accelerator", type=str, default=trainer_defaults["accelerator"])
@@ -318,6 +351,15 @@ def get_config() -> ClassificationConfig:
                 "output_dir": artifacts_dir / LEARNING_CURVES_FOLDER_NAME,
                 "log_loss": str_to_bool(args.callbacks_learning_curve_logger_log_loss),
                 "log_metrics": str_to_bool(args.callbacks_learning_curve_logger_log_metrics),
+            },
+            "confusion_matrix_logger": {
+                "output_dir": artifacts_dir / CONFUSION_MATRIX_FOLDER_NAME,
+                "class_dict": str_to_dict(args.callbacks_confusion_matrix_logger_class_dict),
+                "task_type": args.callbacks_confusion_matrix_logger_task_type,
+                "save_train": args.callbacks_confusion_matrix_logger_save_train,
+                "save_val": args.callbacks_confusion_matrix_logger_save_val,
+                "save_test": args.callbacks_confusion_matrix_logger_save_test,
+                "normalize": args.callbacks_confusion_matrix_logger_normalize,
             },
         },
         "trainer": {
