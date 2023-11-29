@@ -9,6 +9,7 @@ from torch import Tensor
 from torchvision.utils import save_image
 
 from src.common.consts.extensions import PNG
+from src.common.consts.machine_learning import STAGE_TESTING, STAGE_TRAINING, STAGE_VALIDATION
 
 
 class MisclassificationCallback(Callback):
@@ -26,6 +27,7 @@ class MisclassificationCallback(Callback):
         outputs: Dict[str, Tensor],
         batch: Tuple[Tensor, Tensor],
         batch_idx: int,
+        stage: str,
     ) -> None:
         images, labels = batch
         preds = outputs["preds"]
@@ -36,7 +38,7 @@ class MisclassificationCallback(Callback):
             pred_label = pl_module.classes[preds[idx].item()]
             true_label = pl_module.classes[labels[idx].item()]
 
-            save_path = self.save_dir / f"{true_label=}" / f"{pred_label=}" / f"{batch_idx=}" / f"{idx}{PNG}"
+            save_path = self.save_dir / stage / f"{true_label=}" / f"{pred_label=}" / f"{batch_idx=}" / f"{idx}{PNG}"
             save_path.parent.mkdir(parents=True, exist_ok=True)
 
             save_image(tensor=img, fp=save_path)
@@ -51,7 +53,12 @@ class MisclassificationCallback(Callback):
     ) -> None:
         if self.log_train:
             self.log_misclassifications(
-                trainer=trainer, pl_module=pl_module, outputs=outputs, batch=batch, batch_idx=batch_idx
+                trainer=trainer,
+                pl_module=pl_module,
+                outputs=outputs,
+                batch=batch,
+                batch_idx=batch_idx,
+                stage=STAGE_TRAINING,
             )
 
     def on_validation_batch_end(
@@ -64,7 +71,12 @@ class MisclassificationCallback(Callback):
     ) -> None:
         if self.log_val:
             self.log_misclassifications(
-                trainer=trainer, pl_module=pl_module, outputs=outputs, batch=batch, batch_idx=batch_idx
+                trainer=trainer,
+                pl_module=pl_module,
+                outputs=outputs,
+                batch=batch,
+                batch_idx=batch_idx,
+                stage=STAGE_VALIDATION,
             )
 
     def on_test_batch_end(
@@ -77,5 +89,10 @@ class MisclassificationCallback(Callback):
     ) -> None:
         if self.log_test:
             self.log_misclassifications(
-                trainer=trainer, pl_module=pl_module, outputs=outputs, batch=batch, batch_idx=batch_idx
+                trainer=trainer,
+                pl_module=pl_module,
+                outputs=outputs,
+                batch=batch,
+                batch_idx=batch_idx,
+                stage=STAGE_TESTING,
             )
