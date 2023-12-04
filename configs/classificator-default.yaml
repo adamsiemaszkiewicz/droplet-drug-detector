@@ -78,6 +78,7 @@ callbacks:
     log_train: false
     log_val: true
     log_test: true
+    top_n: 5
 
 trainer:
   max_epochs: 10
