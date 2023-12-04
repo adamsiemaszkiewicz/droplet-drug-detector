@@ -3,6 +3,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
 
+import numpy as np
 import torch
 from lightning import LightningDataModule
 from PIL import Image
@@ -10,8 +11,10 @@ from pydantic import BaseModel
 from torch import Tensor
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision.transforms import ToTensor
+from tqdm import tqdm
 
 from src.common.consts.directories import DATA_DIR
+from src.common.consts.extensions import JPG
 from src.common.utils.logger import get_logger
 from src.common.utils.os import get_cpu_worker_count
 from src.machine_learning.preprocessing.factory import DataPreprocessor
@@ -32,7 +35,7 @@ class DropletDrugClassificationDataset(Dataset):
 
     Attributes:
         root_dir (Path): The dataset directory
-        transform (Optional[Callable]): Optional transform to be applied on a sample.
+        preprocessor (Optional[Callable]): Optional transform to be applied on a sample.
         CLASSES (Dict[int, str]): Dictionary mapping class indices to class names.
     """
 
@@ -45,15 +48,15 @@ class DropletDrugClassificationDataset(Dataset):
         5: "polyvinyl-alcohol",
     }
 
-    def __init__(self, root_dir: Path, transform: Optional[Callable] = None):
+    def __init__(self, root_dir: Path, preprocessor: Optional[Callable] = None):
         """
         Args:
             root_dir (Path): Directory with all the images.
-            transform (Optional[Callable]): Optional transform to be applied on a sample.
+            preprocessor (Optional[Callable]): Optional preprocessing transform to be applied on a sample.
 
         """
         self.root_dir = root_dir
-        self.transform = transform
+        self.preprocessor = preprocessor
         self.samples = self._load_samples()
 
     @property
@@ -78,7 +81,7 @@ class DropletDrugClassificationDataset(Dataset):
             ]
 
             for class_dir in class_dirs:
-                for image_path in class_dir.glob("*.jpg"):
+                for image_path in class_dir.glob(f"*{JPG}"):
                     samples.append((image_path, class_idx))
 
         return samples
@@ -101,8 +104,8 @@ class DropletDrugClassificationDataset(Dataset):
         image = Image.open(image_path).convert("RGB")
         image = ToTensor()(image)
 
-        if self.transform:
-            image = self.transform(image).squeeze(0)
+        if self.preprocessor:
+            image = self.preprocessor(image).squeeze(0)
 
         label = torch.tensor(class_id, dtype=torch.long)
 
@@ -195,9 +198,9 @@ class ClassificationDataModule(LightningDataModule):
         )
 
         # Now, wrap these Subsets into new Dataset instances applying the transforms
-        self.train_dataset = DropletDrugClassificationDataset(root_dir=self.dataset_dir, transform=self.preprocessor)
-        self.val_dataset = DropletDrugClassificationDataset(root_dir=self.dataset_dir, transform=self.preprocessor)
-        self.test_dataset = DropletDrugClassificationDataset(root_dir=self.dataset_dir, transform=self.preprocessor)
+        self.train_dataset = DropletDrugClassificationDataset(root_dir=self.dataset_dir, preprocessor=self.preprocessor)
+        self.val_dataset = DropletDrugClassificationDataset(root_dir=self.dataset_dir, preprocessor=self.preprocessor)
+        self.test_dataset = DropletDrugClassificationDataset(root_dir=self.dataset_dir, preprocessor=self.preprocessor)
 
         # Assign the subset indices to the respective datasets
         self.train_dataset.samples = [full_dataset.samples[i] for i in train_subset.indices]
@@ -224,3 +227,36 @@ class ClassificationDataModule(LightningDataModule):
 
     def test_dataloader(self) -> DataLoader:
         return DataLoader(dataset=self.test_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)
+
+    def calculate_dataset_stats(self, dataset: Dataset) -> Tuple[Tuple[float, ...], Tuple[float, ...]]:
+        """
+        Calculate the mean and standard deviation of the dataset.
+
+        Args:
+            dataset (Dataset): The dataset for which to calculate statistics.
+
+        Returns:
+            Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
+            A tuple containing the mean & the standard deviation for each of the RGB channels.
+        """
+
+        data_loader = DataLoader(dataset, num_workers=self.cpu_workers)
+
+        sum_pixels = np.zeros(3)
+        sum_sq_pixels = np.zeros(3)
+        total_pixels = 0
+
+        for batch in tqdm(data_loader, desc="Calculating dataset statistics"):
+            images, _ = batch
+            images = images.view(images.size(0), 3, -1)
+            sum_batch = images.sum(axis=[0, 2]).numpy()
+            sum_pixels += sum_batch
+            sum_sq_pixels += (images**2).sum(axis=[0, 2]).numpy()
+            total_pixels += images.size(0) * images.size(2)
+
+        mean = tuple(float(x) for x in sum_pixels / total_pixels)
+        std = tuple(float(x) for x in np.sqrt(sum_sq_pixels / total_pixels - np.array(mean) ** 2))
+
+        _logger.info(f"Dataset mean: {mean}\nDataset standard deviation: {std}")
+
+        return mean, std

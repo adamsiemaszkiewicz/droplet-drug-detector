@@ -9,8 +9,11 @@ data:
 
 preprocessing:
   name_list:
+    - normalize
     - resize
   extra_arguments_list:
+    - mean: [0.376, 0.428, 0.257]
+      std: [0.152, 0.164, 0.149]
     - size: [256, 256]
 
 model:
@@ -39,6 +42,9 @@ metrics:
   task: multiclass
   num_classes: 6
   extra_arguments_list:
+      - {}
+      - {}
+      - {}
       - {}
       - {}
 
