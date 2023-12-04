@@ -93,13 +93,14 @@ class ClassificationLightningModule(LightningModule):
         x, y = batch
 
         logits = self(x)
-        loss = self.compute_loss(logits=logits, targets=y)
+        per_sample_losses = self.compute_loss(logits=logits, targets=y)
+        loss = per_sample_losses.mean()
         preds = logits.argmax(dim=1)
 
         self.log(name=f"{stage}_loss", value=loss)
         self.log_metrics(logits=logits, targets=y, stage=stage)
 
-        return {"loss": loss, "preds": preds}
+        return {"loss": loss, "per_sample_losses": per_sample_losses, "preds": preds}
 
     def training_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int) -> Dict[str, Tensor]:
         """
