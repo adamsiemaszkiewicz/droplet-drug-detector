@@ -77,8 +77,12 @@ class PreprocessingConfig(BaseModel):
 
         for name, extra_args in zip(name_list, extra_args_list):
             if name in REQUIRED_ARGUMENTS:
-                required_arg = REQUIRED_ARGUMENTS[name]
-                if extra_args is None or required_arg not in extra_args:
-                    raise ValueError(f"Required argument '{required_arg}' for transformation '{name}' is missing.")
+                required_args = REQUIRED_ARGUMENTS[name]
+                if not isinstance(required_args, list):
+                    required_args = [required_args]
+
+                for required_arg in required_args:
+                    if extra_args is None or required_arg not in extra_args:
+                        raise ValueError(f"Required argument '{required_arg}' for transformation '{name}' is missing.")
 
         return extra_args_list
