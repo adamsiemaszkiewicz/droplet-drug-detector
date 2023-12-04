@@ -218,38 +218,43 @@ def create_arg_parser() -> ArgumentParser:
     parser.add_argument(
         "--callbacks_confusion_matrix_logger_log_train",
         type=str,
-        default=str_to_bool(callbacks_confusion_matrix_logger_defaults["log_train"]),
+        default=callbacks_confusion_matrix_logger_defaults["log_train"],
     )
     parser.add_argument(
         "--callbacks_confusion_matrix_logger_log_val",
         type=str,
-        default=str_to_bool(callbacks_confusion_matrix_logger_defaults["log_val"]),
+        default=callbacks_confusion_matrix_logger_defaults["log_val"],
     )
     parser.add_argument(
         "--callbacks_confusion_matrix_logger_log_test",
         type=str,
-        default=str_to_bool(callbacks_confusion_matrix_logger_defaults["log_test"]),
+        default=callbacks_confusion_matrix_logger_defaults["log_test"],
     )
     parser.add_argument(
         "--callbacks_confusion_matrix_logger_normalize",
         type=str,
-        default=str(callbacks_confusion_matrix_logger_defaults["normalize"]).lower(),
+        default=callbacks_confusion_matrix_logger_defaults["normalize"],
     )
 
     parser.add_argument(
         "--callbacks_misclassification_logger_log_train",
         type=str,
-        default=str_to_bool(callbacks_misclassification_logger_defaults["log_train"]),
+        default=callbacks_misclassification_logger_defaults["log_train"],
     )
     parser.add_argument(
         "--callbacks_misclassification_logger_log_val",
         type=str,
-        default=str_to_bool(callbacks_misclassification_logger_defaults["log_val"]),
+        default=callbacks_misclassification_logger_defaults["log_val"],
     )
     parser.add_argument(
         "--callbacks_misclassification_logger_log_test",
         type=str,
-        default=str_to_bool(callbacks_misclassification_logger_defaults["log_test"]),
+        default=callbacks_misclassification_logger_defaults["log_test"],
+    )
+    parser.add_argument(
+        "--callbacks_misclassification_logger_top_n",
+        type=str,
+        default=callbacks_misclassification_logger_defaults["top_n"],
     )
 
     # Trainer
@@ -378,13 +383,14 @@ def get_config() -> ClassificationConfig:
                 "log_train": args.callbacks_confusion_matrix_logger_log_train,
                 "log_val": args.callbacks_confusion_matrix_logger_log_val,
                 "log_test": args.callbacks_confusion_matrix_logger_log_test,
-                "normalize": args.callbacks_confusion_matrix_logger_normalize,
+                "normalize": str(args.callbacks_confusion_matrix_logger_normalize).lower(),
             },
             "misclassification_logger": {
                 "save_dir": artifacts_dir / "misclassified_images",
                 "log_train": str_to_bool(args.callbacks_misclassification_logger_log_train),
                 "log_val": str_to_bool(args.callbacks_misclassification_logger_log_val),
                 "log_test": str_to_bool(args.callbacks_misclassification_logger_log_test),
+                "top_n": str_to_int(args.callbacks_misclassification_logger_top_n),
             },
         },
         "trainer": {
