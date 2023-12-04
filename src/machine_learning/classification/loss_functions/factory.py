@@ -26,6 +26,12 @@ def create_loss_function(config: ClassificationLossFunctionConfig) -> Module:
             f"Loss function '{config.name}' is not implemented.\n"
             f"Available loss functions: {list(AVAILABLE_LOSS_FUNCTIONS.keys())}"
         )
+
+    if "reduction" in loss_class.__init__.__code__.co_varnames:
+        config.extra_arguments["reduction"] = "none"  # Set 'reduction' to 'none' if supported
+    else:
+        _logger.warning(f"Loss function '{config.name}' does not support 'reduction' argument.")
+
     loss_function = loss_class(**config.extra_arguments)
 
     _logger.info("Loss function successfully created.")

@@ -75,36 +75,36 @@ class ConfusionMatrixCallback(Callback):
     PyTorch Lightning callback that calculates and saves confusion matrices at the end of each epoch of every stage.
 
     Attributes:
-        output_dir (Path): The directory to save output plots.
+        save_dir (Path): The directory to save output plots.
         num_classes (int): The number of classes for the confusion matrix.
         class_names (List[str]): The names of the classes for plotting.
         task (Literal["binary", "multiclass", "multilabel"]): The type of classification task.
-        save_train (bool): Flag to control whether to save the confusion matrix during training.
-        save_val (bool): Flag to control whether to save the confusion matrix during validation.
-        save_test (bool): Flag to control whether to save the confusion matrix during testing.
+        log_train (bool): Flag to control whether to save the confusion matrix during training.
+        log_val (bool): Flag to control whether to save the confusion matrix during validation.
+        log_test (bool): Flag to control whether to save the confusion matrix during testing.
         normalize (Literal["true", "pred", "all", "none"]): Normalization of the confusion matrix.
     """
 
     def __init__(
         self,
-        output_dir: Path,
+        save_dir: Path,
         class_dict: Dict[int, str],
         task: Literal["binary", "multiclass", "multilabel"],
-        save_train: bool,
-        save_val: bool,
-        save_test: bool,
+        log_train: bool,
+        log_val: bool,
+        log_test: bool,
         normalize: Literal["true", "pred", "all", "none"] = "true",
     ) -> None:
         super().__init__()
-        self.output_dir = output_dir
+        self.save_dir = save_dir
         self.class_dict = class_dict
         self.num_classes = len(class_dict)
         self.class_names = list(class_dict.values())
         self.task = task
         self.normalize = normalize
-        self.save_train = save_train
-        self.save_val = save_val
-        self.save_test = save_test
+        self.log_train = log_train
+        self.log_val = log_val
+        self.log_test = log_test
 
         self.plotter = ConfusionMatrixPlotter()
 
@@ -128,7 +128,7 @@ class ConfusionMatrixCallback(Callback):
         self.confusion_matrix_metric.reset()
 
         plot_path = (
-            self.output_dir / CONFUSION_MATRIX_FOLDER_NAME / stage / f"confusion_matrix_{trainer.current_epoch}.png"
+            self.save_dir / CONFUSION_MATRIX_FOLDER_NAME / stage / f"confusion_matrix_{trainer.current_epoch}.png"
         )
 
         self.plotter.plot_confusion_matrix(
@@ -205,7 +205,7 @@ class ConfusionMatrixCallback(Callback):
         """
         PyTorch Lightning hook that is called when the train epoch ends.
         """
-        if self.save_train:
+        if self.log_train:
             self.process_epoch_end(
                 trainer=trainer, pl_module=pl_module, loader_name="train_dataloader", stage=STAGE_TRAINING
             )
@@ -218,7 +218,7 @@ class ConfusionMatrixCallback(Callback):
             _logger.info("Skipping confusion matrix saving during sanity check.")
             return
 
-        if self.save_val:
+        if self.log_val:
             self.process_epoch_end(
                 trainer=trainer, pl_module=pl_module, loader_name="val_dataloaders", stage=STAGE_VALIDATION
             )
@@ -227,7 +227,7 @@ class ConfusionMatrixCallback(Callback):
         """
         PyTorch Lightning hook that is called when the test epoch ends.
         """
-        if self.save_test:
+        if self.log_test:
             self.process_epoch_end(
                 trainer=trainer, pl_module=pl_module, loader_name="test_dataloaders", stage=STAGE_TESTING
             )
