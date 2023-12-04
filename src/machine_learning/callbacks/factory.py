@@ -89,6 +89,7 @@ def create_callbacks(config: CallbacksConfig) -> List[Callback]:
                 log_train=config.misclassification_logger.log_train,
                 log_val=config.misclassification_logger.log_val,
                 log_test=config.misclassification_logger.log_test,
+                top_n=config.misclassification_logger.top_n,
             )
         )
 

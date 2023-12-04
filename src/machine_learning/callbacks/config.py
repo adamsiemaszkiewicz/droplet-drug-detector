@@ -118,6 +118,7 @@ class MisclassificationLoggerConfig(BaseModel):
     log_train: bool
     log_val: bool
     log_test: bool
+    top_n: int
 
     @validator("save_dir", pre=True)
     def ensure_path_is_path(cls, v: Union[str, Path]) -> Path:
