@@ -46,7 +46,8 @@ def visualize_class_activation_map(model: LightningModule, input_image: Tensor, 
         features.append(output)
 
     # Register the hook to the last convolutional layer
-    model.model.layer4[-1].register_forward_hook(hook_function)
+    last_conv_layer = model.model.layer4[-1]
+    last_conv_layer.register_forward_hook(hook_function)
 
     # Forward pass through the model
     _ = model(input_image.unsqueeze(0).to(model.device))
@@ -116,9 +117,9 @@ def main(checkpoint_path: Path, sample_id: int, save_dir: Path) -> None:
 
 
 if __name__ == "__main__":
-    experiment_dir = ARTIFACTS_DIR / "droplet-drug-classificator" / "2023-12-04_19-20-31"
-    checkpoint_path = experiment_dir / "checkpoints" / "epoch=0-val_loss=0.2413.ckpt"
+    experiment_dir = ARTIFACTS_DIR / "droplet-drug-classificator" / "2023-12-05_12-52-50"
+    checkpoint_path = experiment_dir / "checkpoints" / "epoch=2-val_loss=0.0972.ckpt"
     save_dir = experiment_dir / "class_activation_maps"
-    sample_id = 42
+    sample_id = 23
 
     main(checkpoint_path=checkpoint_path, sample_id=sample_id, save_dir=save_dir)
