@@ -79,7 +79,7 @@ def visualize_class_activation_map(model: LightningModule, input_image: Tensor, 
     return blended_image
 
 
-def main(checkpoint_path: Path, sample_id: int) -> None:
+def main(checkpoint_path: Path, sample_id: int, save_dir: Path) -> None:
     config: ClassificationConfig = get_config()
 
     seed_everything(seed=config.seed, workers=True)
@@ -109,11 +109,16 @@ def main(checkpoint_path: Path, sample_id: int) -> None:
     class_activation_img = visualize_class_activation_map(model=model, input_image=image, target_class=label)
     class_activation_img.show()
 
+    save_path = save_dir / f"class_activation_map_{sample_id}.png"
+    save_dir.mkdir(parents=True, exist_ok=True)
+    class_activation_img.save(save_path)
+    _logger.info(f"Class activation map saved to {save_path}")
+
 
 if __name__ == "__main__":
-    checkpoint_path = (
-        ARTIFACTS_DIR / "droplet-drug-classificator" / "2023-12-04_19-20-31/checkpoints/epoch=0-val_loss=0.2413.ckpt"
-    )
+    experiment_dir = ARTIFACTS_DIR / "droplet-drug-classificator" / "2023-12-04_19-20-31"
+    checkpoint_path = experiment_dir / "checkpoints" / "epoch=0-val_loss=0.2413.ckpt"
+    save_dir = experiment_dir / "class_activation_maps"
     sample_id = 42
 
-    main(checkpoint_path=checkpoint_path, sample_id=sample_id)
+    main(checkpoint_path=checkpoint_path, sample_id=sample_id, save_dir=save_dir)
