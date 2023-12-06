@@ -100,7 +100,7 @@ class ClassificationLightningModule(LightningModule):
         self.log(name=f"{stage}_loss", value=loss)
         self.log_metrics(logits=logits, targets=y, stage=stage)
 
-        return {"loss": loss, "per_sample_losses": per_sample_losses, "preds": preds}
+        return {"loss": loss, "per_sample_losses": per_sample_losses, "preds": preds, "targets": y}
 
     def training_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int) -> Dict[str, Tensor]:
         """
