@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
-from typing import Tuple
+from typing import Any, Dict, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,16 +26,18 @@ _logger = get_logger(__name__)
 
 class ClassActivationMapVisualizer:
     """
-    A class to visualize Class Activation Maps (CAM) for image classification models.
+    Class to visualize Class Activation Maps (CAM) for image classification models.
 
-    This class facilitates the visualization of CAMs, which highlight the regions of the input image that are
-    most influential in the model's classification decision. It uses a specified PyTorch model checkpoint and
-    data module configuration for this purpose.
+    This class provides functionality to generate and visualize CAMs for different layers of
+    a convolutional neural network. These maps highlight the image regions most influential
+    in the model's classification decision, providing insights into model behavior.
 
     Attributes:
         config (ClassificationConfig): Configuration for the model and data.
         model (ClassificationLightningModule): The trained classification model.
-        data_module (ClassificationDataModule): The data module used for loading and processing data.
+        data_module (ClassificationDataModule): Data module for loading and processing data.
+        feature_layer (str): The name of the layer to extract features from for CAM visualization.
+        model_dict (Dict[str, Any]): Dictionary mapping layer names to layer modules.
     """
 
     def __init__(self, checkpoint_path: Path, config: ClassificationConfig, feature_layer: str):
@@ -43,7 +45,9 @@ class ClassActivationMapVisualizer:
         self.model = self.load_model(checkpoint_path)
         self.data_module = self.prepare_data()
         self.feature_layer = feature_layer
-        self.model_dict = dict([*self.model.model.named_children()])
+
+        # Converting the model into a dictionary for easy access to its layers.
+        self.model_dict: Dict[str, Any] = dict([*self.model.model.named_children()])
 
     def load_model(self, checkpoint_path: Path) -> ClassificationLightningModule:
         """
@@ -108,18 +112,22 @@ class ClassActivationMapVisualizer:
 
     def extract_features(self, input_image: Tensor) -> Tensor:
         """
-        Extract features from the last convolutional layer of the model for a given input image.
+        Extract features from a specified layer for a given input image using a forward hook.
 
-        This method registers a forward hook on the last convolutional layer of the model to capture
-        the output features, which are then used for generating the Class Activation Map.
+        This method dynamically registers a hook on the specified layer to capture output features,
+        which are used for generating the Class Activation Map.
 
         Args:
             input_image (Tensor): The input image tensor.
 
         Returns:
-            Tensor: Extracted feature tensor from the last convolutional layer.
+            Tensor: Extracted feature tensor from the specified layer.
+
+        Raises:
+            ValueError: If the specified layer is not found in the model.
+            RuntimeError: If no features are extracted from the layer (indicating a possible issue).
         """
-        _logger.info("Extracting features from last convolutional layer.")
+        _logger.info(f"Extracting features from layer: {self.feature_layer}")
 
         if self.feature_layer not in self.model_dict:
             raise ValueError(f"Layer '{self.feature_layer}' not found in model.")
@@ -137,9 +145,11 @@ class ClassActivationMapVisualizer:
             """
             features.append(output)
 
+        # Registering the forward hook to the specified layer
         feature_layer = self.model_dict[self.feature_layer]
         feature_layer.register_forward_hook(hook_function)
 
+        # Performing a forward pass with the input image to trigger the hook
         _ = self.model(input_image.unsqueeze(0).to(self.model.device))
 
         if not features:
@@ -149,29 +159,34 @@ class ClassActivationMapVisualizer:
 
     def generate_cam(self, features: Tensor, target_class: Tensor) -> ndarray:
         """
-        Generate the Class Activation Map (CAM) for a specific class based on extracted features.
+        Generate the Class Activation Map for a specific class based on extracted features.
+
+        The method calculates the CAM by multiplying the target class's weights from the final
+        fully connected layer with the output features of the specified convolutional layer.
 
         Args:
-            features (Tensor): Extracted features from the model.
-            target_class (Tensor): The target class for which the CAM is to be generated.
+            features (Tensor): Extracted features from the specified convolutional layer.
+            target_class (Tensor): The target class index for which the CAM is generated.
 
         Returns:
             ndarray: The Class Activation Map as a NumPy array.
         """
         _logger.info("Generating class activation map.")
 
+        # Extracting the weights of the target class from the final fully connected layer
         params = list(self.model.model.fc.parameters())
         weight_softmax = Parameter(params[0])
 
         # Dynamically determining the number of features
         num_features = weight_softmax.shape[1]
 
+        # Calculating the class activation features by matrix multiplication
         class_activation_features = torch.matmul(
             weight_softmax[target_class], features.squeeze(0).view(num_features, -1)
         )
 
+        # Reshaping the activation features
         feature_map_size = features.shape[2]
-
         cam = class_activation_features.view(feature_map_size, feature_map_size).cpu().data.numpy()
         cam = cam - np.min(cam)
         cam = cam / np.max(cam)
