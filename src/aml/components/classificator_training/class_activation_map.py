@@ -121,6 +121,9 @@ class ClassActivationMapVisualizer:
         """
         _logger.info("Extracting features from last convolutional layer.")
 
+        if self.feature_layer not in self.model_dict:
+            raise ValueError(f"Layer '{self.feature_layer}' not found in model.")
+
         features = []
 
         def hook_function(module: LightningModule, input: Tensor, output: Tensor) -> None:
@@ -139,6 +142,9 @@ class ClassActivationMapVisualizer:
 
         _ = self.model(input_image.unsqueeze(0).to(self.model.device))
 
+        if not features:
+            raise RuntimeError(f"No features extracted from layer: {self.feature_layer}")
+
         return features[0]
 
     def generate_cam(self, features: Tensor, target_class: Tensor) -> ndarray:
@@ -156,7 +162,13 @@ class ClassActivationMapVisualizer:
 
         params = list(self.model.model.fc.parameters())
         weight_softmax = Parameter(params[0])
-        class_activation_features = torch.matmul(weight_softmax[target_class], features.squeeze(0).view(512, -1))
+
+        # Dynamically determining the number of features
+        num_features = weight_softmax.shape[1]
+
+        class_activation_features = torch.matmul(
+            weight_softmax[target_class], features.squeeze(0).view(num_features, -1)
+        )
 
         feature_map_size = features.shape[2]
 
@@ -216,8 +228,8 @@ class ClassActivationMapVisualizer:
             sample_id (int): The ID of the sample.
             save_dir (Path): The directory where the image should be saved.
         """
-        save_path = save_dir / f"{sample_id=}{PNG}"
-        save_dir.mkdir(parents=True, exist_ok=True)
+        save_path = save_dir / self.feature_layer / f"{sample_id=}{PNG}"
+        save_path.parent.mkdir(parents=True, exist_ok=True)
         image.save(save_path)
         _logger.info(f"Class activation map saved to {save_path}")
 
@@ -238,11 +250,14 @@ if __name__ == "__main__":
     experiment_dir = ARTIFACTS_DIR / "droplet-drug-classificator" / "2023-12-05_12-52-50"
     checkpoint_path_ = experiment_dir / "checkpoints" / "epoch=2-val_loss=0.0972.ckpt"
     save_dir_ = experiment_dir / "class_activation_maps"
-    sample_id_ = 99
+    sample_id_ = 100
+    feature_layer_ = "layer4"
 
     config = get_config()
 
     seed_everything(seed=config.seed, workers=True)
 
-    visualizer = ClassActivationMapVisualizer(checkpoint_path=checkpoint_path_, config=config, feature_layer="layer4")
+    visualizer = ClassActivationMapVisualizer(
+        checkpoint_path=checkpoint_path_, config=config, feature_layer=feature_layer_
+    )
     visualizer.run_visualization(sample_id=sample_id_, save_dir=save_dir_)
