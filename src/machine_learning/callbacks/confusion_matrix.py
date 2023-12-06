@@ -112,17 +112,92 @@ class ConfusionMatrixCallback(Callback):
             num_classes=self.num_classes, task=self.task, normalize=self.normalize
         )
 
-    def process_epoch_end(self, trainer: Trainer, pl_module: LightningModule, loader_name: str, stage: str) -> None:
+        self.tmp_predictions: Dict[str, List[Tensor]] = {
+            STAGE_TRAINING: [],
+            STAGE_VALIDATION: [],
+            STAGE_TESTING: [],
+        }
+        self.tmp_targets: Dict[str, List[Tensor]] = {
+            STAGE_TRAINING: [],
+            STAGE_VALIDATION: [],
+            STAGE_TESTING: [],
+        }
+
+    def on_train_batch_end(
+        self,
+        trainer: Trainer,
+        pl_module: LightningModule,
+        outputs: Dict[str, Tensor],
+        batch: Tuple[Tensor, Tensor],
+        batch_idx: int,
+    ) -> None:
+        self.tmp_predictions[STAGE_TRAINING].append(outputs["preds"])
+        self.tmp_targets[STAGE_TRAINING].append(outputs["targets"])
+
+    def on_validation_batch_end(
+        self,
+        trainer: Trainer,
+        pl_module: LightningModule,
+        outputs: Dict[str, Tensor],
+        batch: Tuple[Tensor, Tensor],
+        batch_idx: int,
+    ) -> None:
+        self.tmp_predictions[STAGE_VALIDATION].append(outputs["preds"])
+        self.tmp_targets[STAGE_VALIDATION].append(outputs["targets"])
+
+    def on_test_batch_end(
+        self,
+        trainer: Trainer,
+        pl_module: LightningModule,
+        outputs: Dict[str, Tensor],
+        batch: Tuple[Tensor, Tensor],
+        batch_idx: int,
+    ) -> None:
+        self.tmp_predictions[STAGE_TESTING].append(outputs["preds"])
+        self.tmp_targets[STAGE_TESTING].append(outputs["targets"])
+
+    def on_train_epoch_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
+        """
+        PyTorch Lightning hook that is called when the train epoch ends.
+        """
+        if self.log_train:
+            self._process_epoch_end(trainer=trainer, pl_module=pl_module, stage=STAGE_TRAINING)
+
+    def on_validation_epoch_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
+        """
+        PyTorch Lightning hook that is called when the validation epoch ends.
+        """
+        if trainer.sanity_checking:
+            _logger.info("Skipping confusion matrix saving during sanity check.")
+            return
+
+        if self.log_val:
+            self._process_epoch_end(trainer=trainer, pl_module=pl_module, stage=STAGE_VALIDATION)
+
+    def on_test_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
+        """
+        PyTorch Lightning hook that is called when the test epoch ends.
+        """
+        if self.log_test:
+            self._process_epoch_end(trainer=trainer, pl_module=pl_module, stage=STAGE_TESTING)
+
+    def _process_epoch_end(self, trainer: Trainer, pl_module: LightningModule, stage: str) -> None:
         """
         Common logic for processing the end of an epoch.
 
         Args:
-            trainer (Trainer): The Trainer object.
+            trainer (Trainer): The Trainer object
             pl_module (LightningModule): The LightningModule object.
-            loader_name (str): Name of the dataloader attribute in trainer.
             stage (str): Stage name (train, val, or test).
         """
-        preds, targets = self.get_all_preds_and_targets(trainer=trainer, pl_module=pl_module, loader_name=loader_name)
+        preds, targets = torch.cat(self.tmp_predictions[stage], dim=0), torch.cat(self.tmp_targets[stage], dim=0)
+        self.tmp_predictions[stage], self.tmp_targets[stage] = [], []
+
+        # Move everything to the model's device
+        device = pl_module.device
+        self.confusion_matrix_metric.to(device)
+        preds, targets = preds.to(device), targets.to(device)
+
         self.confusion_matrix_metric(preds, targets)
         cm = self.confusion_matrix_metric.compute().cpu().numpy()
         self.confusion_matrix_metric.reset()
@@ -156,78 +231,3 @@ class ConfusionMatrixCallback(Callback):
                 _logger.info(f"Logging {stage} confusion matrix to Wandb.")
                 run = logger.experiment
                 run.log_artifact(output_path.as_posix())
-
-    def get_all_preds_and_targets(
-        self, trainer: Trainer, pl_module: LightningModule, loader_name: str
-    ) -> Tuple[Tensor, Tensor]:
-        """
-        Collect all predictions and targets.
-
-        Args:
-            trainer (Trainer): The Trainer object.
-            pl_module (LightningModule): The LightningModule object.
-            loader_name (str): Name of the dataloader attribute in trainer.
-
-        Returns:
-            Tuple[Tensor, Tensor]: Tuple containing all predictions and targets.
-        """
-        all_preds = []
-        all_targets = []
-        dataloader = getattr(trainer, loader_name)
-        for batch in dataloader:
-            x, y = batch
-            x = x.to(pl_module.device)
-            logits = pl_module(x)
-            preds = self._compute_predictions(logits=logits)
-            all_preds.append(preds)
-            all_targets.append(y)
-        all_preds = torch.cat(all_preds, dim=0).cpu()
-        all_targets = torch.cat(all_targets, dim=0).cpu()
-
-        return all_preds, all_targets
-
-    def _compute_predictions(self, logits: Tensor) -> Tensor:
-        """
-        Computes predictions from the model's logits based on the specified task type.
-
-        Args:
-            logits (Tensor): The logits output by the model.
-
-        Returns:
-            Tensor: The computed predictions.
-        """
-        if self.task in ["binary", "multiclass"]:
-            return logits.argmax(dim=1)
-        elif self.task == "multilabel":
-            return (logits.sigmoid() > 0.5).type(torch.int)
-
-    def on_train_epoch_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
-        """
-        PyTorch Lightning hook that is called when the train epoch ends.
-        """
-        if self.log_train:
-            self.process_epoch_end(
-                trainer=trainer, pl_module=pl_module, loader_name="train_dataloader", stage=STAGE_TRAINING
-            )
-
-    def on_validation_epoch_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
-        """
-        PyTorch Lightning hook that is called when the validation epoch ends.
-        """
-        if trainer.sanity_checking:
-            _logger.info("Skipping confusion matrix saving during sanity check.")
-            return
-
-        if self.log_val:
-            self.process_epoch_end(
-                trainer=trainer, pl_module=pl_module, loader_name="val_dataloaders", stage=STAGE_VALIDATION
-            )
-
-    def on_test_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
-        """
-        PyTorch Lightning hook that is called when the test epoch ends.
-        """
-        if self.log_test:
-            self.process_epoch_end(
-                trainer=trainer, pl_module=pl_module, loader_name="test_dataloaders", stage=STAGE_TESTING
-            )
