@@ -208,22 +208,22 @@ class LearningCurveCallback(Callback):
         """
         PyTorch Lightning hook that is called when the train epoch ends.
         """
-        self.update_metrics_and_losses(trainer=trainer, stage=STAGE_TRAINING)
+        self._update_metrics_and_losses(trainer=trainer, stage=STAGE_TRAINING)
 
     def on_validation_epoch_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
         """
         PyTorch Lightning hook that is called when the validation epoch ends.
         """
-        self.update_metrics_and_losses(trainer=trainer, stage=STAGE_VALIDATION)
+        self._update_metrics_and_losses(trainer=trainer, stage=STAGE_VALIDATION)
 
     def on_test_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
         """
         PyTorch Lightning hook that is called when the test epoch ends.
         """
-        self.update_metrics_and_losses(trainer=trainer, stage=STAGE_TESTING)
-        self.plot_learning_curves(trainer=trainer)
+        self._update_metrics_and_losses(trainer=trainer, stage=STAGE_TESTING)
+        self._plot_learning_curves(trainer=trainer)
 
-    def update_metrics_and_losses(self, trainer: Trainer, stage: str) -> None:
+    def _update_metrics_and_losses(self, trainer: Trainer, stage: str) -> None:
         """
         Update epoch losses and metrics for a given stage.
 
@@ -242,7 +242,7 @@ class LearningCurveCallback(Callback):
                     continue
                 self.epoch_metrics[stage].setdefault(metric_name, []).append(value.item())
 
-    def plot_learning_curves(self, trainer: Trainer) -> None:
+    def _plot_learning_curves(self, trainer: Trainer) -> None:
         """
         Plot all learning curves
 
