@@ -38,10 +38,12 @@ class ClassActivationMapVisualizer:
         data_module (ClassificationDataModule): The data module used for loading and processing data.
     """
 
-    def __init__(self, checkpoint_path: Path, config: ClassificationConfig):
+    def __init__(self, checkpoint_path: Path, config: ClassificationConfig, feature_layer: str):
         self.config = config
         self.model = self.load_model(checkpoint_path)
         self.data_module = self.prepare_data()
+        self.feature_layer = feature_layer
+        self.model_dict = dict([*self.model.model.named_children()])
 
     def load_model(self, checkpoint_path: Path) -> ClassificationLightningModule:
         """
@@ -132,8 +134,8 @@ class ClassActivationMapVisualizer:
             """
             features.append(output)
 
-        last_conv_layer = self.model.model.layer4[-1]
-        last_conv_layer.register_forward_hook(hook_function)
+        feature_layer = self.model_dict[self.feature_layer]
+        feature_layer.register_forward_hook(hook_function)
 
         _ = self.model(input_image.unsqueeze(0).to(self.model.device))
 
@@ -236,11 +238,11 @@ if __name__ == "__main__":
     experiment_dir = ARTIFACTS_DIR / "droplet-drug-classificator" / "2023-12-05_12-52-50"
     checkpoint_path_ = experiment_dir / "checkpoints" / "epoch=2-val_loss=0.0972.ckpt"
     save_dir_ = experiment_dir / "class_activation_maps"
-    sample_id_ = 42
+    sample_id_ = 99
 
     config = get_config()
 
     seed_everything(seed=config.seed, workers=True)
 
-    visualizer = ClassActivationMapVisualizer(checkpoint_path=checkpoint_path_, config=config)
+    visualizer = ClassActivationMapVisualizer(checkpoint_path=checkpoint_path_, config=config, feature_layer="layer4")
     visualizer.run_visualization(sample_id=sample_id_, save_dir=save_dir_)
