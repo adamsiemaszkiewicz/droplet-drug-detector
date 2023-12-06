@@ -273,11 +273,14 @@ def create_arg_parser() -> ArgumentParser:
     return parser
 
 
-def get_config() -> ClassificationConfig:
+def get_config(save_config: bool = False) -> ClassificationConfig:
     """
     Retrieves configuration for the ClassificationConfig class.
 
     This function can be extended to load configurations from different sources.
+
+    Args:
+        save_config (bool): Whether to save the configuration to a YAML file.
 
     Returns:
         ClassificationConfig: An instance of SampleConfig with values populated from the command line.
@@ -449,6 +452,8 @@ def get_config() -> ClassificationConfig:
         seed=str_to_int(args.seed),
     )
     config.log_self()
-    config.to_yaml(artifacts_dir / f"config{YAML}")
+
+    if save_config:
+        config.to_yaml(artifacts_dir / f"config{YAML}")
 
     return config
