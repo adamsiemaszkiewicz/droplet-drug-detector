@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -32,7 +32,11 @@ class ClassActivationMapVisualizer:
     a convolutional neural network. These maps highlight the image regions most influential
     in the model's classification decision, providing insights into model behavior.
 
-    Attributes:
+    Args:
+        checkpoint_path (Path): Path to the model checkpoint.
+        feature_layer (str): The name of the neural network layer to visualize.
+
+    Attrs:
         config (ClassificationConfig): Configuration for the model and data.
         model (ClassificationLightningModule): The trained classification model.
         data_module (ClassificationDataModule): Data module for loading and processing data.
@@ -40,7 +44,7 @@ class ClassActivationMapVisualizer:
         model_dict (Dict[str, Any]): Dictionary mapping layer names to layer modules.
     """
 
-    def __init__(self, checkpoint_path: Path, config: ClassificationConfig, feature_layer: str):
+    def __init__(self, config: ClassificationConfig, checkpoint_path: Path, feature_layer: str):
         self.config = config
         self.model = self.load_model(checkpoint_path)
         self.data_module = self.prepare_data()
@@ -48,6 +52,8 @@ class ClassActivationMapVisualizer:
 
         # Converting the model into a dictionary for easy access to its layers.
         self.model_dict: Dict[str, Any] = dict([*self.model.model.named_children()])
+
+        self.features: List[Tensor] = []
 
     def load_model(self, checkpoint_path: Path) -> ClassificationLightningModule:
         """
@@ -110,6 +116,26 @@ class ClassActivationMapVisualizer:
 
         return image, label
 
+    def register_hook(self) -> None:
+        """
+        Register a hook to the target layer to capture its features.
+        """
+
+        def hook_function(module: LightningModule, input: Tensor, output: Tensor) -> None:
+            """
+            A hook function that captures the output of a layer during the forward pass.
+
+            Args:
+                module (LightningModule): The current module.
+                input (Tensor): The input tensor to the module.
+                output (Tensor): The output tensor from the module.
+            """
+            self.features.append(output)
+
+        # Registering the forward hook to the specified layer
+        layer_module = dict([*self.model.model.named_modules()])[self.feature_layer]
+        layer_module.register_forward_hook(hook_function)
+
     def extract_features(self, input_image: Tensor) -> Tensor:
         """
         Extract features from a specified layer for a given input image using a forward hook.
@@ -132,30 +158,15 @@ class ClassActivationMapVisualizer:
         if self.feature_layer not in self.model_dict:
             raise ValueError(f"Layer '{self.feature_layer}' not found in model.")
 
-        features = []
-
-        def hook_function(module: LightningModule, input: Tensor, output: Tensor) -> None:
-            """
-            A hook function that captures the output of a layer during the forward pass.
-
-            Args:
-                module (LightningModule): The current module.
-                input (Tensor): The input tensor to the module.
-                output (Tensor): The output tensor from the module.
-            """
-            features.append(output)
-
-        # Registering the forward hook to the specified layer
-        feature_layer = self.model_dict[self.feature_layer]
-        feature_layer.register_forward_hook(hook_function)
+        self.register_hook()
 
         # Performing a forward pass with the input image to trigger the hook
         _ = self.model(input_image.unsqueeze(0).to(self.model.device))
 
-        if not features:
+        if not self.features:
             raise RuntimeError(f"No features extracted from layer: {self.feature_layer}")
 
-        return features[0]
+        return self.features[0]
 
     def generate_cam(self, features: Tensor, target_class: Tensor) -> ndarray:
         """
@@ -248,7 +259,7 @@ class ClassActivationMapVisualizer:
         image.save(save_path)
         _logger.info(f"Class activation map saved to {save_path}")
 
-    def run_visualization(self, sample_id: int, save_dir: Path) -> None:
+    def run(self, sample_id: int, save_dir: Path) -> None:
         """
         Run the visualization process for a given sample and save the resulting class activation map.
 
@@ -265,7 +276,7 @@ if __name__ == "__main__":
     experiment_dir = ARTIFACTS_DIR / "droplet-drug-classificator" / "2023-12-05_12-52-50"
     checkpoint_path_ = experiment_dir / "checkpoints" / "epoch=2-val_loss=0.0972.ckpt"
     save_dir_ = experiment_dir / "class_activation_maps"
-    sample_id_ = 100
+    sample_id_ = 69
     feature_layer_ = "layer4"
 
     config = get_config()
@@ -273,6 +284,6 @@ if __name__ == "__main__":
     seed_everything(seed=config.seed, workers=True)
 
     visualizer = ClassActivationMapVisualizer(
-        checkpoint_path=checkpoint_path_, config=config, feature_layer=feature_layer_
+        config=config, checkpoint_path=checkpoint_path_, feature_layer=feature_layer_
     )
-    visualizer.run_visualization(sample_id=sample_id_, save_dir=save_dir_)
+    visualizer.run(sample_id=sample_id_, save_dir=save_dir_)
