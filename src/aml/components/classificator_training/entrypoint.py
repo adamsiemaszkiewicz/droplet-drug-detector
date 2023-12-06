@@ -16,7 +16,7 @@ _logger = get_logger(__name__)
 
 
 def main() -> None:
-    config: ClassificationConfig = get_config()
+    config: ClassificationConfig = get_config(save_config=True)
     _logger.info(f"Running with following config: {config}")
 
     seed_everything(seed=config.seed, workers=True)
