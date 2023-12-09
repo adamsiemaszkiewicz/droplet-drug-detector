@@ -11,7 +11,7 @@ Machine learning powered analysis of microscopic droplet images for substance id
 
 
 ## Table of Contents
-- [Project Title](#project-title)
+- [Project Overview](#droplet-drug-detector)
 
 - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
