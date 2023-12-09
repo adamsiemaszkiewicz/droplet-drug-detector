@@ -5,9 +5,9 @@ Machine learning powered analysis of microscopic droplet images for substance id
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/Python-3.10-brightgreen.svg)](https://www.python.org/downloads/release/python-310/)
-[![Last Commit](https://img.shields.io/github/last-commit/adamsiemaszkiewicz/template-ml-azure)](https://github.com/adamsiemaszkiewicz/template-ml-azure/commits/master)
-[![Code Climate](https://img.shields.io/codeclimate/maintainability/adamsiemaszkiewicz/template-ml-azure)](https://codeclimate.com/github/adamsiemaszkiewicz/template-ml-azure)
-[![Code Coverage](https://img.shields.io/codecov/c/github/adamsiemaszkiewicz/template-ml-azure)](https://codecov.io/gh/adamsiemaszkiewicz/template-ml-azure)
+[![Last Commit](https://img.shields.io/github/last-commit/adamsiemaszkiewicz/droplet-drug-detector)](https://github.com/adamsiemaszkiewicz/droplet-drug-detector/commits/main)
+[![Code Climate](https://img.shields.io/codeclimate/maintainability/adamsiemaszkiewicz/droplet-drug-detector)](https://codeclimate.com/github/adamsiemaszkiewicz/droplet-drug-detector)
+[![Code Coverage](https://img.shields.io/codecov/c/github/adamsiemaszkiewicz/droplet-drug-detector)](https://codecov.io/gh/adamsiemaszkiewicz/droplet-drug-detector)
 
 
 ## Table of Contents
