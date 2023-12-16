@@ -1,19 +1,20 @@
 # Droplet Drug Detector
 
-Machine learning powered analysis of microscopic droplet images for substance identification and quantification, aimed at potential applications in drug detection.
-
-
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/Python-3.10-brightgreen.svg)](https://www.python.org/downloads/release/python-310/)
 [![Last Commit](https://img.shields.io/github/last-commit/adamsiemaszkiewicz/droplet-drug-detector)](https://github.com/adamsiemaszkiewicz/droplet-drug-detector/commits/main)
 [![Code Climate](https://img.shields.io/codeclimate/maintainability/adamsiemaszkiewicz/droplet-drug-detector)](https://codeclimate.com/github/adamsiemaszkiewicz/droplet-drug-detector)
 [![Code Coverage](https://img.shields.io/codecov/c/github/adamsiemaszkiewicz/droplet-drug-detector)](https://codecov.io/gh/adamsiemaszkiewicz/droplet-drug-detector)
 
-
 ## Table of Contents
-- [Project Overview](#droplet-drug-detector)
+- [Droplet Drug Detector](#droplet-drug-detector)
+    - [Table of Contents](#table-of-contents)
+    - [Project Overview](#project-overview)
+    - [Dataset](#dataset)
+    - [Model Architecture](#model-architecture)
+    - [Training & Evaluation](#training--evaluation)
+    - [Inference](#inference)
 
-- [Table of Contents](#table-of-contents)
 - [Installation](#installation)
 - [Repository Structure](#repository-structure)
     - [Azure DevOps](#azure-devops)
@@ -33,6 +34,40 @@ Machine learning powered analysis of microscopic droplet images for substance id
     - [Environment Configuration](#environment-configuration)
     - [Formatting, Linting & Type Checking](#formatting-linting--type-checking)
 - [License](#license)
+
+## Project overview
+
+### Research objective
+Utilizing machine learning to interpret microscopic images of dried droplets, this project focuses on precise substance identification and quantification in pharmaceuticals, offering innovative solutions in drug analysis and quality control.
+
+## Dataset
+
+### Theoretical basis
+The patterns formed by drying droplets, known as the coffee ring effect, are influenced by factors like the nature of the substance (crystalline or amorphous), its concentration, and interactions with other substances in the mixture.
+
+### Sample collection
+Microscopic images of droplets, each a few microliters in volume, are captured (~200-300 per sample) under standardized conditions.
+
+### Analysis goals
+
+**Substance Classification**: Classify different substances based on distinct patterns in dried droplet images.
+
+**Concentration Estimation**: Implement regression models to accurately quantify the concentration levels of substances.
+
+**Rare Substance Detection**: Employ Siamese networks for identifying substances with limited sample data, leveraging their capability to learn from small datasets and detect similarities or differences effectively.
+
+## Model architecture
+
+Lorem ipsum
+
+## Training & evaluation
+
+Lorem ipsum
+
+## Inference
+
+Lorem ipsum
+
 
 ## Installation
 
