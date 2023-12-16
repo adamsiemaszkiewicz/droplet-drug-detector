@@ -5,11 +5,12 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
+from iterstrat.ml_stratifiers import MultilabelStratifiedShuffleSplit
 from lightning import LightningDataModule
 from PIL import Image
 from pydantic import BaseModel
 from torch import Tensor
-from torch.utils.data import DataLoader, Dataset, random_split
+from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms import ToTensor
 from tqdm import tqdm
 
@@ -67,11 +68,11 @@ class DropletDrugClassificationDataset(Dataset):
         Returns:
             Dict[int, int]: A dictionary mapping each class index to its count in the dataset.
         """
-        class_indices = [class_id for _, class_id in self.samples]
+        class_indices = [class_id for _, class_id, _ in self.samples]
         class_balance = Counter(class_indices)
         return dict(sorted(class_balance.items()))
 
-    def _load_samples(self) -> List[Tuple[Path, int]]:
+    def _load_samples(self) -> List[Tuple[Path, int, float]]:
         samples = []
         for class_idx, class_name in self.CLASSES.items():
             class_dirs = [
@@ -81,8 +82,13 @@ class DropletDrugClassificationDataset(Dataset):
             ]
 
             for class_dir in class_dirs:
+                concentration_string = class_dir.name.split("_")[-2]
+                if concentration_string.endswith("mgml"):
+                    concentration = float(concentration_string[:-4])
+                else:
+                    raise ValueError(f"Invalid concentration string: {concentration_string}")
                 for image_path in class_dir.glob(f"*{JPG}"):
-                    samples.append((image_path, class_idx))
+                    samples.append((image_path, class_idx, concentration))
 
         return samples
 
@@ -100,7 +106,7 @@ class DropletDrugClassificationDataset(Dataset):
         Returns:
             sample (Tuple[Tensor, Tensor]): The image and its label.
         """
-        image_path, class_id = self.samples[idx]
+        image_path, class_id, _ = self.samples[idx]
         image = Image.open(image_path).convert("RGB")
         image = ToTensor()(image)
 
@@ -185,27 +191,21 @@ class ClassificationDataModule(LightningDataModule):
         # Create a full dataset without transforms to split it first
         full_dataset = DropletDrugClassificationDataset(root_dir=self.dataset_dir)
 
-        dataset_size = len(full_dataset)
-        val_size = int(self.val_split * dataset_size)
-        test_size = int(self.test_split * dataset_size)
-        train_size = dataset_size - val_size - test_size
+        # Perform stratified split
+        train_indices, val_indices, test_indices = self.stratified_split(full_dataset)
 
-        # Create subsets
-        train_subset, val_subset, test_subset = random_split(
-            full_dataset,
-            lengths=[train_size, val_size, test_size],
-            generator=torch.Generator(),
-        )
-
-        # Now, wrap these Subsets into new Dataset instances applying the transforms
+        # Assign the subset indices to the respective datasets
         self.train_dataset = DropletDrugClassificationDataset(root_dir=self.dataset_dir, preprocessor=self.preprocessor)
         self.val_dataset = DropletDrugClassificationDataset(root_dir=self.dataset_dir, preprocessor=self.preprocessor)
         self.test_dataset = DropletDrugClassificationDataset(root_dir=self.dataset_dir, preprocessor=self.preprocessor)
 
-        # Assign the subset indices to the respective datasets
-        self.train_dataset.samples = [full_dataset.samples[i] for i in train_subset.indices]
-        self.val_dataset.samples = [full_dataset.samples[i] for i in val_subset.indices]
-        self.test_dataset.samples = [full_dataset.samples[i] for i in test_subset.indices]
+        self.train_dataset.samples = [full_dataset.samples[i] for i in train_indices]
+        self.val_dataset.samples = [full_dataset.samples[i] for i in val_indices]
+        self.test_dataset.samples = [full_dataset.samples[i] for i in test_indices]
+
+        # Check for data leaks
+        if not self.check_data_leak(self.train_dataset, self.val_dataset, self.test_dataset):
+            raise ValueError("Data leak detected between subsets!")
 
         _logger.info(f"Total dataset size: {len(full_dataset)}")
         _logger.info(f"Training set size: {len(self.train_dataset)}")
@@ -216,6 +216,64 @@ class ClassificationDataModule(LightningDataModule):
         _logger.info(f"Training set class balance: {self.train_class_balance}")
         _logger.info(f"Validation set class balance: {self.val_class_balance}")
         _logger.info(f"Test set class balance: {self.test_class_balance}")
+
+    def stratified_split(self, dataset: DropletDrugClassificationDataset) -> Tuple[List[int], List[int], List[int]]:
+        """
+        Perform a stratified split on the dataset.
+
+        Args:
+            dataset (DropletDrugClassificationDataset): The dataset to split.
+
+        Returns:
+            Tuple[List[int], List[int], List[int]]: Indices for the train, validation, and test sets.
+        """
+
+        # Extract labels and concentrations
+        labels, concentrations = zip(*[(sample[1], sample[2]) for sample in dataset.samples])
+
+        # Convert to a multi-label format
+        multi_labels = np.array([[label, concentration] for label, concentration in zip(labels, concentrations)])
+
+        # Create Multilabel Stratified Splitter for train and test_val split
+        splitter_test_val = MultilabelStratifiedShuffleSplit(n_splits=1, test_size=self.val_split + self.test_split)
+        train_index, test_val_index = next(splitter_test_val.split(np.zeros(len(multi_labels)), multi_labels))
+
+        # Further split for validation and test sets
+        test_split_adjusted = self.test_split / (self.val_split + self.test_split)
+        splitter_test = MultilabelStratifiedShuffleSplit(n_splits=1, test_size=test_split_adjusted)
+        val_index, test_index = next(splitter_test.split(test_val_index, multi_labels[test_val_index]))
+
+        return train_index, test_val_index[val_index], test_val_index[test_index]
+
+    def check_data_leak(
+        self,
+        train_dataset: DropletDrugClassificationDataset,
+        val_dataset: DropletDrugClassificationDataset,
+        test_dataset: DropletDrugClassificationDataset,
+    ) -> bool:
+        """
+        Check for data leaks between datasets.
+
+        Args:
+            train_dataset (DropletDrugClassificationDataset): Training dataset.
+            val_dataset (DropletDrugClassificationDataset): Validation dataset.
+            test_dataset (DropletDrugClassificationDataset): Test dataset.
+
+        Returns:
+            bool: Returns True if there is no data leak, False otherwise.
+        """
+        train_paths = {sample[0] for sample in train_dataset.samples}
+        val_paths = {sample[0] for sample in val_dataset.samples}
+        test_paths = {sample[0] for sample in test_dataset.samples}
+
+        # Check for overlaps
+        if (
+            train_paths.intersection(val_paths)
+            or train_paths.intersection(test_paths)
+            or val_paths.intersection(test_paths)
+        ):
+            return False  # There is a data leak
+        return True  # No data leaks
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
