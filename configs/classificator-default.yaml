@@ -50,6 +50,23 @@ metrics:
       - {}
       - {}
 
+augmentations:
+  name_list:
+    - color_jitter
+    - random_gaussian_noise
+    - random_affine
+    - random_horizontal_flip
+    - random_resized_crop
+  extra_arguments_list:
+    - {}
+    - {}
+    - degrees: 45
+    - {}
+    - size:
+        - 256
+        - 256
+
+
 callbacks:
   early_stopping:
     monitor: val_loss
