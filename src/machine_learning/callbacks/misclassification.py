@@ -76,6 +76,8 @@ class MisclassificationCallback(Callback):
         outputs: Dict[str, Tensor],
         batch: Tuple[Tensor, Tensor],
         batch_idx: int,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
         self.on_batch_end(trainer=trainer, pl_module=pl_module, outputs=outputs, batch=batch, stage=STAGE_VALIDATION)
 
@@ -86,6 +88,8 @@ class MisclassificationCallback(Callback):
         outputs: Dict[str, Tensor],
         batch: Tuple[Tensor, Tensor],
         batch_idx: int,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
         self.on_batch_end(trainer=trainer, pl_module=pl_module, outputs=outputs, batch=batch, stage=STAGE_TESTING)
 
