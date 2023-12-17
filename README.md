@@ -41,9 +41,9 @@
 The Droplet Drug Detector (DDD) project aims to revolutionize pharmaceutical analysis by using advanced machine learning to analyze high-resolution microscopic images of dried droplets. This cutting-edge approach is designed to improve the identification and quantification of substances, thereby enhancing drug analysis and quality control.
 
 ### Authors & Contributors
-- Tomasz Urbaniak, PhD - co-author, xxxxxxxxx
-- Adam Siemaszkiewicz (myself) - co-author, machine learning, data science, and software engineering
-- XXX XXX, MSc - contributor, sample collection and image acquisition
+- **Tomasz Urbaniak, PhD** (Wrocław Medical Univesity): A pharmaceutical expert, Tomasz is the co-author responsible for guiding the project's pharmaceutical aspects, leveraging his extensive knowledge in the field.
+- **Adam Siemaszkiewicz, MSc (myself)** (Wrocław University of Science & Technology): As a co-author, I specialize in machine learning, data science, and software engineering, driving the technical and analytical facets of the project.
+- **Nicole Cutajar, MSc** (University of Malta) - A vital contributor focusing on sample collection and image acquisition, ensuring the integrity and quality of our dataset.
 
 ## Dataset
 The dataset comprises high-resolution microscopic images of various droplet samples, with each droplet being a few microliters in volume. For each substance, approximately 200-300 images of different concentrations are captured under controlled conditions to ensure data consistency and reliability. The dataset includes images of substances like gelatin capsules, lactose, methyl-cellulose, naproxen, pearlitol, and polyvinyl-alcohol.
@@ -79,10 +79,13 @@ Images are captured under strictly controlled conditions to guarantee data consi
 (Work in progress)
 
 ### Model Training
-- **Epochs**: 10, with early stopping implemented to prevent overfitting.
-- **Data Split**: Stratified split (ratios 50:25:25 for training, validation & test subsets) across substances and concentration levels.
-- **Preprocessing and Augmentation**: Normalization, resizing to 256x256 pixels, color jitter, random gaussian noise, mirroring, and rotation.
-- **Model Architecture**: Details to be added.
+A few experiments were conducted to determine a baseline model and hyperparameters for further experiments.
+
+- **Epochs**: 50 (max), with early stopping implemented to prevent overfitting.
+- **Data Split**: Stratified split (50:25:25 for training, validation & test subsets) across substances and concentration levels.
+- **Preprocessing**: Normalization, resizing to 256x256 pixels.
+- **Data Augmentation**: Color jitter, random gaussian noise, mirroring, and rotation.
+- **Model Architecture**: Resnet18.
 - **Loss Function**: Cross-entropy.
 - **Optimizer**: Adam with a constant learning rate of 3e-4.
 
