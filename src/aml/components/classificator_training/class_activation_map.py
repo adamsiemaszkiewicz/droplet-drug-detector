@@ -273,10 +273,10 @@ class ClassActivationMapVisualizer:
 
 
 if __name__ == "__main__":
-    experiment_dir = ARTIFACTS_DIR / "droplet-drug-classificator" / "2023-12-05_12-52-50"
-    checkpoint_path_ = experiment_dir / "checkpoints" / "epoch=2-val_loss=0.0972.ckpt"
+    experiment_dir = ARTIFACTS_DIR / "droplet-drug-classificator" / "2023-12-17_11-10-12"
+    checkpoint_path_ = experiment_dir / "checkpoints" / "epoch=20-val_loss=0.0140.ckpt"
     save_dir_ = experiment_dir / "class_activation_maps"
-    sample_id_ = 42
+    sample_id_ = 70
     feature_layer_ = "layer4"
 
     config = get_config()
