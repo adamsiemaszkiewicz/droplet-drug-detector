@@ -83,7 +83,6 @@ class ConfusionMatrixCallbackConfig(BaseModel):
     log_train: bool
     log_val: bool
     log_test: bool
-    normalize: Literal["true", "pred", "all", "none"]
 
     @validator("save_dir", pre=True)
     def ensure_path_is_path(cls, v: Union[str, Path]) -> Path:
