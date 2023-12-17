@@ -3,14 +3,14 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/Python-3.10-brightgreen.svg)](https://www.python.org/downloads/release/python-310/)
 [![Last Commit](https://img.shields.io/github/last-commit/adamsiemaszkiewicz/droplet-drug-detector)](https://github.com/adamsiemaszkiewicz/droplet-drug-detector/commits/main)
-[![Code Climate](https://img.shields.io/codeclimate/maintainability/adamsiemaszkiewicz/droplet-drug-detector)](https://codeclimate.com/github/adamsiemaszkiewicz/droplet-drug-detector)
-[![Code Coverage](https://img.shields.io/codecov/c/github/adamsiemaszkiewicz/droplet-drug-detector)](https://codecov.io/gh/adamsiemaszkiewicz/droplet-drug-detector)
+
 
 ## Table of Contents
 - [Droplet Drug Detector](#droplet-drug-detector)
     - [Table of Contents](#table-of-contents)
     - [Project Overview](#project-overview)
     - [Dataset](#dataset)
+    - [Analysis Goals](#analysis-goals)
     - [Model Architecture](#model-architecture)
     - [Training & Evaluation](#training--evaluation)
     - [Inference](#inference)
@@ -38,35 +38,127 @@
 ## Project overview
 
 ### Research objective
-Utilizing machine learning to interpret microscopic images of dried droplets, this project focuses on precise substance identification and quantification in pharmaceuticals, offering innovative solutions in drug analysis and quality control.
+The Droplet Drug Detector (DDD) project aims to revolutionize pharmaceutical analysis by using advanced machine learning to analyze high-resolution microscopic images of dried droplets. This cutting-edge approach is designed to improve the identification and quantification of substances, thereby enhancing drug analysis and quality control.
+
+### Authors & Contributors
+- Tomasz Urbaniak, PhD - co-author, xxxxxxxxx
+- Adam Siemaszkiewicz (myself) - co-author, machine learning, data science, and software engineering
+- XXX XXX, MSc - contributor, sample collection and image acquisition
 
 ## Dataset
+The dataset comprises high-resolution microscopic images of various droplet samples, with each droplet being a few microliters in volume. For each substance, approximately 200-300 images of different concentrations are captured under controlled conditions to ensure data consistency and reliability. The dataset includes images of substances like gelatin capsules, lactose, methyl-cellulose, naproxen, pearlitol, and polyvinyl-alcohol.
 
 ### Theoretical basis
-The patterns formed by drying droplets, known as the coffee ring effect, are influenced by factors like the nature of the substance (crystalline or amorphous), its concentration, and interactions with other substances in the mixture.
-
+This project is based on the study of patterns formed in dried droplets, commonly referred to as the 'coffee ring effect'. These patterns are influenced by the substance's physical and chemical properties, concentration, and interaction within the mixture, providing valuable information for substance analysis.
 ### Sample collection
-Microscopic images of droplets, each a few microliters in volume, are captured (~200-300 per sample) under standardized conditions.
+Images are captured under strictly controlled conditions to guarantee data consistency and reliability. However, slight imperfections and variations are intentionally included to ensure the model's robustness in less controlled environments.
 
-### Analysis goals
+<div style="display: flex; justify-content: space-between;">
+    <div style="width: 30%">
+        <p><b>Substance</b>: Lactose<br><b>Concentration</b>: 0.25 mg/ml</p>
+        <img src="assets/substances/lactose_0.25mgml.png" alt="Lactose 0.25 mg/ml">
+    </div>
+    <div style="width: 30%">
+        <p><b>Substance</b>: Methyl Celulose<br><b>Concentration</b>: 1 mg/ml</p>
+        <img src="assets/substances/methyl-celulose_1mgml.png" alt="Methyl celulose 0.5 ml/mg">
+    </div>
+    <div style="width: 30%">
+        <p><b>Substance</b>: Gelatin Capsule<br><b>Concentration</b>: 1 mg/ml</p>
+        <img src="assets/substances/gelatin-capsule_1mgml.png" alt="Gelatin capsule 1 mg/ml">
+    </div>
+</div>
 
-**Substance Classification**: Classify different substances based on distinct patterns in dried droplet images.
+## Analysis goals
 
-**Concentration Estimation**: Implement regression models to accurately quantify the concentration levels of substances.
+1. **Substance Classification**: Develop a model to classify substances based on distinct patterns in dried droplet images, using Convolutional Neural Networks (CNNs) and Vision Transformers.
+2. **Concentration Estimation**: Design and implement regression models to accurately estimate the concentration levels of the substances. We aim to introduce novel methodologies in this area.
+3. **Rare Substance Detection**: Develop a Siamese network-based approach for identifying rare substances. This network will be trained on existing data, emphasizing its utility in scenarios with limited sample availability.
 
-**Rare Substance Detection**: Employ Siamese networks for identifying substances with limited sample data, leveraging their capability to learn from small datasets and detect similarities or differences effectively.
+## Substance Classification Results
 
-## Model architecture
+(Work in progress)
 
-Lorem ipsum
+### Model Training
+- **Epochs**: 10, with early stopping implemented to prevent overfitting.
+- **Data Split**: Stratified split (ratios 50:25:25 for training, validation & test subsets) across substances and concentration levels.
+- **Preprocessing and Augmentation**: Normalization, resizing to 256x256 pixels, color jitter, random gaussian noise, mirroring, and rotation.
+- **Model Architecture**: Details to be added.
+- **Loss Function**: Cross-entropy.
+- **Optimizer**: Adam with a constant learning rate of 3e-4.
 
-## Training & evaluation
+<div style="display: flex; justify-content: space-between;">
+    <div style="width: 47%">
+        <p>Learning curves</p>
+        <img src="assets/learning_curves/learning_curve_loss.png" alt="Misclassified image 1">
+    </div>
+    <div style="width: 47%">
+        <p>Confusion matrix</p>
+        <img src="assets/confusion_matrix/confusion_matrix.png" alt="Misclassified image 3">
+    </div>
+</div>
 
-Lorem ipsum
+### Model Evaluation
+- **Metrics**: Accuracy, F1 score, precision, and recall.
+- **Results**: Our initial experiments yielded a very high accuracy and F1 scores, indicating robust model performance.
 
-## Inference
+| Experiment | Accuracy | F1 Score | Precision | Recall |
+|------------|----------|----------|-----------|--------|
+| Experiment 1 | 0.95 | 0.96 | 0.97 | 0.94 |
 
-Lorem ipsum
+
+### Explainability
+- **Misclassification Analysis**: Images with high loss values are analyzed and stored for further examination.
+<div style="display: flex; justify-content: space-between;">
+    <div style="width: 30%">
+        <p><b>True</b>: gelatin-capsule<br><b>Predicted</b>: polyvinyl-alcohol</p>
+        <img src="assets/misclassified_images/test/epoch=10/true_label='gelatin-capsule'/pred_label='polyvinyl-alcohol'/loss=0.8300.png" alt="Misclassified image 1">
+    </div>
+    <div style="width: 30%">
+        <p><b>True</b>: gelatin-capsule<br><b>Predicted</b>: polyvinyl-alcohol</p>
+        <img src="assets/misclassified_images/test/epoch=10/true_label='gelatin-capsule'/pred_label='polyvinyl-alcohol'/loss=0.9811.png" alt="Misclassified image 2">
+    </div>
+    <div style="width: 30%">
+        <p><b>True</b>: methyl-cellulose<br><b>Predicted</b>: polyvinyl-alcohol</p>
+        <img src="assets/misclassified_images/test/epoch=10/true_label='methyl-cellulose'/pred_label='polyvinyl-alcohol'/loss=0.7917.png" alt="Misclassified image 3">
+    </div>
+</div>
+
+- **Class Activation Mapping (CAM)**: Used to visualize significant regions in the images for making predictions.
+<div style="display: flex; justify-content: space-between;">
+    <img src="assets/class_activation_maps/sample_id=0.png" width="30%" alt="Substance 1 dried droplet">
+    <img src="assets/class_activation_maps/sample_id=69.png" width="30%" alt="Substance 2 dried droplet">
+    <img src="assets/class_activation_maps/sample_id=100.png" width="30%" alt="Substance 3 dried droplet">
+</div>
+
+- **Activation Feature Analysis**: Analyzing how different layers of the network process the input images, to gain insights into the model's internal workings.
+<div style="display: flex; justify-content: space-between;">
+    <div style="width: 24%">
+        <p>Layer 1</p>
+        <img src="assets/activation_features/layer1.png" alt="Misclassified image 1">
+    </div>
+    <div style="width: 24%">
+        <p>Layer 2</p>
+        <img src="assets/activation_features/layer2.png" alt="Misclassified image 1">
+    </div>
+    <div style="width: 24%">
+        <p>Layer 3</p>
+        <img src="assets/activation_features/layer3.png" alt="Misclassified image 1">
+    </div>
+    <div style="width: 24%">
+        <p>Layer 4</p>
+        <img src="assets/activation_features/layer4.png" alt="Misclassified image 1">
+    </div>
+</div>
+
+
+## Concentration Estimation Results
+(To be added) This section will detail our methodology for developing regression models aimed at quantifying substance concentrations.
+
+## Rare Substance Detection Results (To be added)
+(To be added) This section will discuss the use of Siamese networks for detecting rare substances and the unique challenges associated with limited sample sizes.
+
+
+
 
 
 ## Installation
