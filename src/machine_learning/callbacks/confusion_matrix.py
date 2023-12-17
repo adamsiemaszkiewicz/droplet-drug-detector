@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-
 from pathlib import Path
-from typing import Dict, List, Literal, Tuple
+from typing import Any, Dict, List, Literal, Tuple
 
 import matplotlib.pyplot as plt
+import numpy as np
 import torch
 from lightning import Callback, LightningModule, Trainer
 from lightning.pytorch.loggers import MLFlowLogger, WandbLogger
+from numpy import ndarray
 from seaborn import heatmap
 from torch import Tensor
 from torchmetrics import ConfusionMatrix
@@ -22,18 +23,19 @@ class ConfusionMatrixPlotter:
     FIG_SIZE: Tuple[int, int] = (12, 10)
     FONT_SIZE: int = 10
     TITLE_SIZE: int = 14
+    TICK_ROTATION: int = 45
     LABEL_PAD: int = 10
     CMAP: str = "Blues"
     FLOAT_PRECISION: str = ".2f"
 
     def plot_confusion_matrix(
-        self, cm: Tensor, class_names: List[str], stage: str, epoch: int, output_path: Path
+        self, cm: ndarray, class_names: List[str], stage: str, epoch: int, output_path: Path
     ) -> None:
         """
         Plots and saves a confusion matrix as a heatmap.
 
         Args:
-            cm (Tensor): The confusion matrix to plot, provided as a Tensor.
+            cm (ndarray): The confusion matrix to plot, provided as a Tensor.
             class_names (List[str]): The names corresponding to the classes in the confusion matrix.
             stage (str): The stage of model evaluation ('train', 'val', or 'test') for which the matrix is plotted.
             epoch (int): The epoch number at which the confusion matrix is generated.
@@ -41,10 +43,15 @@ class ConfusionMatrixPlotter:
         """
         plt.figure(figsize=self.FIG_SIZE)
 
+        cm_normalized = cm.astype(np.float32) / cm.sum(axis=1, keepdims=True)
+        labels = np.asarray(
+            [f"{normalized:.2f}\n({actual})" for normalized, actual in zip(cm_normalized.flatten(), cm.flatten())]
+        ).reshape(cm.shape)
+
         heatmap(
-            cm,
-            annot=True,
-            fmt=self.FLOAT_PRECISION,
+            data=cm_normalized,
+            annot=labels,
+            fmt="",
             xticklabels=class_names,
             yticklabels=class_names,
             cmap=self.CMAP,
@@ -56,8 +63,8 @@ class ConfusionMatrixPlotter:
         plt.ylabel("Ground truth", fontsize=self.FONT_SIZE, labelpad=self.LABEL_PAD)
         plt.xlabel("Predictions", fontsize=self.FONT_SIZE, labelpad=self.LABEL_PAD)
 
-        plt.xticks(rotation=45)
-        plt.yticks(rotation=45)
+        plt.xticks(rotation=self.TICK_ROTATION)
+        plt.yticks(rotation=self.TICK_ROTATION)
 
         plt.title(f"Confusion Matrix\nstage:{stage}, epoch:{epoch}", fontsize=ConfusionMatrixPlotter.TITLE_SIZE, pad=16)
 
@@ -82,7 +89,6 @@ class ConfusionMatrixCallback(Callback):
         log_train (bool): Flag to control whether to save the confusion matrix during training.
         log_val (bool): Flag to control whether to save the confusion matrix during validation.
         log_test (bool): Flag to control whether to save the confusion matrix during testing.
-        normalize (Literal["true", "pred", "all", "none"]): Normalization of the confusion matrix.
     """
 
     def __init__(
@@ -93,7 +99,6 @@ class ConfusionMatrixCallback(Callback):
         log_train: bool,
         log_val: bool,
         log_test: bool,
-        normalize: Literal["true", "pred", "all", "none"] = "true",
     ) -> None:
         super().__init__()
         self.save_dir = save_dir
@@ -101,16 +106,13 @@ class ConfusionMatrixCallback(Callback):
         self.num_classes = len(class_dict)
         self.class_names = list(class_dict.values())
         self.task = task
-        self.normalize = normalize
         self.log_train = log_train
         self.log_val = log_val
         self.log_test = log_test
 
         self.plotter = ConfusionMatrixPlotter()
 
-        self.confusion_matrix_metric = ConfusionMatrix(
-            num_classes=self.num_classes, task=self.task, normalize=self.normalize
-        )
+        self.confusion_matrix_metric = ConfusionMatrix(num_classes=self.num_classes, task=self.task, normalize="none")
 
         self.tmp_predictions: Dict[str, List[Tensor]] = {
             STAGE_TRAINING: [],
@@ -141,6 +143,8 @@ class ConfusionMatrixCallback(Callback):
         outputs: Dict[str, Tensor],
         batch: Tuple[Tensor, Tensor],
         batch_idx: int,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
         self.tmp_predictions[STAGE_VALIDATION].append(outputs["preds"])
         self.tmp_targets[STAGE_VALIDATION].append(outputs["targets"])
@@ -152,6 +156,8 @@ class ConfusionMatrixCallback(Callback):
         outputs: Dict[str, Tensor],
         batch: Tuple[Tensor, Tensor],
         batch_idx: int,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
         self.tmp_predictions[STAGE_TESTING].append(outputs["preds"])
         self.tmp_targets[STAGE_TESTING].append(outputs["targets"])
