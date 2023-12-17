@@ -152,6 +152,8 @@ A few experiments were conducted to determine a baseline model and hyperparamete
 ### Rare Substance Detection
 (To be added) This section will discuss the use of Siamese networks for detecting rare substances and the unique challenges associated with limited sample sizes.
 
+[Back to the top](#droplet-drug-detector)
+
 ---
 
 ## Installation
