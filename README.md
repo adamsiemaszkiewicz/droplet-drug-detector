@@ -119,9 +119,14 @@ A few experiments were conducted to determine a baseline model and hyperparamete
 
 <table>
   <tr>
-    <td><img src="assets/class_activation_maps/sample_id=0.png" width="100%" alt="Substance 1 dried droplet"/></td>
-    <td><img src="assets/class_activation_maps/sample_id=69.png" width="100%" alt="Substance 2 dried droplet"/></td>
-    <td><img src="assets/class_activation_maps/sample_id=100.png" width="100%" alt="Substance 3 dried droplet"/></td>
+    <td align="center"><em>Test sample 0</em></td>
+    <td align="center"><em>Test sample 40</em></td>
+    <td align="center"><em>Test sample 60</em></td>
+  </tr>
+  <tr>
+    <td><img src="assets/class_activation_maps/sample_id=0.png" width="100%" alt="CAM for test sample ID 0"/></td>
+    <td><img src="assets/class_activation_maps/sample_id=40.png" width="100%" alt="CAM for test sample ID 40"/></td>
+    <td><img src="assets/class_activation_maps/sample_id=60.png" width="100%" alt="CAM for test sample ID 60"/></td>
   </tr>
 </table>
 
