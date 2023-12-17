@@ -92,11 +92,7 @@ A few experiments were conducted to determine a baseline model and hyperparamete
 
 #### Model Evaluation
 - **Metrics**: Accuracy, F1 score, precision, and recall.
-- **Results**: Our initial experiments yielded a very high accuracy and F1 scores, indicating robust model performance.
-
-| Experiment | Accuracy | F1 Score | Precision | Recall |
-|------------|----------|----------|-----------|--------|
-| Experiment 1 | 0.95 | 0.96 | 0.97 | 0.94 |
+- **Results**: Our initial experiments yielded a very high F1-score (**0.9933**), indicating robust model performance.
 
 
 #### Explainability
