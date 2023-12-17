@@ -72,6 +72,18 @@ class DropletDrugClassificationDataset(Dataset):
         class_balance = Counter(class_indices)
         return dict(sorted(class_balance.items()))
 
+    @property
+    def concentration_balance(self) -> Dict[float, int]:
+        """
+        The concentration balance of the dataset.
+
+        Returns:
+            Dict[float, int]: A dictionary mapping each concentration to its count in the dataset.
+        """
+        concentrations = [concentration for _, _, concentration in self.samples]
+        concentration_balance = Counter(concentrations)
+        return dict(sorted(concentration_balance.items()))
+
     def _load_samples(self) -> List[Tuple[Path, int, float]]:
         samples = []
         for class_idx, class_name in self.CLASSES.items():
@@ -187,6 +199,60 @@ class ClassificationDataModule(LightningDataModule):
             return self.test_dataset.class_balance
         return {}
 
+    @property
+    def concentration_balance(self) -> Dict[float, int]:
+        """
+        Get the overall concentration balance across training, validation, and test datasets.
+
+        Returns:
+            Dict[float, int]: A dictionary representing the overall concentration balance.
+        """
+        overall_balance: Counter = Counter()
+        if self.train_dataset is not None:
+            overall_balance.update(self.train_dataset.concentration_balance)
+        if self.val_dataset is not None:
+            overall_balance.update(self.val_dataset.concentration_balance)
+        if self.test_dataset is not None:
+            overall_balance.update(self.test_dataset.concentration_balance)
+
+        return dict(overall_balance)
+
+    @property
+    def train_concentration_balance(self) -> Dict[float, int]:
+        """
+        Get the concentration balance of the training dataset.
+
+        Returns:
+            Dict[float, int]: A dictionary representing concentration balance.
+        """
+        if self.train_dataset is not None:
+            return self.train_dataset.concentration_balance
+        return {}
+
+    @property
+    def val_concentration_balance(self) -> Dict[float, int]:
+        """
+        Get the concentration balance of the validation dataset.
+
+        Returns:
+            Dict[float, int]: A dictionary representing concentration balance.
+        """
+        if self.val_dataset is not None:
+            return self.val_dataset.concentration_balance
+        return {}
+
+    @property
+    def test_concentration_balance(self) -> Dict[float, int]:
+        """
+        Get the concentration balance of the test dataset.
+
+        Returns:
+            Dict[float, int]: A dictionary representing concentration balance.
+        """
+        if self.test_dataset is not None:
+            return self.test_dataset.concentration_balance
+        return {}
+
     def setup(self, stage: Optional[str] = None) -> None:
         # Create a full dataset without transforms to split it first
         full_dataset = DropletDrugClassificationDataset(root_dir=self.dataset_dir)
@@ -203,19 +269,9 @@ class ClassificationDataModule(LightningDataModule):
         self.val_dataset.samples = [full_dataset.samples[i] for i in val_indices]
         self.test_dataset.samples = [full_dataset.samples[i] for i in test_indices]
 
-        # Check for data leaks
-        if not self.check_data_leak(self.train_dataset, self.val_dataset, self.test_dataset):
-            raise ValueError("Data leak detected between subsets!")
+        self.check_data_leak(self.train_dataset, self.val_dataset, self.test_dataset)
 
-        _logger.info(f"Total dataset size: {len(full_dataset)}")
-        _logger.info(f"Training set size: {len(self.train_dataset)}")
-        _logger.info(f"Validation set size: {len(self.val_dataset)}")
-        _logger.info(f"Test set size: {len(self.test_dataset)}")
-
-        _logger.info(f"Overall class balance: {self.class_balance}")
-        _logger.info(f"Training set class balance: {self.train_class_balance}")
-        _logger.info(f"Validation set class balance: {self.val_class_balance}")
-        _logger.info(f"Test set class balance: {self.test_class_balance}")
+        self.log_dataset_details()
 
     def stratified_split(self, dataset: DropletDrugClassificationDataset) -> Tuple[List[int], List[int], List[int]]:
         """
@@ -245,12 +301,12 @@ class ClassificationDataModule(LightningDataModule):
 
         return train_index, test_val_index[val_index], test_val_index[test_index]
 
+    @staticmethod
     def check_data_leak(
-        self,
         train_dataset: DropletDrugClassificationDataset,
         val_dataset: DropletDrugClassificationDataset,
         test_dataset: DropletDrugClassificationDataset,
-    ) -> bool:
+    ) -> None:
         """
         Check for data leaks between datasets.
 
@@ -258,9 +314,6 @@ class ClassificationDataModule(LightningDataModule):
             train_dataset (DropletDrugClassificationDataset): Training dataset.
             val_dataset (DropletDrugClassificationDataset): Validation dataset.
             test_dataset (DropletDrugClassificationDataset): Test dataset.
-
-        Returns:
-            bool: Returns True if there is no data leak, False otherwise.
         """
         train_paths = {sample[0] for sample in train_dataset.samples}
         val_paths = {sample[0] for sample in val_dataset.samples}
@@ -272,8 +325,29 @@ class ClassificationDataModule(LightningDataModule):
             or train_paths.intersection(test_paths)
             or val_paths.intersection(test_paths)
         ):
-            return False  # There is a data leak
-        return True  # No data leaks
+            raise ValueError("Data leak detected between subsets!")
+
+    def log_dataset_details(self) -> None:
+        """
+        Log dataset details.
+        """
+        _logger.info(
+            f"Total dataset size: "
+            f"{sum(len(ds) for ds in [self.train_dataset, self.val_dataset, self.test_dataset] if ds is not None)}"
+        )
+        _logger.info(f"Training set size: {len(self.train_dataset) if self.train_dataset is not None else 0}")
+        _logger.info(f"Validation set size: {len(self.val_dataset) if self.val_dataset is not None else 0}")
+        _logger.info(f"Test set size: {len(self.test_dataset) if self.test_dataset is not None else 0}")
+
+        _logger.info(f"Overall class balance: {self.class_balance}")
+        _logger.info(f"Training set class balance: {self.train_class_balance}")
+        _logger.info(f"Validation set class balance: {self.val_class_balance}")
+        _logger.info(f"Test set class balance: {self.test_class_balance}")
+
+        _logger.info(f"Overall concentration balance: {self.concentration_balance}")
+        _logger.info(f"Training set concentration balance: {self.train_concentration_balance}")
+        _logger.info(f"Validation set concentration balance: {self.val_concentration_balance}")
+        _logger.info(f"Test set concentration balance: {self.test_concentration_balance}")
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
