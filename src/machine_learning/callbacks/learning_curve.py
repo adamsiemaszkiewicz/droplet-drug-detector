@@ -27,7 +27,8 @@ class LearningCurvePlotter:
     SINGLE_VALUE_MARKER: str = "o"
     LABEL_PAD: int = 10
     NUM_Y_TICKS: int = 10
-    FLOAT_PRECISION: str = ".2f"
+    FLOAT_PRECISION: str = ".4f"
+    LOG_SCALE: bool = True
 
     def __init__(self, save_dir: Path) -> None:
         self.save_dir = save_dir
@@ -132,8 +133,11 @@ class LearningCurvePlotter:
 
         # Custom y-axis label and ticks for loss
         if name.lower() == "loss":
-            plt.yscale("log")
-            plt.ylabel(ylabel="Loss (logarithmic scale)", fontsize=self.FONT_SIZE, labelpad=self.LABEL_PAD)
+            if self.LOG_SCALE:
+                plt.yscale("log")
+                plt.ylabel(ylabel="Loss (logarithmic scale)", fontsize=self.FONT_SIZE, labelpad=self.LABEL_PAD)
+            else:
+                plt.ylabel(ylabel="Loss", fontsize=self.FONT_SIZE, labelpad=self.LABEL_PAD)
 
             y_ticks = np.geomspace(min_value, max_value, num=self.NUM_Y_TICKS)
             plt.yticks(y_ticks, [f"{tick:{self.FLOAT_PRECISION}}" for tick in y_ticks])

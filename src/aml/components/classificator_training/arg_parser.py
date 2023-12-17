@@ -230,11 +230,6 @@ def create_arg_parser() -> ArgumentParser:
         type=str,
         default=callbacks_confusion_matrix_logger_defaults["log_test"],
     )
-    parser.add_argument(
-        "--callbacks_confusion_matrix_logger_normalize",
-        type=str,
-        default=callbacks_confusion_matrix_logger_defaults["normalize"],
-    )
 
     parser.add_argument(
         "--callbacks_misclassification_logger_log_train",
@@ -386,7 +381,6 @@ def get_config(save_config: bool = False) -> ClassificationConfig:
                 "log_train": args.callbacks_confusion_matrix_logger_log_train,
                 "log_val": args.callbacks_confusion_matrix_logger_log_val,
                 "log_test": args.callbacks_confusion_matrix_logger_log_test,
-                "normalize": str(args.callbacks_confusion_matrix_logger_normalize).lower(),
             },
             "misclassification_logger": {
                 "save_dir": artifacts_dir / "misclassified_images",

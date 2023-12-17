@@ -40,7 +40,6 @@ metrics:
     - f1_score
     - precision
     - recall
-    - jaccard_index
   task: multiclass
   num_classes: 6
   extra_arguments_list:
@@ -50,11 +49,22 @@ metrics:
       - {}
       - {}
 
+augmentations:
+  name_list:
+    - random_horizontal_flip
+    - random_vertical_flip
+    - random_rotation
+  extra_arguments_list:
+    - {}
+    - {}
+    - degrees: 45
+
+
 callbacks:
   early_stopping:
     monitor: val_loss
     mode: min
-    patience: 3
+    patience: 10
     min_delta: 0.001
     verbose: true
   model_checkpoint:
@@ -81,7 +91,6 @@ callbacks:
     log_train: true
     log_val: true
     log_test: true
-    normalize: true
   misclassification_logger:
     log_train: false
     log_val: true
@@ -89,7 +98,7 @@ callbacks:
     top_n: 5
 
 trainer:
-  max_epochs: 10
+  max_epochs: 50
   accelerator: gpu
   precision: 32
   log_every_n_steps: 50

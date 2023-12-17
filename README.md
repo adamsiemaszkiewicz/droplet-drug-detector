@@ -1,38 +1,160 @@
 # Droplet Drug Detector
 
-Machine learning powered analysis of microscopic droplet images for substance identification and quantification, aimed at potential applications in drug detection.
-
-
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/Python-3.10-brightgreen.svg)](https://www.python.org/downloads/release/python-310/)
 [![Last Commit](https://img.shields.io/github/last-commit/adamsiemaszkiewicz/droplet-drug-detector)](https://github.com/adamsiemaszkiewicz/droplet-drug-detector/commits/main)
-[![Code Climate](https://img.shields.io/codeclimate/maintainability/adamsiemaszkiewicz/droplet-drug-detector)](https://codeclimate.com/github/adamsiemaszkiewicz/droplet-drug-detector)
-[![Code Coverage](https://img.shields.io/codecov/c/github/adamsiemaszkiewicz/droplet-drug-detector)](https://codecov.io/gh/adamsiemaszkiewicz/droplet-drug-detector)
-
 
 ## Table of Contents
-- [Project Overview](#droplet-drug-detector)
+0. [Table of Contents](#table-of-contents)
+1. [Project Overview](#project-overview)
+    - [Dataset](#dataset)
+    - [Analysis Goals](#analysis-goals)
+    - [Substance Classification](#substance-classification) (work in progress)
+    - [Concentration Estimation](#concentration-estimation) (future work)
+    - [Rare Substance Detection](#rare-substance-detection) (future work)
 
-- [Table of Contents](#table-of-contents)
-- [Installation](#installation)
-- [Repository Structure](#repository-structure)
-    - [Azure DevOps](#azure-devops)
-    - [Artifacts](#artifacts)
-    - [Configs](#configs)
-    - [Data](#data)
-    - [Docker](#docker)
-    - [Environments](#environments)
-    - [Notebooks](#notebooks)
-    - [Source Code](#source-code)
-    - [Testing](#testing)
-- [Development](#development)
-    - [Source Code Structure](#source-code-structure)
-- [Configuration](#configuration)
-    - [GitHub Configuration](#github-configuration)
-    - [Docker Configuration](#docker-configuration)
-    - [Environment Configuration](#environment-configuration)
-    - [Formatting, Linting & Type Checking](#formatting-linting--type-checking)
-- [License](#license)
+2. [Installation](#installation)
+3. [Repository Structure](#repository-structure)
+4. [Development](#development)
+5. [Configuration](#configuration)
+6. [License](#license)
+
+---
+
+## Project overview
+
+#### Research objective
+The Droplet Drug Detector (DDD) project aims to revolutionize pharmaceutical analysis by using advanced machine learning to analyze high-resolution microscopic images of dried droplets. This cutting-edge approach is designed to improve the identification and quantification of substances, thereby enhancing drug analysis and quality control.
+
+#### Authors & Contributors
+- **Tomasz Urbaniak, PhD** _(Wrocław Medical Univesity)_
+
+A pharmaceutical expert, Tomasz is the co-author responsible for guiding the project's pharmaceutical aspects, leveraging his extensive knowledge in the field.
+- **Adam Siemaszkiewicz, MSc** (myself) _(Wrocław University of Science & Technology)_
+
+As a co-author, I specialize in machine learning, data science, and software engineering, driving the technical and analytical facets of the project.
+- **Nicole Cutajar, MSc** _(University of Malta)_
+
+A vital contributor focusing on sample collection and image acquisition, ensuring the integrity and quality of our dataset.
+
+### Dataset
+The dataset comprises high-resolution microscopic images of various droplet samples, with each droplet being a few microliters in volume. For each substance, approximately 200-300 images of different concentrations are captured under controlled conditions to ensure data consistency and reliability. The dataset includes images of substances like gelatin capsules, lactose, methyl-cellulose, naproxen, pearlitol, and polyvinyl-alcohol.
+
+#### Theoretical basis
+This project is based on the study of patterns formed in dried droplets, commonly referred to as the 'coffee ring effect'. These patterns are influenced by the substance's physical and chemical properties, concentration, and interaction within the mixture, providing valuable information for substance analysis.
+
+#### Sample collection
+Images are captured under strictly controlled conditions to guarantee data consistency and reliability. However, slight imperfections and variations are intentionally included to ensure the model's robustness in less controlled environments.
+
+<table>
+  <tr>
+    <td align="center"><em>Lactose, 0.25 mg/ml</em></td>
+    <td align="center"><em>Methyl Celulose, 1 mg/ml</em></td>
+    <td align="center"><em>Gelatin Capsule, 1 mg/ml</em></td>
+  </tr>
+  <tr>
+    <td><img src="assets/substances/lactose_0.25mgml.png" width="100%" alt="Lactose 0.25 mg/ml"/></td>
+    <td><img src="assets/substances/methyl-celulose_1mgml.png" width="100%" alt="Methyl Celulose 1 mg/ml"/></td>
+    <td><img src="assets/substances/gelatin-capsule_1mgml.png" width="100%" alt="Gelatin Capsule 1 mg/ml"/></td>
+  </tr>
+</table>
+### Analysis goals
+
+1. **Substance Classification**: Develop a model to classify substances based on distinct patterns in dried droplet images, using Convolutional Neural Networks (CNNs) and Vision Transformers.
+2. **Concentration Estimation**: Design and implement regression models to accurately estimate the concentration levels of the substances. We aim to introduce novel methodologies in this area.
+3. **Rare Substance Detection**: Develop a Siamese network-based approach for identifying rare substances. This network will be trained on existing data, emphasizing its utility in scenarios with limited sample availability.
+
+### Substance Classification
+
+(Work in progress)
+
+#### Model Training
+A few experiments were conducted to determine a baseline model and hyperparameters for further experiments.
+
+- **Epochs**: 50 (max), with early stopping implemented to prevent overfitting.
+- **Data Split**: Stratified split (50:25:25 for training, validation & test subsets) across substances and concentration levels.
+- **Preprocessing**: Normalization, resizing to 256x256 pixels.
+- **Data Augmentation**: Color jitter, random gaussian noise, mirroring, and rotation.
+- **Model Architecture**: Resnet18.
+- **Loss Function**: Cross-entropy.
+- **Optimizer**: Adam with a constant learning rate of 3e-4.
+
+<table>
+  <tr>
+    <td align="center"><em>Learning curves</em></td>
+    <td align="center"><em>Confusion matrix</em></td>
+  </tr>
+  <tr>
+    <td><img src="assets/learning_curves/learning_curve_loss.png" width="100%" alt="Learning curves"/></td>
+    <td><img src="assets/confusion_matrix/confusion_matrix.png" width="100%" alt="Confusion matrix"/></td>
+  </tr>
+</table>
+
+#### Model Evaluation
+- **Metrics**: Accuracy, F1 score, precision, and recall.
+- **Results**: Our initial experiments yielded a very high F1-score (**0.9933**), indicating robust model performance.
+
+
+#### Explainability
+- **Misclassification Analysis**: Images with high loss values are analyzed and stored for further examination.
+
+<table>
+  <tr>
+    <td align="center"><em>True: gelatin-capsule, Predicted: polyvinyl-alcohol</em></td>
+    <td align="center"><em>True: gelatin-capsule, Predicted: polyvinyl-alcohol</em></td>
+    <td align="center"><em>True: methyl-cellulose, Predicted: polyvinyl-alcohol</em></td>
+  </tr>
+  <tr>
+    <td><img src="assets/misclassified_images/test/epoch=10/true_label='gelatin-capsule'/pred_label='polyvinyl-alcohol'/loss=0.8300.png" width="100%" alt="Misclassified image 1"/></td>
+    <td><img src="assets/misclassified_images/test/epoch=10/true_label='gelatin-capsule'/pred_label='polyvinyl-alcohol'/loss=0.9811.png" width="100%" alt="Misclassified image 2"/></td>
+    <td><img src="assets/misclassified_images/test/epoch=10/true_label='methyl-cellulose'/pred_label='polyvinyl-alcohol'/loss=0.7917.png" width="100%" alt="Misclassified image 3"/></td>
+  </tr>
+</table>
+
+- **Class Activation Mapping (CAM)**: Used to visualize significant regions in the images for making predictions.
+
+<table>
+  <tr>
+    <td align="center"><em>Test sample 0</em></td>
+    <td align="center"><em>Test sample 40</em></td>
+    <td align="center"><em>Test sample 60</em></td>
+  </tr>
+  <tr>
+    <td><img src="assets/class_activation_maps/sample_id=0.png" width="100%" alt="CAM for test sample ID 0"/></td>
+    <td><img src="assets/class_activation_maps/sample_id=40.png" width="100%" alt="CAM for test sample ID 40"/></td>
+    <td><img src="assets/class_activation_maps/sample_id=60.png" width="100%" alt="CAM for test sample ID 60"/></td>
+  </tr>
+</table>
+
+
+
+- **Activation Feature Analysis**: Analyzing how different layers of the network process the input images, to gain insights into the model's internal workings.
+
+<table>
+  <tr>
+    <td align="center"><em>Layer 1</em></td>
+    <td align="center"><em>Layer 2</em></td>
+    <td align="center"><em>Layer 3</em></td>
+    <td align="center"><em>Layer 4</em></td>
+  </tr>
+  <tr>
+    <td><img src="assets/activation_features/layer1.png" width="100%" alt="Layer 1 Activation Feature"/></td>
+    <td><img src="assets/activation_features/layer2.png" width="100%" alt="Layer 2 Activation Feature"/></td>
+    <td><img src="assets/activation_features/layer3.png" width="100%" alt="Layer 3 Activation Feature"/></td>
+    <td><img src="assets/activation_features/layer4.png" width="100%" alt="Layer 4 Activation Feature"/></td>
+  </tr>
+</table>
+
+
+### Concentration Estimation
+(To be added) This section will detail our methodology for developing regression models aimed at quantifying substance concentrations.
+
+### Rare Substance Detection
+(To be added) This section will discuss the use of Siamese networks for detecting rare substances and the unique challenges associated with limited sample sizes.
+
+[Back to the top](#droplet-drug-detector)
+
+---
 
 ## Installation
 
@@ -84,15 +206,15 @@ Follow these steps to set up your local environment:
     docker run -it [image-name]:[tag]
     ```
 
-[Back to the top](#project-title)
+[Back to the top](#droplet-drug-detector)
+
+---
 
 ## Repository Structure
 
 ### Azure DevOps
 
 The `.azure-devops` directory contains configurations specific to Azure DevOps features and services to support the project's development workflow.
-
-[Back to the top](#project-title)
 
 ### Github
 
@@ -102,43 +224,26 @@ The `.github` directory contains configurations specific to GitHub features and 
 
 All experiment related artifacts such as configuration files, model checkpoints, logs, etc. are saved in `artifacts` directory.
 
-[Back to the top](#project-title)
-
-
 ### Configs
 
 The `configs` directory contains configuration YAML files for different machine learning tasks.
 
-[Back to the top](#project-title)
-
-
 ### Data
 
 Store all project related data inside `data` folder.
-
-[Back to the top](#project-title)
 
 
 ### Docker
 
 All Docker-related files necessary for building Docker images and managing Docker containers for the project are located in `docker` directory.
 
-[Back to the top](#project-title)
-
-
 ### Environments
 
 The `environments` directory stores YAML files that define the different Conda environments needed for the project.
 
-[Back to the top](#project-title)
-
-
 ### Notebooks
 
 Jupyter notebooks integral to the project as located in `notebooks` directory..
-
-[Back to the top](#project-title)
-
 
 ### Source Code
 
@@ -164,6 +269,8 @@ pytest
 
 [Back to the top](#project-title)
 
+---
+
 ## Development
 
 ### Azure DevOps Code Structure
@@ -172,13 +279,13 @@ A detailed explanation of the layout and purpose of the `.azure-devops` director
 
 - `.azure-devops/pipelines`: This folder holds the YAML pipeline definitions for building and deploying using Azure DevOps services.
   - `build-aml-environment.yaml` sets up Azure Machine Learning environment needed for running Azure ML tasks
-  - `sample-pipeline.yaml` runs a sample Azure Machine Learning task
+  - `droplet-drug-classificator-training.yaml` runs the Droplet Drug Classificator training pipeline as Azure Machine Learning task
 
 - `.azure-devops/templates`: Reusable YAML templates with encapsulated functionalities to streamline pipeline creation. The templates include:
-  - `install-azure-cli.yaml` for installing the Azure CLI.
   - `configure-aml-extension.yaml` for setting up Azure ML extensions.
   - `connect-to-aml-workspace.yaml` for connecting to an Azure ML workspace within the pipeline.
   - `create-conda-env.yaml` for constructing Conda environments needed for the pipeline's operations.
+  - `install-azure-cli.yaml` for installing the Azure CLI.
   - `substitute-env-vars.yaml` for injecting environment variables dynamically into the pipeline process.
 
 
@@ -188,9 +295,9 @@ A detailed explanation of the layout and purpose of the `src` directory contents
 
 - `aml`: Azure Machine Learning utilities, components and pipelines.
     - `components`: Contains code for individual Azure Machine Learning components.
-        - `sample_component`: An example component, complete with its specification YAML, entrypoints script, options, configuration and custom functions.
+        - `classificator_training`: A component meant for classification model training & evaluation with its specification YAML, entrypoints script, options, configuration and custom functions.
     - `pipelines`: Contains code for Azure Machine Learning pipelines.
-        - `sample_pipeline`: An example pipeline specification YAML
+        - `classificator_training`: A pipeline running classification component containing its specification YAML
     - `blob_storage.py`: Azure Blob Storage service allowing to upload and download files and folders.
     - `build_aml_environment.py`: A script to set up the Azure Machine Learning environment.
     - `client.py`: Azure Machine Learning client allowing to interact with AML objects.
@@ -217,7 +324,7 @@ A detailed explanation of the layout and purpose of the `src` directory contents
 
 [Back to the top](#project-title)
 
-
+---
 
 ## Configuration
 
@@ -233,8 +340,6 @@ The `.github` directory contains configurations specific to GitHub features and 
 
 - `ISSUE_TEMPLATE`: Provides templates for opening new issues on GitHub. The templates ensure that all necessary details are included when contributors report bugs (`bug_report.md`) or propose new features (`feature_request.md`). Use these templates to create issues that are consistent and informative.
 
-[Back to the top](#project-title)
-
 ### Docker Configuration
 
 The `docker` directory is intended to house all Docker-related files necessary for building Docker images and managing Docker containers for the project. This includes:
@@ -249,8 +354,6 @@ The `docker` directory is intended to house all Docker-related files necessary f
 
 As the project develops, ensure that you populate the `docker` directory with these files and provide documentation on their purpose and how they should be used. This could include instructions on how to build images, start containers, and manage containerized environments effectively.
 
-[Back to the top](#project-title)
-
 ### Environment Configuration
 
 The `environments` directory contains configuration files that define the different environments needed for the project. These files are essential for ensuring that the project runs with the correct versions of its dependencies and in a way that's consistent across different setups.
@@ -258,8 +361,6 @@ The `environments` directory contains configuration files that define the differ
 - **Conda Environment Files**: YAML files that specify the packages required for a conda environment. Environment YAML files should have the same name as the project they relate to.
 
 - **Infrastructure Configuration**: The `infra.yaml` file might include configurations for setting up the infrastructure as a code, which can be particularly useful when working with cloud services or when you want to automate the setup of your project's infrastructure.
-
-[Back to the top](#project-title)
 
 ### Formatting, Linting & Type Checking
 
@@ -273,10 +374,12 @@ Here are the hooks configured for this project:
 - `mypy`: Checks type hints and enforces type checking on your code.
 - `pytest`: Runs automated tests to make sure new changes do not break the functionality.
 
-[Back to the top](#project-title)
+[Back to the top](#droplet-drug-detector)
+
+---
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
-[Back to the top](#project-title)
+[Back to the top](#droplet-drug-detector)
