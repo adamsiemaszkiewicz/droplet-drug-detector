@@ -46,20 +46,14 @@ This project is based on the study of patterns formed in dried droplets, commonl
 #### Sample collection
 Images are captured under strictly controlled conditions to guarantee data consistency and reliability. However, slight imperfections and variations are intentionally included to ensure the model's robustness in less controlled environments.
 
-<div style="display: flex; justify-content: space-between;">
-    <div style="width: 30%">
-        <p><b>Substance</b>: Lactose<br><b>Concentration</b>: 0.25 mg/ml</p>
-        <img src="assets/substances/lactose_0.25mgml.png" alt="Lactose 0.25 mg/ml">
-    </div>
-    <div style="width: 30%">
-        <p><b>Substance</b>: Methyl Celulose<br><b>Concentration</b>: 1 mg/ml</p>
-        <img src="assets/substances/methyl-celulose_1mgml.png" alt="Methyl celulose 0.5 ml/mg">
-    </div>
-    <div style="width: 30%">
-        <p><b>Substance</b>: Gelatin Capsule<br><b>Concentration</b>: 1 mg/ml</p>
-        <img src="assets/substances/gelatin-capsule_1mgml.png" alt="Gelatin capsule 1 mg/ml">
-    </div>
-</div>
+![Lactose 0.25 mg/ml](assets/substances/lactose_0.25mgml.png)
+*Lactose, Concentration: 0.25 mg/ml*
+
+![Methyl Celulose 1 mg/ml](assets/substances/methyl-celulose_1mgml.png)
+*Methyl Celulose, Concentration: 1 mg/ml*
+
+![Gelatin Capsule 1 mg/ml](assets/substances/gelatin-capsule_1mgml.png)
+*Gelatin Capsule, Concentration: 1 mg/ml*
 
 ### Analysis goals
 
@@ -82,16 +76,11 @@ A few experiments were conducted to determine a baseline model and hyperparamete
 - **Loss Function**: Cross-entropy.
 - **Optimizer**: Adam with a constant learning rate of 3e-4.
 
-<div style="display: flex; justify-content: space-between;">
-    <div style="width: 47%">
-        <p>Learning curves</p>
-        <img src="assets/learning_curves/learning_curve_loss.png" alt="Misclassified image 1">
-    </div>
-    <div style="width: 47%">
-        <p>Confusion matrix</p>
-        <img src="assets/confusion_matrix/confusion_matrix.png" alt="Misclassified image 3">
-    </div>
-</div>
+![Learning curves](assets/learning_curves/learning_curve_loss.png)
+*Learning curves*
+
+![Confusion matrix](assets/confusion_matrix/confusion_matrix.png)
+*Confusion matrix*
 
 #### Model Evaluation
 - **Metrics**: Accuracy, F1 score, precision, and recall.
@@ -104,49 +93,42 @@ A few experiments were conducted to determine a baseline model and hyperparamete
 
 #### Explainability
 - **Misclassification Analysis**: Images with high loss values are analyzed and stored for further examination.
-<div style="display: flex; justify-content: space-between;">
-    <div style="width: 30%">
-        <p><b>True</b>: gelatin-capsule<br><b>Predicted</b>: polyvinyl-alcohol</p>
-        <img src="assets/misclassified_images/test/epoch=10/true_label='gelatin-capsule'/pred_label='polyvinyl-alcohol'/loss=0.8300.png" alt="Misclassified image 1">
-    </div>
-    <div style="width: 30%">
-        <p><b>True</b>: gelatin-capsule<br><b>Predicted</b>: polyvinyl-alcohol</p>
-        <img src="assets/misclassified_images/test/epoch=10/true_label='gelatin-capsule'/pred_label='polyvinyl-alcohol'/loss=0.9811.png" alt="Misclassified image 2">
-    </div>
-    <div style="width: 30%">
-        <p><b>True</b>: methyl-cellulose<br><b>Predicted</b>: polyvinyl-alcohol</p>
-        <img src="assets/misclassified_images/test/epoch=10/true_label='methyl-cellulose'/pred_label='polyvinyl-alcohol'/loss=0.7917.png" alt="Misclassified image 3">
-    </div>
-</div>
+
+![Misclassified image 1](assets/misclassified_images/test/epoch=10/true_label='gelatin-capsule'/pred_label='polyvinyl-alcohol'/loss=0.8300.png)
+*True: gelatin-capsule, Predicted: polyvinyl-alcohol*
+
+![Misclassified image 2](assets/misclassified_images/test/epoch=10/true_label='gelatin-capsule'/pred_label='polyvinyl-alcohol'/loss=0.9811.png)
+*True: gelatin-capsule, Predicted: polyvinyl-alcohol*
+
+![Misclassified image 3](assets/misclassified_images/test/epoch=10/true_label='methyl-cellulose'/pred_label='polyvinyl-alcohol'/loss=0.7917.png)
+*True: methyl-cellulose, Predicted: polyvinyl-alcohol*
 
 - **Class Activation Mapping (CAM)**: Used to visualize significant regions in the images for making predictions.
-<div style="display: flex; justify-content: space-between;">
-    <img src="assets/class_activation_maps/sample_id=0.png" width="30%" alt="Substance 1 dried droplet">
-    <img src="assets/class_activation_maps/sample_id=69.png" width="30%" alt="Substance 2 dried droplet">
-    <img src="assets/class_activation_maps/sample_id=100.png" width="30%" alt="Substance 3 dried droplet">
-</div>
+
+![Substance 1 dried droplet](assets/class_activation_maps/sample_id=0.png)
+*Substance 1 dried droplet*
+
+![Substance 2 dried droplet](assets/class_activation_maps/sample_id=69.png)
+*Substance 2 dried droplet*
+
+![Substance 3 dried droplet](assets/class_activation_maps/sample_id=100.png)
+*Substance 3 dried droplet*
 
 
 
 - **Activation Feature Analysis**: Analyzing how different layers of the network process the input images, to gain insights into the model's internal workings.
-<div style="display: flex; justify-content: space-between;">
-    <div style="width: 24%">
-        <p>Layer 1</p>
-        <img src="assets/activation_features/layer1.png" alt="Misclassified image 1">
-    </div>
-    <div style="width: 24%">
-        <p>Layer 2</p>
-        <img src="assets/activation_features/layer2.png" alt="Misclassified image 1">
-    </div>
-    <div style="width: 24%">
-        <p>Layer 3</p>
-        <img src="assets/activation_features/layer3.png" alt="Misclassified image 1">
-    </div>
-    <div style="width: 24%">
-        <p>Layer 4</p>
-        <img src="assets/activation_features/layer4.png" alt="Misclassified image 1">
-    </div>
-</div>
+
+![Layer 1 Activation Feature](assets/activation_features/layer1.png)
+*Layer 1*
+
+![Layer 2 Activation Feature](assets/activation_features/layer2.png)
+*Layer 2*
+
+![Layer 3 Activation Feature](assets/activation_features/layer3.png)
+*Layer 3*
+
+![Layer 4 Activation Feature](assets/activation_features/layer4.png)
+*Layer 4*
 
 
 ### Concentration Estimation
