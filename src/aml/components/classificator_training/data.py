@@ -14,7 +14,6 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms import ToTensor
 from tqdm import tqdm
 
-from src.common.consts.directories import DATA_DIR
 from src.common.consts.extensions import JPG
 from src.common.utils.logger import get_logger
 from src.common.utils.os import get_cpu_worker_count
@@ -24,10 +23,20 @@ _logger = get_logger(__name__)
 
 
 class ClassificationDataConfig(BaseModel):
-    dataset_dir: Path = DATA_DIR / "dataset"
-    val_split: float = 0.1
-    test_split: float = 0.1
-    batch_size: int = 32
+    """
+    Configuration class for classification data.
+
+    Attributes:
+        dataset_dir (Path): The directory where the dataset is located.
+        val_split (float): The fraction of the dataset to use as validation set.
+        test_split (float): The fraction of the dataset to use as test set.
+        batch_size (int): The number of samples per batch.
+    """
+
+    dataset_dir: Path
+    val_split: float
+    test_split: float
+    batch_size: int
 
 
 class DropletDrugClassificationDataset(Dataset):
@@ -93,6 +102,7 @@ class DropletDrugClassificationDataset(Dataset):
                 if path.is_dir() and path.stem.startswith(class_name)
             ]
 
+            class_samples = []
             for class_dir in class_dirs:
                 concentration_string = class_dir.name.split("_")[-2]
                 if concentration_string.endswith("mgml"):
@@ -100,7 +110,9 @@ class DropletDrugClassificationDataset(Dataset):
                 else:
                     raise ValueError(f"Invalid concentration string: {concentration_string}")
                 for image_path in class_dir.glob(f"*{JPG}"):
-                    samples.append((image_path, class_idx, concentration))
+                    class_samples.append((image_path, class_idx, concentration))
+
+            samples.extend(class_samples)
 
         return samples
 
@@ -112,11 +124,13 @@ class DropletDrugClassificationDataset(Dataset):
 
     def __getitem__(self, idx: int) -> Tuple[Tensor, Tensor]:
         """
+        Get the image and its label at the given index.
+
         Args:
-            idx (int): Index of the sample to return.
+            idx (int): The index of the sample to return.
 
         Returns:
-            sample (Tuple[Tensor, Tensor]): The image and its label.
+            Tuple[Tensor, Tensor]: The image and its label.
         """
         image_path, class_id, _ = self.samples[idx]
         image = Image.open(image_path).convert("RGB")
@@ -254,6 +268,16 @@ class ClassificationDataModule(LightningDataModule):
         return {}
 
     def setup(self, stage: Optional[str] = None) -> None:
+        """
+        Set up the data module.
+
+        This method is responsible for preparing the datasets for training, validation, and testing.
+        It performs stratified split on the full dataset to create these subsets and checks for data leaks between them.
+
+        Args:
+            stage (Optional[str]): The stage for which setup is being performed.
+                                   It can be either 'fit' or 'test'. If None, both 'fit' and 'test' are considered.
+        """
         # Create a full dataset without transforms to split it first
         full_dataset = DropletDrugClassificationDataset(root_dir=self.dataset_dir)
 
@@ -350,14 +374,23 @@ class ClassificationDataModule(LightningDataModule):
         _logger.info(f"Test set concentration balance: {self.test_concentration_balance}")
 
     def train_dataloader(self) -> DataLoader:
+        """
+        Create a DataLoader for the training dataset.
+        """
         return DataLoader(
             dataset=self.train_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers, shuffle=True
         )
 
     def val_dataloader(self) -> DataLoader:
+        """
+        Create a DataLoader for the validation dataset.
+        """
         return DataLoader(dataset=self.val_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)
 
     def test_dataloader(self) -> DataLoader:
+        """
+        Create a DataLoader for the test dataset.
+        """
         return DataLoader(dataset=self.test_dataset, batch_size=self.batch_size, num_workers=self.cpu_workers)
 
     def calculate_dataset_stats(self, dataset: Dataset) -> Tuple[Tuple[float, ...], Tuple[float, ...]]:
