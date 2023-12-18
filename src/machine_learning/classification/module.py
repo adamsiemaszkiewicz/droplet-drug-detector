@@ -12,7 +12,6 @@ from src.machine_learning.augmentations.config import AugmentationsConfig
 from src.machine_learning.augmentations.factory import create_augmentations
 from src.machine_learning.classification.loss_functions.config import ClassificationLossFunctionConfig
 from src.machine_learning.classification.loss_functions.factory import create_loss_function
-from src.machine_learning.classification.metrics.config import ClassificationMetricsConfig
 from src.machine_learning.classification.models.config import ClassificationModelConfig
 from src.machine_learning.classification.models.factory import create_model
 from src.machine_learning.optimizer.config import OptimizerConfig
@@ -34,7 +33,6 @@ class ClassificationLightningModule(LightningModule):
         model_config (ClassificationModelConfig): The model configuration.
         loss_function_config (ClassificationLossFunctionConfig): The loss function configuration.
         optimizer_config (OptimizerConfig): The optimizer configuration.
-        metrics_config (ClassificationMetricsConfig): The metrics configuration.
         augmentations_config (Optional[AugmentationsConfig]): The data augmentations configuration.
         scheduler_config (Optional[SchedulerConfig]): The scheduler configuration.
 
@@ -57,7 +55,6 @@ class ClassificationLightningModule(LightningModule):
         model_config: ClassificationModelConfig,
         loss_function_config: ClassificationLossFunctionConfig,
         optimizer_config: OptimizerConfig,
-        metrics_config: ClassificationMetricsConfig,
         augmentations_config: Optional[AugmentationsConfig] = None,
         scheduler_config: Optional[SchedulerConfig] = None,
     ):
@@ -66,7 +63,6 @@ class ClassificationLightningModule(LightningModule):
         self.model_config = model_config
         self.loss_function_config = loss_function_config
         self.optimizer_config = optimizer_config
-        self.metrics_config = metrics_config
         self.augmentations_config = augmentations_config
         self.scheduler_config = scheduler_config
 
@@ -74,10 +70,10 @@ class ClassificationLightningModule(LightningModule):
         self.loss_function = create_loss_function(config=loss_function_config)
         self.metrics = MetricCollection(
             [
-                Accuracy(task=self.metrics_config.task, num_classes=self.metrics_config.num_classes, average="macro"),
-                Precision(task=self.metrics_config.task, num_classes=self.metrics_config.num_classes, average="macro"),
-                Recall(task=self.metrics_config.task, num_classes=self.metrics_config.num_classes, average="macro"),
-                F1Score(task=self.metrics_config.task, num_classes=self.metrics_config.num_classes, average="macro"),
+                Accuracy(task="multiclass", num_classes=len(self.classes), average="weighted"),
+                Precision(task="multiclass", num_classes=len(self.classes), average="weighted"),
+                Recall(task="multiclass", num_classes=len(self.classes), average="weighted"),
+                F1Score(task="multiclass", num_classes=len(self.classes), average="weighted"),
             ]
         )
         self.train_metrics = self.metrics.clone(prefix=f"{STAGE_TRAINING}_")
