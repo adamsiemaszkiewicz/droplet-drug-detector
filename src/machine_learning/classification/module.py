@@ -98,7 +98,7 @@ class ClassificationLightningModule(LightningModule):
         preds = logits.argmax(dim=1)
 
         self.log(name=f"{stage}_loss", value=loss)
-        self.log_metrics(logits=logits, targets=y, stage=stage)
+        self.log_metrics(preds=preds, targets=y, stage=stage)
 
         return {"loss": loss, "per_sample_losses": per_sample_losses, "preds": preds, "targets": y}
 
@@ -192,17 +192,15 @@ class ClassificationLightningModule(LightningModule):
         """
         return self.loss_function(logits, targets)
 
-    def log_metrics(self, logits: Tensor, targets: Tensor, stage: str) -> None:
+    def log_metrics(self, preds: Tensor, targets: Tensor, stage: str) -> None:
         """
         Log metrics to the logger, including class-wise metrics.
 
         Args:
-            logits (Tensor): The model outputs before activation.
+            preds (Tensor): The model predictions after applying argmax on logits.
             targets (Tensor): The true labels.
             stage (str): The current stage (e.g., training, validation, or testing).
         """
-        preds = logits.argmax(dim=1)
-
         for name, metric in self.metrics.items():
             # Overall metric
             metric_value = metric(preds, targets)
