@@ -57,7 +57,6 @@ def main() -> None:
         model_config=config.model,
         loss_function_config=config.loss_function,
         optimizer_config=config.optimizer,
-        metrics_config=config.metrics,
         augmentations_config=config.augmentations,
         scheduler_config=config.scheduler,
     )
