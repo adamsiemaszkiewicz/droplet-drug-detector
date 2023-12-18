@@ -4,14 +4,37 @@
 [![Python Version](https://img.shields.io/badge/Python-3.10-brightgreen.svg)](https://www.python.org/downloads/release/python-310/)
 [![Last Commit](https://img.shields.io/github/last-commit/adamsiemaszkiewicz/droplet-drug-detector)](https://github.com/adamsiemaszkiewicz/droplet-drug-detector/commits/main)
 
+---
+
+## TL;DR (Too Long; Didn't Read)
+
+**Droplet Drug Detector (DDD)** 💊🔬🧠 is an innovative machine learning project focused on analyzing high-resolution microscopic images of dried droplets for pharmaceutical analysis. This project aims to revolutionize substance identification and quantification in drug analysis and quality control.
+
+- **Objective** 🎯: Utilize advanced ML techniques for substance classification, concentration estimation, and rare substance detection in pharmaceuticals.
+- **Dataset** 🔬: High-resolution microscopic images of various substances in different concentrations.
+- **Key Features** 📃:
+  - **Substance Classification** 💊: Using CNNs and Vision Transformers for pattern recognition in dried droplet images.
+  - **Concentration Estimation** 📈: Developing regression models for accurate concentration levels measurement (future work).
+  - **Rare Substance Detection** 🔍: Employing Siamese network-based methods (future work).
+- **Technologies** 💻: Python 3.10, Pytorch + Pytorch Lightning, Azure DevOps, Azure Machine Learning.
+- **Current Status** 🚀: Substance classification model shows high accuracy (F1-score: 0.9933) and robust performance. Concentration estimation and rare substance detection are planned future expansions.
+- **Contributors** 👥: Tomasz Urbaniak, PhD; Adam Siemaszkiewicz (myself), MSc; Nicole Cutajar, MSc.
+
+For detailed information on installation, development practices, and the project's structure, refer to the corresponding sections in this README.
+
+---
+
 ## Table of Contents
 0. [Table of Contents](#table-of-contents)
 1. [Project Overview](#project-overview)
+    - [Research Objective](#research-objective)
     - [Dataset](#dataset)
     - [Analysis Goals](#analysis-goals)
     - [Substance Classification](#substance-classification) (work in progress)
     - [Concentration Estimation](#concentration-estimation) (future work)
     - [Rare Substance Detection](#rare-substance-detection) (future work)
+    - [Authors & Contributors](#authors--contributors)
+
 
 2. [Installation](#installation)
 3. [Repository Structure](#repository-structure)
@@ -23,19 +46,8 @@
 
 ## Project overview
 
-#### Research objective
+### Research objective
 The Droplet Drug Detector (DDD) project aims to revolutionize pharmaceutical analysis by using advanced machine learning to analyze high-resolution microscopic images of dried droplets. This cutting-edge approach is designed to improve the identification and quantification of substances, thereby enhancing drug analysis and quality control.
-
-#### Authors & Contributors
-- **Tomasz Urbaniak, PhD** _(Wrocław Medical Univesity)_
-
-A pharmaceutical expert, Tomasz is the co-author responsible for guiding the project's pharmaceutical aspects, leveraging his extensive knowledge in the field.
-- **Adam Siemaszkiewicz, MSc** (myself) _(Wrocław University of Science & Technology)_
-
-As a co-author, I specialize in machine learning, data science, and software engineering, driving the technical and analytical facets of the project.
-- **Nicole Cutajar, MSc** _(University of Malta)_
-
-A vital contributor focusing on sample collection and image acquisition, ensuring the integrity and quality of our dataset.
 
 ### Dataset
 The dataset comprises high-resolution microscopic images of various droplet samples, with each droplet being a few microliters in volume. For each substance, approximately 200-300 images of different concentrations are captured under controlled conditions to ensure data consistency and reliability. The dataset includes images of substances like gelatin capsules, lactose, methyl-cellulose, naproxen, pearlitol, and polyvinyl-alcohol.
@@ -58,6 +70,7 @@ Images are captured under strictly controlled conditions to guarantee data consi
     <td><img src="assets/substances/gelatin-capsule_1mgml.png" width="100%" alt="Gelatin Capsule 1 mg/ml"/></td>
   </tr>
 </table>
+
 ### Analysis goals
 
 1. **Substance Classification**: Develop a model to classify substances based on distinct patterns in dried droplet images, using Convolutional Neural Networks (CNNs) and Vision Transformers.
@@ -151,6 +164,18 @@ A few experiments were conducted to determine a baseline model and hyperparamete
 
 ### Rare Substance Detection
 (To be added) This section will discuss the use of Siamese networks for detecting rare substances and the unique challenges associated with limited sample sizes.
+
+### Authors & Contributors
+- **Tomasz Urbaniak, PhD** _(Wrocław Medical Univesity)_
+
+A pharmaceutical expert, Tomasz is the co-author responsible for guiding the project's pharmaceutical aspects, leveraging his extensive knowledge in the field.
+- **Adam Siemaszkiewicz, MSc** (myself) _(Wrocław University of Science & Technology)_
+
+As a co-author, I specialize in machine learning, data science, and software engineering, driving the technical and analytical facets of the project.
+- **Nicole Cutajar, MSc** _(University of Malta)_
+
+A vital contributor focusing on sample collection and image acquisition, ensuring the integrity and quality of our dataset.
+
 
 [Back to the top](#droplet-drug-detector)
 
