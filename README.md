@@ -50,7 +50,15 @@ For detailed information on installation, development practices, and the project
 The Droplet Drug Detector (DDD) project aims to revolutionize pharmaceutical analysis by using advanced machine learning to analyze high-resolution microscopic images of dried droplets. This cutting-edge approach is designed to improve the identification and quantification of substances, thereby enhancing drug analysis and quality control.
 
 ### Dataset
-The dataset comprises high-resolution microscopic images of various droplet samples, with each droplet being a few microliters in volume. For each substance, approximately 200-300 images of different concentrations are captured under controlled conditions to ensure data consistency and reliability. The dataset includes images of substances like gelatin capsules, lactose, methyl-cellulose, naproxen, pearlitol, and polyvinyl-alcohol.
+The dataset comprises high-resolution microscopic images of various droplet samples, with each droplet being a few microliters in volume. Approximately 2000 images of substance droplets of different concentrations were captured under controlled conditions to ensure data consistency and reliability. The dataset includes images of the following substances:
+- gelatin capsules,
+- lactose,
+- methyl-cellulose,
+- naproxen,
+- pearlitol
+- polyvinyl-alcohol.
+
+Future expansions of the dataset will include images of droplets containing mixtures of these substances.
 
 #### Theoretical basis
 This project is based on the study of patterns formed in dried droplets, commonly referred to as the 'coffee ring effect'. These patterns are influenced by the substance's physical and chemical properties, concentration, and interaction within the mixture, providing valuable information for substance analysis.
@@ -73,11 +81,12 @@ Images are captured under strictly controlled conditions to guarantee data consi
 
 ### Analysis goals
 
-1. **Substance Classification**: Develop a model to classify substances based on distinct patterns in dried droplet images, using Convolutional Neural Networks (CNNs) and Vision Transformers.
+1. **Single-Substance Classification**: Develop a model to classify individual substances based on the patterns in dried droplet images.
+2. **Multiple-Substance Classification**: Extend the model to classify mixtures of substances, addressing the added complexity of inter-substance interactions.
 2. **Concentration Estimation**: Design and implement regression models to accurately estimate the concentration levels of the substances. We aim to introduce novel methodologies in this area.
 3. **Rare Substance Detection**: Develop a Siamese network-based approach for identifying rare substances. This network will be trained on existing data, emphasizing its utility in scenarios with limited sample availability.
 
-### Substance Classification
+### Single-Substance Classification
 
 (Work in progress)
 
@@ -85,27 +94,43 @@ Images are captured under strictly controlled conditions to guarantee data consi
 A few experiments were conducted to determine a baseline model and hyperparameters for further experiments.
 
 - **Epochs**: 50 (max), with early stopping implemented to prevent overfitting.
-- **Data Split**: Stratified split (50:25:25 for training, validation & test subsets) across substances and concentration levels.
+- **Data Split**: Stratified split (10:10:80 for training, validation & test subsets) across substances and concentration levels.
 - **Preprocessing**: Normalization, resizing to 256x256 pixels.
 - **Data Augmentation**: Color jitter, random gaussian noise, mirroring, and rotation.
-- **Model Architecture**: Resnet18.
+- **Model Architecture**: ResNet18.
 - **Loss Function**: Cross-entropy.
 - **Optimizer**: Adam with a constant learning rate of 3e-4.
 
 <table>
   <tr>
-    <td align="center"><em>Learning curves</em></td>
-    <td align="center"><em>Confusion matrix</em></td>
+    <td align="center"><em>Learning curves (loss)</em></td>
+    <td align="center"><em>Learning curves (F1 score)</em></td>
   </tr>
   <tr>
-    <td><img src="assets/learning_curves/learning_curve_loss.png" width="100%" alt="Learning curves"/></td>
-    <td><img src="assets/confusion_matrix/confusion_matrix.png" width="100%" alt="Confusion matrix"/></td>
+    <td><img src="assets/learning_curves/learning_curve_loss.png" width="100%" alt="Learning curves (loss)"/></td>
+    <td><img src="assets/learning_curves/learning_curve_f1.png" width="100%" alt="Learning curves (F1 score)"/></td>
   </tr>
 </table>
 
 #### Model Evaluation
-- **Metrics**: Accuracy, F1 score, precision, and recall.
-- **Results**: Our initial experiments yielded a very high F1-score (**0.9933**), indicating robust model performance.
+- **Metrics**: Accuracy, precision, recall and F1 score.
+- **Results**: Our initial experiments yielded a very high F1-score (**0.9933**) on the **test set**, indicating robust model performance.
+
+| Experiment      | Accuracy   | Precision   | Recall   | F1 score   |
+|-----------------|------------|-------------|----------|------------|
+| Base experiment | 0.993292   | 0.993328    | 0.993292 | 0.993297   |
+| coming soon     | -          | -           | -        | -          |
+
+<table>
+  <tr>
+    <td align="center"><em>Confusion matrix (best validation epoch)</em></td>
+    <td align="center"><em>Confusion matrix (test set)</em></td>
+  </tr>
+  <tr>
+    <td><img src="assets/confusion_matrix/confusion_matrix_val.png" width="100%" alt="Confusion matrix (best validation epoch)"/></td>
+    <td><img src="assets/confusion_matrix/confusion_matrix_test.png" width="100%" alt="Confusion matrix (test set)"/></td>
+  </tr>
+</table>
 
 
 #### Explainability
@@ -158,6 +183,8 @@ A few experiments were conducted to determine a baseline model and hyperparamete
   </tr>
 </table>
 
+### Multiple-Substance Classification
+(To be added) This section will discuss the challenges associated with classifying mixtures of substances and our approach to addressing them.
 
 ### Concentration Estimation
 (To be added) This section will detail our methodology for developing regression models aimed at quantifying substance concentrations.

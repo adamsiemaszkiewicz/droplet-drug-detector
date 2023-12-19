@@ -5,14 +5,13 @@ from lightning import LightningModule
 from torch import Tensor
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
+from torchmetrics import Accuracy, F1Score, MetricCollection, Precision, Recall
 
 from src.common.consts.machine_learning import STAGE_TESTING, STAGE_TRAINING, STAGE_VALIDATION
 from src.machine_learning.augmentations.config import AugmentationsConfig
 from src.machine_learning.augmentations.factory import create_augmentations
 from src.machine_learning.classification.loss_functions.config import ClassificationLossFunctionConfig
 from src.machine_learning.classification.loss_functions.factory import create_loss_function
-from src.machine_learning.classification.metrics.config import ClassificationMetricsConfig
-from src.machine_learning.classification.metrics.factory import create_metrics
 from src.machine_learning.classification.models.config import ClassificationModelConfig
 from src.machine_learning.classification.models.factory import create_model
 from src.machine_learning.optimizer.config import OptimizerConfig
@@ -34,7 +33,6 @@ class ClassificationLightningModule(LightningModule):
         model_config (ClassificationModelConfig): The model configuration.
         loss_function_config (ClassificationLossFunctionConfig): The loss function configuration.
         optimizer_config (OptimizerConfig): The optimizer configuration.
-        metrics_config (ClassificationMetricsConfig): The metrics configuration.
         augmentations_config (Optional[AugmentationsConfig]): The data augmentations configuration.
         scheduler_config (Optional[SchedulerConfig]): The scheduler configuration.
 
@@ -57,7 +55,6 @@ class ClassificationLightningModule(LightningModule):
         model_config: ClassificationModelConfig,
         loss_function_config: ClassificationLossFunctionConfig,
         optimizer_config: OptimizerConfig,
-        metrics_config: ClassificationMetricsConfig,
         augmentations_config: Optional[AugmentationsConfig] = None,
         scheduler_config: Optional[SchedulerConfig] = None,
     ):
@@ -66,13 +63,23 @@ class ClassificationLightningModule(LightningModule):
         self.model_config = model_config
         self.loss_function_config = loss_function_config
         self.optimizer_config = optimizer_config
-        self.metrics_config = metrics_config
         self.augmentations_config = augmentations_config
         self.scheduler_config = scheduler_config
 
         self.model = create_model(config=model_config)
         self.loss_function = create_loss_function(config=loss_function_config)
-        self.metrics = create_metrics(config=metrics_config)
+        self.metrics = MetricCollection(
+            [
+                Accuracy(task="multiclass", num_classes=len(self.classes), average="weighted"),
+                Precision(task="multiclass", num_classes=len(self.classes), average="weighted"),
+                Recall(task="multiclass", num_classes=len(self.classes), average="weighted"),
+                F1Score(task="multiclass", num_classes=len(self.classes), average="weighted"),
+            ]
+        )
+        self.train_metrics = self.metrics.clone(prefix=f"{STAGE_TRAINING}_")
+        self.val_metrics = self.metrics.clone(prefix=f"{STAGE_VALIDATION}_")
+        self.test_metrics = self.metrics.clone(prefix=f"{STAGE_TESTING}_")
+
         self.augmentations = create_augmentations(config=augmentations_config) if augmentations_config else None
 
     def forward(self, x: Tensor) -> Tensor:
@@ -98,7 +105,16 @@ class ClassificationLightningModule(LightningModule):
         preds = logits.argmax(dim=1)
 
         self.log(name=f"{stage}_loss", value=loss)
-        self.log_metrics(logits=logits, targets=y, stage=stage)
+
+        if stage == STAGE_TRAINING:
+            metrics = self.train_metrics
+        elif stage == STAGE_VALIDATION:
+            metrics = self.val_metrics
+        else:
+            metrics = self.test_metrics
+
+        output = metrics(logits, y)
+        self.log_dict(output, on_step=(stage == STAGE_TRAINING), on_epoch=True)
 
         return {"loss": loss, "per_sample_losses": per_sample_losses, "preds": preds, "targets": y}
 
@@ -140,6 +156,26 @@ class ClassificationLightningModule(LightningModule):
             Dict[str, Tensor]: Testing loss.
         """
         return self.evaluation_step(batch=batch, batch_idx=batch_idx, stage=STAGE_TESTING)
+
+    def compute_and_log_metrics(self, metrics: MetricCollection) -> None:
+        """
+        Compute and log metrics for a given stage, and reset them.
+
+        Args:
+            metrics (MetricCollection): The metrics to compute and log.
+        """
+        output = metrics.compute()
+        self.log_dict(output)
+        metrics.reset()
+
+    def on_train_epoch_end(self) -> None:
+        self.compute_and_log_metrics(self.train_metrics)
+
+    def on_validation_epoch_end(self) -> None:
+        self.compute_and_log_metrics(self.val_metrics)
+
+    def on_test_epoch_end(self) -> None:
+        self.compute_and_log_metrics(self.test_metrics)
 
     def on_after_batch_transfer(self, batch: Tuple[Tensor, Tensor], dataloader_idx: int) -> Tuple[Tensor, Tensor]:
         """
@@ -191,32 +227,3 @@ class ClassificationLightningModule(LightningModule):
             Tensor: The computed loss.
         """
         return self.loss_function(logits, targets)
-
-    def log_metrics(self, logits: Tensor, targets: Tensor, stage: str) -> None:
-        """
-        Log metrics to the logger, including class-wise metrics.
-
-        Args:
-            logits (Tensor): The model outputs before activation.
-            targets (Tensor): The true labels.
-            stage (str): The current stage (e.g., training, validation, or testing).
-        """
-        preds = logits.argmax(dim=1)
-
-        for name, metric in self.metrics.items():
-            # Overall metric
-            metric_value = metric(preds, targets)
-            self.log(name=f"{stage}_{name}", value=metric_value, on_step=True, on_epoch=True)
-
-            # Class-wise metrics
-            for class_idx, class_name in self.classes.items():
-                class_targets = (targets == class_idx).int()
-                class_preds = (preds == class_idx).int()
-                class_metric_value = metric(class_preds, class_targets)
-
-                self.log(
-                    name=f"{stage}_{name}_class_{class_idx}_{class_name}",
-                    value=class_metric_value,
-                    on_step=True,
-                    on_epoch=True,
-                )

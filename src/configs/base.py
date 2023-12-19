@@ -21,7 +21,6 @@ class MachineLearningConfig(BaseModel):
     loss_function: BaseModel
     optimizer: BaseModel
     scheduler: Optional[BaseModel] = None
-    metrics: BaseModel
     augmentations: Optional[BaseModel] = None
     callbacks: Optional[BaseModel] = None
     loggers: Optional[BaseModel] = None

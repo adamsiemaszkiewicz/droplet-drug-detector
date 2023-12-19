@@ -235,6 +235,11 @@ class LearningCurveCallback(Callback):
             trainer (Trainer): The Trainer object.
             stage (str): The stage name (training, validation, or test).
         """
+        # Skip updates during sanity checks
+        if trainer.sanity_checking:
+            _logger.info("Skipping collecting values during sanity check.")
+            return
+
         loss = trainer.callback_metrics.get(f"{stage}_loss")
         if loss is not None:
             self.epoch_losses[stage].append(loss.item())

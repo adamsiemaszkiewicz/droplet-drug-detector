@@ -3,8 +3,8 @@ seed: 42
 data:
   dataset_dir: "data/dataset"  # relative to root directory
   artifacts_dir: "artifacts/droplet-drug-classificator"  # relative to root directory
-  val_split: 0.25
-  test_split: 0.25
+  val_split: 0.1
+  test_split: 0.8
   batch_size: 8
 
 preprocessing:
@@ -34,21 +34,6 @@ optimizer:
   weight_decay: 0
   extra_arguments: {}
 
-metrics:
-  name_list:
-    - accuracy
-    - f1_score
-    - precision
-    - recall
-  task: multiclass
-  num_classes: 6
-  extra_arguments_list:
-      - {}
-      - {}
-      - {}
-      - {}
-      - {}
-
 augmentations:
   name_list:
     - random_horizontal_flip
@@ -58,7 +43,6 @@ augmentations:
     - {}
     - {}
     - degrees: 45
-
 
 callbacks:
   early_stopping:

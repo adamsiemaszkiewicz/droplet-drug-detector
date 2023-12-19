@@ -23,7 +23,6 @@ from src.common.utils.dtype_converters import str_to_bool, str_to_dict, str_to_f
 from src.machine_learning.augmentations.config import AugmentationsConfig
 from src.machine_learning.callbacks.config import CallbacksConfig
 from src.machine_learning.classification.loss_functions.config import ClassificationLossFunctionConfig
-from src.machine_learning.classification.metrics.config import ClassificationMetricsConfig
 from src.machine_learning.classification.models.config import ClassificationModelConfig
 from src.machine_learning.loggers.config import LoggersConfig
 from src.machine_learning.optimizer.config import OptimizerConfig
@@ -65,7 +64,6 @@ def create_arg_parser() -> ArgumentParser:
     loss_function_defaults: Dict[str, Any] = defaults.get("loss_function", None)
     optimizer_defaults: Dict[str, Any] = defaults.get("optimizer", None)
     scheduler_defaults: Dict[str, Any] = defaults.get("scheduler", None)
-    metrics_defaults: Dict[str, Any] = defaults.get("metrics", None)
     augmentations_defaults: Dict[str, Any] = defaults.get("augmentations", None)
     callbacks_defaults: Dict[str, Any] = defaults.get("callbacks", None)
     callbacks_early_stopping_defaults: Dict[str, Any] = callbacks_defaults.get("early_stopping", None)
@@ -124,17 +122,6 @@ def create_arg_parser() -> ArgumentParser:
     parser.add_argument(
         "--scheduler_kwargs", type=str, default=scheduler_defaults["extra_arguments"] if scheduler_defaults else {}
     )
-
-    # Metrics
-    parser.add_argument("--task_type", type=str, default=metrics_defaults["task"])
-    for i in range(5):
-        metric_default = metrics_defaults["name_list"][i] if i < len(metrics_defaults["name_list"]) else None
-        metric_kwargs_default = (
-            metrics_defaults["extra_arguments_list"][i] if i < len(metrics_defaults["extra_arguments_list"]) else "{}"
-        )
-
-        parser.add_argument(f"--metric_name_{i + 1}", type=str, default=metric_default)
-        parser.add_argument(f"--metric_name_{i + 1}_kwargs", type=str, default=metric_kwargs_default)
 
     # Augmentations
     for i in range(5):
@@ -325,18 +312,6 @@ def get_config(save_config: bool = False) -> ClassificationConfig:
             "name": args.scheduler_name,
             "extra_arguments": str_to_dict(args.scheduler_kwargs),
         },
-        "metrics": {
-            "name_list": [
-                getattr(args, f"metric_name_{i+1}") for i in range(5) if getattr(args, f"metric_name_{i+1}") is not None
-            ],
-            "extra_arguments_list": [
-                str_to_dict(getattr(args, f"metric_name_{i+1}_kwargs"))
-                for i in range(5)
-                if getattr(args, f"metric_name_{i+1}") is not None
-            ],
-            "task": args.task_type,
-            "num_classes": args.num_classes,
-        },
         "augmentations": {
             "name_list": [
                 getattr(args, f"augmentation_name_{i+1}")
@@ -425,7 +400,6 @@ def get_config(save_config: bool = False) -> ClassificationConfig:
     scheduler_config = (
         SchedulerConfig(**config_dict["scheduler"]) if config_dict["scheduler"]["name"] is not None else None
     )
-    metrics_config = ClassificationMetricsConfig(**config_dict["metrics"])
     augmentations_config = AugmentationsConfig(**config_dict["augmentations"])
     callbacks_config = CallbacksConfig(**config_dict["callbacks"])
     loggers_config = LoggersConfig(**loggers_config_dict)
@@ -438,7 +412,6 @@ def get_config(save_config: bool = False) -> ClassificationConfig:
         loss_function=loss_function_config,
         optimizer=optimizer_config,
         scheduler=scheduler_config,
-        metrics=metrics_config,
         augmentations=augmentations_config,
         callbacks=callbacks_config,
         loggers=loggers_config,
