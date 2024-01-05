@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import timm
-from torch.nn import Linear, Module
+from torch.nn import Module
 
 from src.common.utils.logger import get_logger
 from src.machine_learning.regression.models.config import RegressionModelConfig
@@ -8,7 +8,7 @@ from src.machine_learning.regression.models.config import RegressionModelConfig
 _logger = get_logger(__name__)
 
 
-def create_regression_model(config: RegressionModelConfig) -> Module:
+def create_model(config: RegressionModelConfig) -> Module:
     """
     Create a regression model based on the configuration adapted for single-value regression tasks.
     List of available architectures: https://huggingface.co/timm
@@ -25,13 +25,9 @@ def create_regression_model(config: RegressionModelConfig) -> Module:
     model = timm.create_model(
         model_name=config.name,
         pretrained=config.pretrained,
-        num_classes=0,  # I will add the regression head separately
+        num_classes=1,  # Predict a single value
         in_chans=config.in_channels,
     )
-
-    # Adapt the model for regression by modifying the output layer
-    in_features = model.get_classifier().in_features
-    model.fc = Linear(in_features, 1)  # Predict a single value
 
     _logger.info("Regression model successfully created.")
 
