@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 from pydantic import BaseModel, validator
 
-from src.machine_learning.classification.loss_functions.types import AVAILABLE_LOSS_FUNCTIONS
+from src.machine_learning.regression.loss_functions.types import AVAILABLE_LOSS_FUNCTIONS
 
 
 class RegressionLossFunctionConfig(BaseModel):
