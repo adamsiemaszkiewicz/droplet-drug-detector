@@ -55,9 +55,9 @@ class DropletDrugRegressionDataset(DropletDrugClassificationDataset):
         if self.preprocessor:
             image = self.preprocessor(image).squeeze(0)
 
-        concentration_tensor = torch.tensor(concentration, dtype=torch.float)
+        concentration = torch.tensor(concentration, dtype=torch.float)
 
-        return image, concentration_tensor
+        return image, concentration
 
 
 class RegressionDataModule(ClassificationDataModule):
