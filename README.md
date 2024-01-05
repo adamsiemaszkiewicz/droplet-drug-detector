@@ -103,12 +103,12 @@ A few experiments were conducted to determine a baseline model and hyperparamete
 
 <table>
   <tr>
-    <td align="center"><em>Learning curves (cross entropy)</em></td>
+    <td align="center"><em>Learning curves (Cross Entropy)</em></td>
     <td align="center"><em>Learning curves (F1 score)</em></td>
   </tr>
   <tr>
-    <td><img src="assets/learning_curves/classificator_learning_curve_loss.png" width="100%" alt="Learning curves (loss)"/></td>
-    <td><img src="assets/learning_curves/classificator_learning_curve_f1.png" width="100%" alt="Learning curves (F1 score)"/></td>
+    <td><img src="assets/learning_curves/classificator_learning_curve_loss.png" width="100%" alt="Learning curves (Cross Entropy)"/></td>
+    <td><img src="assets/learning_curves/classificator_learning_curve_f1.png" width="100%" alt="Learning curves (F1 Score)"/></td>
   </tr>
 </table>
 
@@ -208,8 +208,8 @@ To achieve precise concentration level measurement, we trained a regression mode
     <td align="center"><em>Learning curves (R² Score)</em></td>
   </tr>
   <tr>
-    <td><img src="assets/learning_curves/regressor_learning_curve_loss.png" width="100%" alt="Learning curves (loss)"/></td>
-    <td><img src="assets/learning_curves/regressor_learning_curve_r2.png" width="100%" alt="Learning curves (F1 score)"/></td>
+    <td><img src="assets/learning_curves/regressor_learning_curve_loss.png" width="100%" alt="Learning curves (MSE)"/></td>
+    <td><img src="assets/learning_curves/regressor_learning_curve_r2.png" width="100%" alt="Learning curves (R² Score)"/></td>
   </tr>
 </table>
 
