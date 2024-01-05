@@ -103,12 +103,12 @@ A few experiments were conducted to determine a baseline model and hyperparamete
 
 <table>
   <tr>
-    <td align="center"><em>Learning curves (loss)</em></td>
+    <td align="center"><em>Learning curves (cross entropy)</em></td>
     <td align="center"><em>Learning curves (F1 score)</em></td>
   </tr>
   <tr>
-    <td><img src="assets/learning_curves/learning_curve_loss.png" width="100%" alt="Learning curves (loss)"/></td>
-    <td><img src="assets/learning_curves/learning_curve_f1.png" width="100%" alt="Learning curves (F1 score)"/></td>
+    <td><img src="assets/learning_curves/classificator_learning_curve_loss.png" width="100%" alt="Learning curves (loss)"/></td>
+    <td><img src="assets/learning_curves/classificator_learning_curve_f1.png" width="100%" alt="Learning curves (F1 score)"/></td>
   </tr>
 </table>
 
@@ -187,7 +187,46 @@ A few experiments were conducted to determine a baseline model and hyperparamete
 (To be added) This section will discuss the challenges associated with classifying mixtures of substances and our approach to addressing them.
 
 ### Concentration Estimation
-(To be added) This section will detail our methodology for developing regression models aimed at quantifying substance concentrations.
+(Work in progress)
+
+#### Model Training
+
+To achieve precise concentration level measurement, we trained a regression model using the following specifications:
+
+
+- **Epochs**: 100 (max), with early stopping implemented to prevent overfitting.
+- **Data Split**: Stratified split (10:10:80 for training, validation & test subsets) across substances and concentration levels.
+- **Preprocessing**: Similar to the classification task, including normalization and resizing.
+- **Data Augmentation**: Color jitter, random gaussian noise, mirroring, and rotation.
+- **Model Architecture**: ResNet18.
+- **Loss Function**: Mean Squared Error (MSE).
+- **Optimizer**: Adam with a constant learning rate of 3e-4.
+
+<table>
+  <tr>
+    <td align="center"><em>Learning curves (MSE)</em></td>
+    <td align="center"><em>Learning curves (R² Score)</em></td>
+  </tr>
+  <tr>
+    <td><img src="assets/learning_curves/regressor_learning_curve_loss.png" width="100%" alt="Learning curves (loss)"/></td>
+    <td><img src="assets/learning_curves/regressor_learning_curve_r2.png" width="100%" alt="Learning curves (F1 score)"/></td>
+  </tr>
+</table>
+
+#### Model Evaluation
+
+The model's performance was evaluated on a hold-out test set, separate from the training and validation sets. The following metrics were used:
+
+- **R² (Coefficient of Determination)**: Measures the proportion of the variance in the dependent variable that is predictable from the independent variable(s). For this model, we achieved an R² score of **0.9526** on the test set.
+- **Mean Squared Error (MSE)**: Measures the average of the squares of the errors — that is, the average squared difference between the estimated values and the actual value. The model achieved an MSE of **0.1073** on the test set.
+
+These metrics indicate the model's high accuracy and precision in estimating substance concentrations.
+
+| Experiment      | MSE      | R²   |
+|-----------------|----------|------|
+| Base experiment | 0.1073 | 0.9526 |
+| coming soon     | -        | -    |
+
 
 ### Rare Substance Detection
 (To be added) This section will discuss the use of Siamese networks for detecting rare substances and the unique challenges associated with limited sample sizes.
