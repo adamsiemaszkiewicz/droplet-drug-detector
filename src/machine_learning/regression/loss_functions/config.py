@@ -10,7 +10,7 @@ class RegressionLossFunctionConfig(BaseModel):
     """
     Configuration for creating a loss function.
 
-    Attributes:
+    Attrs:
         name: The name of the loss function.
         extra_arguments: A dictionary containing all other loss function-specific arguments.
     """

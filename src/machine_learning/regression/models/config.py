@@ -11,7 +11,7 @@ class RegressionModelConfig(BaseModel):
     """
     Configuration for creating a regression model.
 
-    Attributes:
+    Attrs:
         name: The name of the model architecture.
         pretrained: Whether to use pretrained weights.
         num_classes: Number of classes in the dataset.
