@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-
 import ast
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Union
+
+from src.common.consts.directories import ROOT_DIR
 
 
 def str_to_dict(dict_string: str) -> Dict:
@@ -132,3 +133,16 @@ def path_to_str(path: Path) -> str:
         str: The string representation of the Path object.
     """
     return path.as_posix() if path else ""
+
+
+def rel_paths_to_abs_path(path: Union[str, Path]) -> Path:
+    """
+    Converts a relative path to an absolute path relative to the root directory.
+
+    Args:
+        path (Union[str, Path]): The relative path.
+
+    Returns:
+        Path: The absolute path.
+    """
+    return ROOT_DIR / path
