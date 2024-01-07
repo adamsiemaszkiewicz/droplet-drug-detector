@@ -21,7 +21,7 @@ preprocessing:
 model:
   name: resnet18
   pretrained: true
-  num_classes: 1  # User 1 for regression
+  num_classes: 1  # Use 1 for regression
   in_channels: 3
 
 loss_function:
