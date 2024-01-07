@@ -30,7 +30,13 @@ class BaseLightningModule(LightningModule):
         scheduler_config: Optional[SchedulerConfig] = None,
     ):
         """
-        This is a base class for Pytorch-Lightning-based deep learning tasks.
+        This class serves as a base for all PyTorch Lightning based models. It provides a structured way to define
+        common functionalities and ensure consistency across different types of models such as classification,
+        regression, etc.
+
+        Each subclass should implement the evaluation_step and setup_metrics abstract methods to cater to the specific
+        needs of the model being developed. The class handles common operations like training, validation, and test step
+        definitions, as well as logging and metrics computation.
 
         Args:
             model_config (BaseModelConfig): Configuration for the model.
@@ -188,7 +194,11 @@ class BaseLightningModule(LightningModule):
     # Abstract methods that need to be implemented by derived classes
     def evaluation_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int, stage: str) -> Dict[str, Any]:
         """
-        Abstract method for performing an evaluation step. This should be implemented in derived classes.
+        Abstract method for performing an evaluation step. This method should be implemented in all derived classes.
+
+        It is expected to handle the forward pass of the model for a given batch, compute loss, and any additional
+        metrics relevant to the task. The method should be flexible to accommodate different stages like training,
+        validation, and testing.
 
         Args:
             batch (Tuple[Tensor, Tensor]): The current batch of data and labels.
@@ -196,15 +206,29 @@ class BaseLightningModule(LightningModule):
             stage (str): Stage of evaluation (training, validation, or testing).
 
         Returns:
-            Dict[str, Any]: A dictionary containing evaluation results like loss.
+            Dict[str, Any]: A dictionary containing evaluation results like loss and other metrics.
+
+        Raises:
+            NotImplementedError: If the method is not implemented in the subclass.
         """
-        raise NotImplementedError
+        raise NotImplementedError(
+            "Subclasses must implement the evaluation_step method to handle the forward pass, "
+            "compute loss, and any additional metrics relevant to the task."
+        )
 
     def setup_metrics(self) -> MetricCollection:
         """
-        Abstract method for setting up metrics. This should be implemented in derived classes to define metrics.
+        Abstract method for setting up metrics. Implement this method in derived classes to define and return a
+        collection of metrics that are relevant to the specific task of the model.
 
         Returns:
-            MetricCollection: A collection of metrics.
+            MetricCollection: A collection of metrics to be used for evaluating the model. This can include standard
+            metrics like accuracy, precision, recall, etc., or custom metrics defined as per the task requirements.
+
+        Raises:
+            NotImplementedError: If the method is not implemented in the subclass.
         """
-        raise NotImplementedError
+        raise NotImplementedError(
+            "Subclasses must implement the setup_metrics method to define and return "
+            "a collection of metrics that are relevant to the specific task of the model."
+        )
