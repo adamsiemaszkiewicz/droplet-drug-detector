@@ -3,7 +3,7 @@ import timm
 from torch.nn import Module
 
 from src.common.utils.logger import get_logger
-from src.machine_learning.classification.models.config import ClassificationModelConfig
+from src.machine_learning.models.config import ClassificationModelConfig
 
 _logger = get_logger(__name__)
 

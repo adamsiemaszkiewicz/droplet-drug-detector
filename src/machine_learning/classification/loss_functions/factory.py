@@ -2,8 +2,8 @@
 from torch.nn import Module
 
 from src.common.utils.logger import get_logger
-from src.machine_learning.classification.loss_functions.config import ClassificationLossFunctionConfig
 from src.machine_learning.classification.loss_functions.types import AVAILABLE_LOSS_FUNCTIONS
+from src.machine_learning.loss_functions.config import ClassificationLossFunctionConfig
 
 _logger = get_logger(__name__)
 

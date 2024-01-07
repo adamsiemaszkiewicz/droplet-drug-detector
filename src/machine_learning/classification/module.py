@@ -10,10 +10,10 @@ from torchmetrics import Accuracy, F1Score, MetricCollection, Precision, Recall
 from src.common.consts.machine_learning import STAGE_TESTING, STAGE_TRAINING, STAGE_VALIDATION
 from src.machine_learning.augmentations.config import AugmentationsConfig
 from src.machine_learning.augmentations.factory import create_augmentations
-from src.machine_learning.classification.loss_functions.config import ClassificationLossFunctionConfig
 from src.machine_learning.classification.loss_functions.factory import create_loss_function
-from src.machine_learning.classification.models.config import ClassificationModelConfig
 from src.machine_learning.classification.models.factory import create_model
+from src.machine_learning.loss_functions.config import ClassificationLossFunctionConfig
+from src.machine_learning.models.config import ClassificationModelConfig
 from src.machine_learning.optimizer.config import OptimizerConfig
 from src.machine_learning.optimizer.factory import create_optimizer
 from src.machine_learning.scheduler.config import SchedulerConfig
@@ -59,12 +59,13 @@ class ClassificationLightningModule(LightningModule):
         scheduler_config: Optional[SchedulerConfig] = None,
     ):
         super().__init__()
-        self.classes = classes
         self.model_config = model_config
         self.loss_function_config = loss_function_config
         self.optimizer_config = optimizer_config
         self.augmentations_config = augmentations_config
         self.scheduler_config = scheduler_config
+
+        self.classes = classes
 
         self.model = create_model(config=model_config)
         self.loss_function = create_loss_function(config=loss_function_config)
