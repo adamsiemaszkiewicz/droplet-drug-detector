@@ -19,7 +19,7 @@ class RegressionDataConfig(BaseModel):
     """
     Configuration class for regression data.
 
-    Attributes:
+    Attrs:
         dataset_dir (Path): The directory where the dataset is located.
         val_split (float): The fraction of the dataset to use as validation set.
         test_split (float): The fraction of the dataset to use as test set.

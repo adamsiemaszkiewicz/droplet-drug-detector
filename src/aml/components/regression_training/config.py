@@ -7,10 +7,10 @@ from src.configs.base import MachineLearningConfig
 from src.machine_learning.augmentations.config import AugmentationsConfig
 from src.machine_learning.callbacks.config import CallbacksConfig
 from src.machine_learning.loggers.config import LoggersConfig
+from src.machine_learning.loss_functions.config import RegressionLossFunctionConfig
+from src.machine_learning.models.config import RegressionModelConfig
 from src.machine_learning.optimizer.config import OptimizerConfig
 from src.machine_learning.preprocessing.config import PreprocessingConfig
-from src.machine_learning.regression.loss_functions.config import RegressionLossFunctionConfig
-from src.machine_learning.regression.models.config import RegressionModelConfig
 from src.machine_learning.scheduler.config import SchedulerConfig
 from src.machine_learning.trainer.config import TrainerConfig
 

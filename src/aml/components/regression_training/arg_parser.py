@@ -8,7 +8,6 @@ import yaml
 
 from src.aml.components.regression_training.config import RegressionConfig
 from src.aml.components.regression_training.data import RegressionDataConfig
-from src.common.consts.directories import ROOT_DIR
 from src.common.consts.extensions import YAML
 from src.common.consts.project import (
     DEFAULT_CONFIG_FILE_REGRESSOR,
@@ -17,14 +16,14 @@ from src.common.consts.project import (
     MODEL_CHECKPOINTS_FOLDER_NAME,
     PROJECT_NAME_REGRESSOR,
 )
-from src.common.utils.dtype_converters import str_to_bool, str_to_dict, str_to_float, str_to_int
+from src.common.utils.dtype_converters import rel_paths_to_abs_path, str_to_bool, str_to_dict, str_to_float, str_to_int
 from src.machine_learning.augmentations.config import AugmentationsConfig
 from src.machine_learning.callbacks.config import CallbacksConfig
 from src.machine_learning.loggers.config import LoggersConfig
+from src.machine_learning.loss_functions.config import RegressionLossFunctionConfig
+from src.machine_learning.models.config import RegressionModelConfig
 from src.machine_learning.optimizer.config import OptimizerConfig
 from src.machine_learning.preprocessing.config import PreprocessingConfig
-from src.machine_learning.regression.loss_functions.config import RegressionLossFunctionConfig
-from src.machine_learning.regression.models.config import RegressionModelConfig
 from src.machine_learning.scheduler.config import SchedulerConfig
 from src.machine_learning.trainer.config import TrainerConfig
 
@@ -35,13 +34,6 @@ def load_defaults() -> Dict[str, Any]:
     """
     with open(DEFAULT_CONFIG_FILE_REGRESSOR, "r") as file:
         return yaml.safe_load(file)
-
-
-def rel_paths_to_abs_path(path: str) -> Path:
-    """
-    Converts a relative path to an absolute path relative to the root directory.
-    """
-    return ROOT_DIR / path
 
 
 def create_arg_parser() -> ArgumentParser:

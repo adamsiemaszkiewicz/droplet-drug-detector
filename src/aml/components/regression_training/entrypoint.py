@@ -8,8 +8,8 @@ from src.aml.components.regression_training.data import RegressionDataModule
 from src.common.utils.logger import get_logger
 from src.machine_learning.callbacks.factory import create_callbacks
 from src.machine_learning.loggers.factory import create_loggers
+from src.machine_learning.modules.regression import RegressionLightningModule
 from src.machine_learning.preprocessing.factory import create_preprocessor
-from src.machine_learning.regression.module import RegressionLightningModule
 from src.machine_learning.trainer.factory import create_trainer
 
 _logger = get_logger(__name__)
