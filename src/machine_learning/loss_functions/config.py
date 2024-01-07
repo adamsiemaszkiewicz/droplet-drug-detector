@@ -18,9 +18,6 @@ class BaseLossFunctionConfig(BaseModel):
     name: str
     extra_arguments: Dict[str, Any] = {}
 
-    class Config:
-        arbitrary_types_allowed = True
-
 
 class ClassificationLossFunctionConfig(BaseLossFunctionConfig):
     @validator("name")
