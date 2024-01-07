@@ -13,7 +13,7 @@ class TrainerConfig(BaseModel):
     """
     Configuration for creating a PyTorch Lightning trainer.
 
-    Attributes:
+    Attrs:
         max_epochs (int): The maximum number of epochs to train for.
         precision (Optional[Literal["16", "32", "64"]): The precision to use for training.
         accumulate_grad_batches (Optional[int]): The number of batches to accumulate gradients for.

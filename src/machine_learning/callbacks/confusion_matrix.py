@@ -81,7 +81,7 @@ class ConfusionMatrixCallback(Callback):
     """
     PyTorch Lightning callback that calculates and saves confusion matrices at the end of each epoch of every stage.
 
-    Attributes:
+    Attrs:
         save_dir (Path): The directory to save output plots.
         num_classes (int): The number of classes for the confusion matrix.
         class_names (List[str]): The names of the classes for plotting.
