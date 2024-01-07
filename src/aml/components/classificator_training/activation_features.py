@@ -28,7 +28,7 @@ class ActivationFeatureVisualizer:
     This class generates images that maximize the activation of specified layers in a model,
     helping to understand what features the model is looking for in those layers.
 
-    Attributes:
+    Attrs:
         model (LightningModule): The trained PyTorch Lightning model.
         feature_layer (str): The name of the layer to visualize.
     """

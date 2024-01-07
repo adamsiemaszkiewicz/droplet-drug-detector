@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import datetime
 from argparse import ArgumentParser
 from pathlib import Path
@@ -9,7 +8,6 @@ import yaml
 
 from src.aml.components.classificator_training.config import ClassificationConfig
 from src.aml.components.classificator_training.data import ClassificationDataConfig
-from src.common.consts.directories import ROOT_DIR
 from src.common.consts.extensions import YAML
 from src.common.consts.project import (
     CONFUSION_MATRIX_FOLDER_NAME,
@@ -19,12 +17,12 @@ from src.common.consts.project import (
     MODEL_CHECKPOINTS_FOLDER_NAME,
     PROJECT_NAME_CLASSIFICATOR,
 )
-from src.common.utils.dtype_converters import str_to_bool, str_to_dict, str_to_float, str_to_int
+from src.common.utils.dtype_converters import rel_paths_to_abs_path, str_to_bool, str_to_dict, str_to_float, str_to_int
 from src.machine_learning.augmentations.config import AugmentationsConfig
 from src.machine_learning.callbacks.config import CallbacksConfig
-from src.machine_learning.classification.loss_functions.config import ClassificationLossFunctionConfig
-from src.machine_learning.classification.models.config import ClassificationModelConfig
 from src.machine_learning.loggers.config import LoggersConfig
+from src.machine_learning.loss_functions.config import ClassificationLossFunctionConfig
+from src.machine_learning.models.config import ClassificationModelConfig
 from src.machine_learning.optimizer.config import OptimizerConfig
 from src.machine_learning.preprocessing.config import PreprocessingConfig
 from src.machine_learning.scheduler.config import SchedulerConfig
@@ -37,13 +35,6 @@ def load_defaults() -> Dict[str, Any]:
     """
     with open(DEFAULT_CONFIG_FILE_CLASSIFICATOR, "r") as file:
         return yaml.safe_load(file)
-
-
-def rel_paths_to_abs_path(path: str) -> Path:
-    """
-    Converts a relative path to an absolute path relative to the root directory.
-    """
-    return ROOT_DIR / path
 
 
 def create_arg_parser() -> ArgumentParser:
