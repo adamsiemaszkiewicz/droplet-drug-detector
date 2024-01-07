@@ -13,7 +13,7 @@ class SchedulerConfig(BaseModel):
     """
     Configuration for creating a learning rate scheduler.
 
-    Attributes:
+    Attrs:
         name (str): A string indicating the name of the scheduler to be used.
         extra_arguments (Optional[Dict[str, Any]): A dictionary containing all other scheduler-specific arguments.
     """
