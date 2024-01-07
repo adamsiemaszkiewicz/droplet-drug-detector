@@ -2,13 +2,17 @@
 from torch.nn import Module
 
 from src.common.utils.logger import get_logger
-from src.machine_learning.classification.loss_functions.config import ClassificationLossFunctionConfig
-from src.machine_learning.classification.loss_functions.types import AVAILABLE_LOSS_FUNCTIONS
+from src.machine_learning.loss_functions.config import (
+    BaseLossFunctionConfig,
+    ClassificationLossFunctionConfig,
+    RegressionLossFunctionConfig,
+)
+from src.machine_learning.loss_functions.types import CLASSIFICATION_LOSS_FUNCTIONS, REGRESSION_LOSS_FUNCTIONS
 
 _logger = get_logger(__name__)
 
 
-def create_loss_function(config: ClassificationLossFunctionConfig) -> Module:
+def create_loss_function(config: BaseLossFunctionConfig) -> Module:
     """
     Create a loss function based on the configuration.
 
@@ -20,12 +24,15 @@ def create_loss_function(config: ClassificationLossFunctionConfig) -> Module:
     """
     _logger.info(f"Creating loss function with the following configuration: {config.dict()}")
 
-    loss_class = AVAILABLE_LOSS_FUNCTIONS.get(config.name)
+    if isinstance(config, ClassificationLossFunctionConfig):
+        loss_class = CLASSIFICATION_LOSS_FUNCTIONS.get(config.name)
+    elif isinstance(config, RegressionLossFunctionConfig):
+        loss_class = REGRESSION_LOSS_FUNCTIONS.get(config.name)
+    else:
+        raise ValueError(f"Unsupported loss function config type: {type(config)}")
+
     if loss_class is None:
-        raise ValueError(
-            f"Loss function '{config.name}' is not implemented.\n"
-            f"Available loss functions: {list(AVAILABLE_LOSS_FUNCTIONS.keys())}"
-        )
+        raise ValueError(f"Loss function '{config.name}' is not implemented for {type(config).__name__}.\n")
 
     if "reduction" in loss_class.__init__.__code__.co_varnames:
         config.extra_arguments["reduction"] = "none"  # Set 'reduction' to 'none' if supported

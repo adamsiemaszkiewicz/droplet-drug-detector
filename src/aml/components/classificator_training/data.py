@@ -26,7 +26,7 @@ class ClassificationDataConfig(BaseModel):
     """
     Configuration class for classification data.
 
-    Attributes:
+    Attrs:
         dataset_dir (Path): The directory where the dataset is located.
         val_split (float): The fraction of the dataset to use as validation set.
         test_split (float): The fraction of the dataset to use as test set.
@@ -43,7 +43,7 @@ class DropletDrugClassificationDataset(Dataset):
     """
     A PyTorch Dataset class for loading images for dried droplet drug classification.
 
-    Attributes:
+    Attrs:
         root_dir (Path): The dataset directory
         preprocessor (Optional[Callable]): Optional transform to be applied on a sample.
         CLASSES (Dict[int, str]): Dictionary mapping class indices to class names.

@@ -6,23 +6,22 @@ from typing import Any, Dict
 
 import yaml
 
-from src.aml.components.classificator_training.config import ClassificationConfig
-from src.aml.components.classificator_training.data import ClassificationDataConfig
+from src.aml.components.regression_training.config import RegressionConfig
+from src.aml.components.regression_training.data import RegressionDataConfig
 from src.common.consts.extensions import YAML
 from src.common.consts.project import (
-    CONFUSION_MATRIX_FOLDER_NAME,
-    DEFAULT_CONFIG_FILE_CLASSIFICATOR,
+    DEFAULT_CONFIG_FILE_REGRESSOR,
     LEARNING_CURVES_FOLDER_NAME,
     LOGS_FOLDER_NAME,
     MODEL_CHECKPOINTS_FOLDER_NAME,
-    PROJECT_NAME_CLASSIFICATOR,
+    PROJECT_NAME_REGRESSOR,
 )
 from src.common.utils.dtype_converters import rel_paths_to_abs_path, str_to_bool, str_to_dict, str_to_float, str_to_int
 from src.machine_learning.augmentations.config import AugmentationsConfig
 from src.machine_learning.callbacks.config import CallbacksConfig
 from src.machine_learning.loggers.config import LoggersConfig
-from src.machine_learning.loss_functions.config import ClassificationLossFunctionConfig
-from src.machine_learning.models.config import ClassificationModelConfig
+from src.machine_learning.loss_functions.config import RegressionLossFunctionConfig
+from src.machine_learning.models.config import RegressionModelConfig
 from src.machine_learning.optimizer.config import OptimizerConfig
 from src.machine_learning.preprocessing.config import PreprocessingConfig
 from src.machine_learning.scheduler.config import SchedulerConfig
@@ -33,7 +32,7 @@ def load_defaults() -> Dict[str, Any]:
     """
     Loads the default configuration from the default.yaml file.
     """
-    with open(DEFAULT_CONFIG_FILE_CLASSIFICATOR, "r") as file:
+    with open(DEFAULT_CONFIG_FILE_REGRESSOR, "r") as file:
         return yaml.safe_load(file)
 
 
@@ -61,10 +60,6 @@ def create_arg_parser() -> ArgumentParser:
     callbacks_model_checkpoint_defaults: Dict[str, Any] = callbacks_defaults.get("model_checkpoint", None)
     callbacks_learning_rate_monitor_defaults: Dict[str, Any] = callbacks_defaults.get("learning_rate_monitor", None)
     callbacks_learning_curve_logger_defaults: Dict[str, Any] = callbacks_defaults.get("learning_curve_logger", None)
-    callbacks_confusion_matrix_logger_defaults: Dict[str, Any] = callbacks_defaults.get("confusion_matrix_logger", None)
-    callbacks_misclassification_logger_defaults: Dict[str, Any] = callbacks_defaults.get(
-        "misclassification_logger", None
-    )
     trainer_defaults: Dict[str, Any] = defaults.get("trainer", None)
 
     # Directories
@@ -183,53 +178,6 @@ def create_arg_parser() -> ArgumentParser:
         default=callbacks_learning_curve_logger_defaults["log_metrics"],
     )
 
-    parser.add_argument(
-        "--callbacks_confusion_matrix_logger_class_dict",
-        type=str,
-        default=str_to_dict(callbacks_confusion_matrix_logger_defaults["class_dict"]),
-    )
-    parser.add_argument(
-        "--callbacks_confusion_matrix_logger_task_type",
-        type=str,
-        default=callbacks_confusion_matrix_logger_defaults["task_type"],
-    )
-    parser.add_argument(
-        "--callbacks_confusion_matrix_logger_log_train",
-        type=str,
-        default=callbacks_confusion_matrix_logger_defaults["log_train"],
-    )
-    parser.add_argument(
-        "--callbacks_confusion_matrix_logger_log_val",
-        type=str,
-        default=callbacks_confusion_matrix_logger_defaults["log_val"],
-    )
-    parser.add_argument(
-        "--callbacks_confusion_matrix_logger_log_test",
-        type=str,
-        default=callbacks_confusion_matrix_logger_defaults["log_test"],
-    )
-
-    parser.add_argument(
-        "--callbacks_misclassification_logger_log_train",
-        type=str,
-        default=callbacks_misclassification_logger_defaults["log_train"],
-    )
-    parser.add_argument(
-        "--callbacks_misclassification_logger_log_val",
-        type=str,
-        default=callbacks_misclassification_logger_defaults["log_val"],
-    )
-    parser.add_argument(
-        "--callbacks_misclassification_logger_log_test",
-        type=str,
-        default=callbacks_misclassification_logger_defaults["log_test"],
-    )
-    parser.add_argument(
-        "--callbacks_misclassification_logger_top_n",
-        type=str,
-        default=callbacks_misclassification_logger_defaults["top_n"],
-    )
-
     # Trainer
     parser.add_argument("--max_epochs", type=str, default=trainer_defaults["max_epochs"])
     parser.add_argument("--accelerator", type=str, default=trainer_defaults["accelerator"])
@@ -246,9 +194,9 @@ def create_arg_parser() -> ArgumentParser:
     return parser
 
 
-def get_config(save_config: bool = False) -> ClassificationConfig:
+def get_config(save_config: bool = False) -> RegressionConfig:
     """
-    Retrieves configuration for the ClassificationConfig class.
+    Retrieves configuration for the RegressionConfig class.
 
     This function can be extended to load configurations from different sources.
 
@@ -256,7 +204,7 @@ def get_config(save_config: bool = False) -> ClassificationConfig:
         save_config (bool): Whether to save the configuration to a YAML file.
 
     Returns:
-        ClassificationConfig: An instance of SampleConfig with values populated from the command line.
+        RegressionConfig: An instance of SampleConfig with values populated from the command line.
     """
     parser = create_arg_parser()
     args = parser.parse_args()
@@ -340,21 +288,6 @@ def get_config(save_config: bool = False) -> ClassificationConfig:
                 "log_loss": str_to_bool(args.callbacks_learning_curve_logger_log_loss),
                 "log_metrics": str_to_bool(args.callbacks_learning_curve_logger_log_metrics),
             },
-            "confusion_matrix_logger": {
-                "save_dir": artifacts_dir / CONFUSION_MATRIX_FOLDER_NAME,
-                "class_dict": str_to_dict(args.callbacks_confusion_matrix_logger_class_dict),
-                "task_type": args.callbacks_confusion_matrix_logger_task_type,
-                "log_train": args.callbacks_confusion_matrix_logger_log_train,
-                "log_val": args.callbacks_confusion_matrix_logger_log_val,
-                "log_test": args.callbacks_confusion_matrix_logger_log_test,
-            },
-            "misclassification_logger": {
-                "save_dir": artifacts_dir / "misclassified_images",
-                "log_train": str_to_bool(args.callbacks_misclassification_logger_log_train),
-                "log_val": str_to_bool(args.callbacks_misclassification_logger_log_val),
-                "log_test": str_to_bool(args.callbacks_misclassification_logger_log_test),
-                "top_n": str_to_int(args.callbacks_misclassification_logger_top_n),
-            },
         },
         "trainer": {
             "max_epochs": str_to_int(args.max_epochs),
@@ -379,14 +312,14 @@ def get_config(save_config: bool = False) -> ClassificationConfig:
             "save_dir": artifacts_dir / LOGS_FOLDER_NAME,
             "extra_arguments_list": [
                 {},
-                {"name": timestamp, "project": PROJECT_NAME_CLASSIFICATOR},
+                {"name": timestamp, "project": PROJECT_NAME_REGRESSOR},
             ],
         }
 
-    data_config = ClassificationDataConfig(**config_dict["data"])
+    data_config = RegressionDataConfig(**config_dict["data"])
     preprocessing_config = PreprocessingConfig(**config_dict["preprocessing"])
-    model_config = ClassificationModelConfig(**config_dict["model"])
-    loss_function_config = ClassificationLossFunctionConfig(**config_dict["loss_function"])
+    model_config = RegressionModelConfig(**config_dict["model"])
+    loss_function_config = RegressionLossFunctionConfig(**config_dict["loss_function"])
     optimizer_config = OptimizerConfig(**config_dict["optimizer"])
     scheduler_config = (
         SchedulerConfig(**config_dict["scheduler"]) if config_dict["scheduler"]["name"] is not None else None
@@ -396,7 +329,7 @@ def get_config(save_config: bool = False) -> ClassificationConfig:
     loggers_config = LoggersConfig(**loggers_config_dict)
     trainer_config = TrainerConfig(**config_dict["trainer"])
 
-    config = ClassificationConfig(
+    config = RegressionConfig(
         data=data_config,
         preprocessing=preprocessing_config,
         model=model_config,

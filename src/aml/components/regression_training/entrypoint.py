@@ -2,13 +2,13 @@
 from lightning import seed_everything
 from lightning.pytorch.loggers import WandbLogger
 
-from src.aml.components.classificator_training.arg_parser import get_config
-from src.aml.components.classificator_training.config import ClassificationConfig
-from src.aml.components.classificator_training.data import ClassificationDataModule, DropletDrugClassificationDataset
+from src.aml.components.regression_training.arg_parser import get_config
+from src.aml.components.regression_training.config import RegressionConfig
+from src.aml.components.regression_training.data import RegressionDataModule
 from src.common.utils.logger import get_logger
 from src.machine_learning.callbacks.factory import create_callbacks
 from src.machine_learning.loggers.factory import create_loggers
-from src.machine_learning.modules.classification import ClassificationLightningModule
+from src.machine_learning.modules.regression import RegressionLightningModule
 from src.machine_learning.preprocessing.factory import create_preprocessor
 from src.machine_learning.trainer.factory import create_trainer
 
@@ -16,16 +16,15 @@ _logger = get_logger(__name__)
 
 
 def main() -> None:
-    config: ClassificationConfig = get_config(save_config=True)
+    config: RegressionConfig = get_config(save_config=True)
     _logger.info(f"Running with following config: {config}")
 
     seed_everything(seed=config.seed, workers=True)
 
     preprocessor = create_preprocessor(config=config.preprocessing) if config.preprocessing else None
-    dm = ClassificationDataModule(config=config.data, preprocessor=preprocessor)
+    dm = RegressionDataModule(config=config.data, preprocessor=preprocessor)
 
-    model = ClassificationLightningModule(
-        classes=DropletDrugClassificationDataset.CLASSES,
+    model = RegressionLightningModule(
         model_config=config.model,
         loss_function_config=config.loss_function,
         optimizer_config=config.optimizer,
@@ -51,9 +50,8 @@ def main() -> None:
         raise FileNotFoundError("No best model checkpoint found.")
 
     _logger.info(f"Loading best model for testing purposes from: {best_model_path}")
-    best_model = ClassificationLightningModule.load_from_checkpoint(
+    best_model = RegressionLightningModule.load_from_checkpoint(
         checkpoint_path=best_model_path,
-        classes=DropletDrugClassificationDataset.CLASSES,
         model_config=config.model,
         loss_function_config=config.loss_function,
         optimizer_config=config.optimizer,

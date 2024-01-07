@@ -1,122 +1,76 @@
 # -*- coding: utf-8 -*-
-from typing import Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 from lightning import LightningModule
 from torch import Tensor
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
-from torchmetrics import Accuracy, F1Score, MetricCollection, Precision, Recall
+from torchmetrics import MetricCollection
 
 from src.common.consts.machine_learning import STAGE_TESTING, STAGE_TRAINING, STAGE_VALIDATION
 from src.machine_learning.augmentations.config import AugmentationsConfig
 from src.machine_learning.augmentations.factory import create_augmentations
-from src.machine_learning.classification.loss_functions.config import ClassificationLossFunctionConfig
-from src.machine_learning.classification.loss_functions.factory import create_loss_function
-from src.machine_learning.classification.models.config import ClassificationModelConfig
-from src.machine_learning.classification.models.factory import create_model
+from src.machine_learning.loss_functions.config import BaseLossFunctionConfig
+from src.machine_learning.loss_functions.factory import create_loss_function
+from src.machine_learning.models.config import BaseModelConfig
+from src.machine_learning.models.factory import create_model
 from src.machine_learning.optimizer.config import OptimizerConfig
 from src.machine_learning.optimizer.factory import create_optimizer
 from src.machine_learning.scheduler.config import SchedulerConfig
 from src.machine_learning.scheduler.factory import create_scheduler
 
 
-class ClassificationLightningModule(LightningModule):
-    """
-    PyTorch Lightning module for a classification task.
-
-    This class extends LightningModule and is configured via a ClassificationConfig object.
-    It defines the forward pass, training step, validation step, and test step, as well as
-    the optimizer and learning rate scheduler setup.
-
-    Args:
-        classes (Dict[int, str]): A dictionary mapping class indices to class names.
-        model_config (ClassificationModelConfig): The model configuration.
-        loss_function_config (ClassificationLossFunctionConfig): The loss function configuration.
-        optimizer_config (OptimizerConfig): The optimizer configuration.
-        augmentations_config (Optional[AugmentationsConfig]): The data augmentations configuration.
-        scheduler_config (Optional[SchedulerConfig]): The scheduler configuration.
-
-    Attrs:
-        model_config (ClassificationModelConfig): The model configuration.
-        loss_function_config (ClassificationLossFunctionConfig): The loss function configuration.
-        optimizer_config (OptimizerConfig): The optimizer configuration.
-        metrics_config (ClassificationMetricsConfig): The metrics configuration.
-        augmentations_config (Optional[AugmentationsConfig]): The data augmentations configuration.
-        scheduler_config (Optional[SchedulerConfig]): The scheduler configuration.
-        model (Module): The neural network model defined by the create_model function.
-        loss_function (Module): The loss function, instantiated based on config.
-        metrics (Dict[str, Metric]): A dictionary mapping metric names to Metric instances.
-        augmentations (Optional[Module]): An optional data augmentation module.
-    """
-
+class BaseLightningModule(LightningModule):
     def __init__(
         self,
-        classes: Dict[int, str],
-        model_config: ClassificationModelConfig,
-        loss_function_config: ClassificationLossFunctionConfig,
+        model_config: BaseModelConfig,
+        loss_function_config: BaseLossFunctionConfig,
         optimizer_config: OptimizerConfig,
         augmentations_config: Optional[AugmentationsConfig] = None,
         scheduler_config: Optional[SchedulerConfig] = None,
     ):
-        super().__init__()
-        self.classes = classes
-        self.model_config = model_config
-        self.loss_function_config = loss_function_config
-        self.optimizer_config = optimizer_config
-        self.augmentations_config = augmentations_config
-        self.scheduler_config = scheduler_config
+        """
+        This class serves as a base for all PyTorch Lightning based models. It provides a structured way to define
+        common functionalities and ensure consistency across different types of models such as classification,
+        regression, etc.
 
-        self.model = create_model(config=model_config)
-        self.loss_function = create_loss_function(config=loss_function_config)
-        self.metrics = MetricCollection(
-            [
-                Accuracy(task="multiclass", num_classes=len(self.classes), average="weighted"),
-                Precision(task="multiclass", num_classes=len(self.classes), average="weighted"),
-                Recall(task="multiclass", num_classes=len(self.classes), average="weighted"),
-                F1Score(task="multiclass", num_classes=len(self.classes), average="weighted"),
-            ]
-        )
+        Each subclass should implement the evaluation_step and setup_metrics abstract methods to cater to the specific
+        needs of the model being developed. The class handles common operations like training, validation, and test step
+        definitions, as well as logging and metrics computation.
+
+        Args:
+            model_config (BaseModelConfig): Configuration for the model.
+            loss_function_config (BaseLossFunctionConfig): Configuration for the loss function.
+            optimizer_config (OptimizerConfig): Configuration for the optimizer.
+            augmentations_config (Optional[AugmentationsConfig]): Optional configuration for data augmentations.
+            scheduler_config (Optional[SchedulerConfig]): Optional configuration for learning rate scheduler.
+        """
+        super().__init__()
+        self.model = create_model(model_config)
+
+        self.loss_function = create_loss_function(loss_function_config)
+
+        self.metrics = self.setup_metrics()
         self.train_metrics = self.metrics.clone(prefix=f"{STAGE_TRAINING}_")
         self.val_metrics = self.metrics.clone(prefix=f"{STAGE_VALIDATION}_")
         self.test_metrics = self.metrics.clone(prefix=f"{STAGE_TESTING}_")
 
-        self.augmentations = create_augmentations(config=augmentations_config) if augmentations_config else None
+        self.augmentations = create_augmentations(augmentations_config) if augmentations_config else None
+
+        self.optimizer_config = optimizer_config
+        self.scheduler_config = scheduler_config
 
     def forward(self, x: Tensor) -> Tensor:
-        return self.model(x)
-
-    def evaluation_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int, stage: str) -> Dict[str, Tensor]:
         """
-        Shared evaluation step for validation and testing.
+        Forward pass through the model.
 
         Args:
-            batch (Tuple[Tensor, Tensor]): The current batch of inputs, labels & reference GeoTIFFs.
-            batch_idx (int): Index of the current batch.
-            stage (str): Current stage (e.g., validation or testing).
+            x (Tensor): Input tensor.
 
         Returns:
-            Dict[str, Tensor]: Loss & predictions for the current batch.
+            Tensor: Output tensor from the model.
         """
-        x, y = batch
-
-        logits = self(x)
-        per_sample_losses = self.compute_loss(logits=logits, targets=y)
-        loss = per_sample_losses.mean()
-        preds = logits.argmax(dim=1)
-
-        self.log(name=f"{stage}_loss", value=loss)
-
-        if stage == STAGE_TRAINING:
-            metrics = self.train_metrics
-        elif stage == STAGE_VALIDATION:
-            metrics = self.val_metrics
-        else:
-            metrics = self.test_metrics
-
-        output = metrics(logits, y)
-        self.log_dict(output, on_step=(stage == STAGE_TRAINING), on_epoch=True)
-
-        return {"loss": loss, "per_sample_losses": per_sample_losses, "preds": preds, "targets": y}
+        return self.model(x)
 
     def training_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int) -> Dict[str, Tensor]:
         """
@@ -169,12 +123,21 @@ class ClassificationLightningModule(LightningModule):
         metrics.reset()
 
     def on_train_epoch_end(self) -> None:
+        """
+        Hook to perform operations at the end of the training epoch.
+        """
         self.compute_and_log_metrics(self.train_metrics)
 
     def on_validation_epoch_end(self) -> None:
+        """
+        Hook to perform operations at the end of the validation epoch.
+        """
         self.compute_and_log_metrics(self.val_metrics)
 
     def on_test_epoch_end(self) -> None:
+        """
+        Hook to perform operations at the end of the testing epoch.
+        """
         self.compute_and_log_metrics(self.test_metrics)
 
     def on_after_batch_transfer(self, batch: Tuple[Tensor, Tensor], dataloader_idx: int) -> Tuple[Tensor, Tensor]:
@@ -215,15 +178,57 @@ class ClassificationLightningModule(LightningModule):
 
         return optimizers_config
 
-    def compute_loss(self, logits: Tensor, targets: Tensor) -> Tensor:
+    def compute_loss(self, preds: Tensor, targets: Tensor) -> Tensor:
         """
-        Compute the loss based on logits and targets.
+        Compute the loss based on predictions and targets.
 
         Args:
-            logits (Tensor): The model outputs before activation.
+            preds (Tensor): The model predictions.
             targets (Tensor): The true labels.
 
         Returns:
             Tensor: The computed loss.
         """
-        return self.loss_function(logits, targets)
+        return self.loss_function(preds, targets)
+
+    # Abstract methods that need to be implemented by derived classes
+    def evaluation_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int, stage: str) -> Dict[str, Any]:
+        """
+        Abstract method for performing an evaluation step. This method should be implemented in all derived classes.
+
+        It is expected to handle the forward pass of the model for a given batch, compute loss, and any additional
+        metrics relevant to the task. The method should be flexible to accommodate different stages like training,
+        validation, and testing.
+
+        Args:
+            batch (Tuple[Tensor, Tensor]): The current batch of data and labels.
+            batch_idx (int): Index of the current batch.
+            stage (str): Stage of evaluation (training, validation, or testing).
+
+        Returns:
+            Dict[str, Any]: A dictionary containing evaluation results like loss and other metrics.
+
+        Raises:
+            NotImplementedError: If the method is not implemented in the subclass.
+        """
+        raise NotImplementedError(
+            "Subclasses must implement the evaluation_step method to handle the forward pass, "
+            "compute loss, and any additional metrics relevant to the task."
+        )
+
+    def setup_metrics(self) -> MetricCollection:
+        """
+        Abstract method for setting up metrics. Implement this method in derived classes to define and return a
+        collection of metrics that are relevant to the specific task of the model.
+
+        Returns:
+            MetricCollection: A collection of metrics to be used for evaluating the model. This can include standard
+            metrics like accuracy, precision, recall, etc., or custom metrics defined as per the task requirements.
+
+        Raises:
+            NotImplementedError: If the method is not implemented in the subclass.
+        """
+        raise NotImplementedError(
+            "Subclasses must implement the setup_metrics method to define and return "
+            "a collection of metrics that are relevant to the specific task of the model."
+        )

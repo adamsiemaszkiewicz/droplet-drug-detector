@@ -3,18 +3,17 @@ import timm
 from torch.nn import Module
 
 from src.common.utils.logger import get_logger
-from src.machine_learning.classification.models.config import ClassificationModelConfig
+from src.machine_learning.models.config import BaseModelConfig
 
 _logger = get_logger(__name__)
 
 
-def create_model(config: ClassificationModelConfig) -> Module:
+def create_model(config: BaseModelConfig) -> Module:
     """
-    Create a classification model based on the configuration.
-    List of available architectures: https://huggingface.co/timm
+    Create a deep learning model based on the configuration.
 
     Args:
-        config (ClassificationModelConfig): Configuration object containing model parameters.
+        config (BaseModelConfig): Configuration object containing model parameters.
 
     Returns:
         Module: A PyTorch model.

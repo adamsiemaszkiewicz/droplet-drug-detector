@@ -13,7 +13,7 @@ class OptimizerConfig(BaseModel):
     """
     Configuration for creating optimizer.
 
-    Attributes:
+    Attrs:
         name: The name of the optimizer.
         learning_rate: The learning rate of the optimizer.
         weight_decay: The weight decay of the optimizer.
