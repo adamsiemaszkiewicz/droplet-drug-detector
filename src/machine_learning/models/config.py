@@ -55,8 +55,6 @@ class RegressionModelConfig(BaseModelConfig):
     Configuration for creating a regression model.
     """
 
-    num_classes: int = 1
-
     @validator("name")
     def validate_name(cls, v: str) -> str:
         """
